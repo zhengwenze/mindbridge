@@ -86,7 +86,7 @@ if [ -n "$OLLAMA_BASE_URL" ]; then
     ollama_port=$(echo "$OLLAMA_BASE_URL" | sed -n 's/http:\/\/[^:]*:\([0-9]*\).*/\1/p')
     wait_for_service "$ollama_host" "${ollama_port:-11434}" "Ollama" 120
 
-    if is_truthy "${OLLAMA_AUTO_PULL:-true}"; then
+    if is_truthy "${OLLAMA_AUTO_PULL:-false}"; then
         pull_ollama_model "${OLLAMA_MODEL:-}"
         pull_ollama_model "${OLLAMA_EMBEDDING_MODEL:-}"
     else

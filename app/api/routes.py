@@ -2,15 +2,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.agents.factory import agent_framework_status
 from app.agents.runtime import AgentRuntimeService
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.core.security import current_user, require_admin
+from app.core.security import current_user, hash_password, require_admin
 from app.models.entities import UserAccount
-from app.schemas.dtos import KnowledgeIngestRequest, KnowledgeIngestResponse, ChatRequest, authority
+from app.schemas.dtos import ChatRequest, KnowledgeIngestRequest, KnowledgeIngestResponse, StudentRegisterRequest, authority
 from app.services.chat import ChatService
 from app.services.knowledge import KnowledgeService
 from app.services.model_assets import finetuned_model_status
@@ -20,19 +21,48 @@ from app.services.skills import MindBridgeSkillLibrary
 router = APIRouter()
 
 
-@router.get("/actuator/health")
-def health():
-    return {"status": "UP"}
-
-
-@router.get("/api/profile")
-def profile(user: Annotated[UserAccount, Depends(current_user)]):
+def profile_response(user: UserAccount):
     return {
         "id": user.id,
         "username": user.username,
         "displayName": user.display_name,
         "roles": [authority(role) for role in user.roles],
     }
+
+
+@router.get("/actuator/health")
+def health():
+    return {"status": "UP"}
+
+
+@router.post("/api/register/student", status_code=201)
+def register_student(request: StudentRegisterRequest, db: Annotated[Session, Depends(get_db)]):
+    username = request.username.strip()
+    if db.query(UserAccount).filter(UserAccount.username == username).first() is not None:
+        raise HTTPException(409, "用户名已被注册")
+
+    display_name = (request.displayName or username).strip() or username
+    user = UserAccount(
+        username=username,
+        display_name=display_name,
+        password_hash=hash_password(request.password),
+    )
+    user.roles = {"ROLE_USER"}
+    db.add(user)
+
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(409, "用户名已被注册") from exc
+
+    db.refresh(user)
+    return profile_response(user)
+
+
+@router.get("/api/profile")
+def profile(user: Annotated[UserAccount, Depends(current_user)]):
+    return profile_response(user)
 
 
 @router.post("/api/chat/stream")

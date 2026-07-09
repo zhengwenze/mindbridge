@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from importlib import import_module
 from typing import Protocol
 
@@ -107,7 +107,7 @@ class RedisShortTermMemoryStore:
             {
                 "role": role.lower(),
                 "content": self.privacy.sanitize(content),
-                "createdAt": datetime.utcnow().isoformat(),
+                "createdAt": datetime.now(UTC).isoformat(),
             },
             ensure_ascii=False,
         )

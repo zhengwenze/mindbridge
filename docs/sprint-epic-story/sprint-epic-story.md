@@ -705,3 +705,43 @@
 描述：使用评测数据集计算 Recall@K、Precision@K、MRR、NDCG@K 和 HitRate。
 
 验收标准：评测脚本可运行；输出核心指标；支持不同 topK；向量不可用时可评测 fallback 检索；评测结果可写入报告。
+
+### Epic 3.7：事件驱动多智能体协作运行时
+
+用户故事：作为开发者和验收老师，我希望 MindBridge 不只是单一聊天机器人，而是具备可观测、可解释、可扩展的多智能体协作能力，以便在校园心理支持场景中把意图理解、风险评估、上下文检索、回复生成和安全审核拆分给不同智能体协同完成。
+
+描述：当前项目已经存在多智能体协作实现，默认运行时为 `event_driven_multi_agent`。系统共有 5 个智能体：`CoordinatorAgent`、`UnderstandingAgent`、`SafetyAgent`、`ContextAgent` 和 `ResponseAgent`。其中 `CoordinatorAgent` 负责维护任务板、预算、安全门槛、冲突仲裁和最终采纳；其余 4 个 worker agent 基于共享黑板独立判断是否认领任务，并通过 artifact、message、event 交换协作结果。该 Epic 将现有能力整理为可验收的多智能体平台能力，并补齐状态展示、隔离配置、追踪审计和回归测试。
+
+验收标准：`/api/agent/status` 可展示当前 active framework 和 5 个智能体状态；每轮对话产生可追踪的 agent event、task、artifact 和最终采纳记录；高风险输入优先触发安全智能体并允许 `SAFETY_OVERRIDE`；各智能体具备独立 prompt、私有记忆 key、模型 profile 和工具权限；多智能体运行失败时可降级到兼容 runtime 或安全兜底回复。
+
+#### Story 3.7.1：多智能体状态与角色展示
+
+用户故事：作为验收老师，我希望在系统状态接口或后台页面看到当前多智能体框架和智能体列表，以便确认项目确实实现了多智能体协作而不是单一 Agent 流程。
+
+描述：扩展或校准 `/api/agent/status`，明确返回 `agentFramework.active`、协作模式、调度器、共享黑板信息和 5 个智能体的名称、状态、职责说明。前端系统状态区域或后台诊断页可展示这些信息。
+
+验收标准：状态接口返回 `event_driven_multi_agent`、`claim-based` scheduler 和 `append-only-blackboard` state；接口列出 5 个智能体；每个智能体有职责描述；真实模型、微调模型和 fallback 状态不混淆；未登录或无权限访问时按现有权限规则处理。
+
+#### Story 3.7.2：黑板任务认领与协作事件
+
+用户故事：作为开发者，我希望每个 worker agent 根据自身能力自主认领任务并写入协作事件，以便摆脱固定链式流程，支持更灵活的多智能体调度。
+
+描述：基于 `CollaborationBlackboard`、`AgentRegistry` 和 `EventDrivenCoordinator`，让 `UnderstandingAgent`、`SafetyAgent`、`ContextAgent`、`ResponseAgent` 按 capability、置信度和预算认领开放任务。协作过程以 task、artifact、message、event 形式追加到黑板，`CoordinatorAgent` 只负责预算、仲裁和最终采纳。
+
+验收标准：worker agent 不按固定顺序硬编码执行；任务认领受 `agent_max_rounds`、`agent_max_claims_per_round` 和 `agent_max_claims_per_agent` 限制；同一轮可产生 intent、risk、context、response_proposal、safety_review 等 artifact；预算耗尽时有明确事件；最终回复来自被采纳的 response artifact 或安全兜底。
+
+#### Story 3.7.3：心理安全优先的多智能体仲裁
+
+用户故事：作为学生和咨询老师，我希望系统在普通咨询和高风险表达中优先保障心理安全，以便多智能体协作不会因为追求回答完整性而忽略风险处置。
+
+描述：`SafetyAgent` 独立评估用户输入风险，并审查 `ResponseAgent` 的候选回复。高风险场景允许发布 `SAFETY_OVERRIDE`，要求候选回复包含即时安全建议、可信任的人和紧急支持路径；不合格回复触发 revision task，由响应智能体重新生成候选方案。
+
+验收标准：高风险信号会将本轮风险提升到 HIGH；`SafetyAgent` 可对候选回复给出 approved 或 critique；不安全回复不会被最终采纳；安全审查、修订请求和最终采纳都写入 trace；普通低风险闲聊不被过度安全流程阻塞。
+
+#### Story 3.7.4：智能体隔离、模型配置与回归测试
+
+用户故事：作为开发团队，我希望每个智能体拥有独立的 prompt、私有记忆、模型配置和工具权限，并有自动化测试覆盖，以便后续扩展新智能体时不会破坏现有协作链路。
+
+描述：利用 `AgentProfile`、`AgentPrivateMemory` 和 `AgentModelRegistry` 维护每个智能体的系统提示词、私有 Redis memory key、模型 profile 和工具 permission。补充或维护多智能体测试，覆盖候选智能体排序、任务认领、高风险安全覆盖、模型 override 和 trace 输出。
+
+验收标准：每个智能体有独立 `system_prompt`、`memory_policy`、`model_profile` 和 `tool_permissions`；私有记忆 key 按 `agent:{agent_name}:{session_id}` 隔离；单个智能体模型配置不会修改全局默认模型；`pytest` 覆盖事件驱动多智能体核心路径；新增智能体需要注册能力、职责和测试用例。

@@ -9,9 +9,11 @@ import sys
 import traceback
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Callable
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 
 class HarnessFailure(AssertionError):
@@ -37,44 +39,6 @@ class HarnessContext:
         return self.database.SessionLocal()
 
 
-class InMemoryShortTermMemoryStore:
-    _messages: dict[str, list[object]] = {}
-
-    def __init__(self, settings):
-        self.settings = settings
-
-    def load_recent(self, session_public_id: str) -> list[object]:
-        limit = self.settings.redis_memory_max_messages
-        return list(self._messages.get(session_public_id, []))[-limit:]
-
-    def messages_from_rows(self, rows: list[object]) -> list[object]:
-        from app.schemas.dtos import AiMessage
-
-        return [AiMessage(role=row.role.lower(), content=row.content) for row in rows]
-
-    def append(self, session_public_id: str, role: str, content: str) -> None:
-        from app.schemas.dtos import AiMessage
-        from app.services.privacy import PrivacySanitizer
-
-        values = self._messages.setdefault(session_public_id, [])
-        values.append(AiMessage(role=role.lower(), content=PrivacySanitizer().sanitize(content)))
-        del values[:-self.settings.redis_memory_max_messages]
-
-    def replace(self, session_public_id: str, messages: list[object]) -> None:
-        from app.schemas.dtos import AiMessage
-        from app.services.privacy import PrivacySanitizer
-
-        privacy = PrivacySanitizer()
-        self._messages[session_public_id] = [
-            AiMessage(role=message.role, content=privacy.sanitize(message.content))
-            for message in list(messages)[-self.settings.redis_memory_max_messages:]
-        ]
-
-    @classmethod
-    def reset(cls) -> None:
-        cls._messages.clear()
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run MindBridge engineering harness checks.")
     parser.add_argument(
@@ -89,14 +53,12 @@ def main(argv: list[str] | None = None) -> int:
 
     configure_environment()
     context = build_context()
-    install_harness_patches()
     reset_database(context)
 
     suites = resolve_suites(args.suite)
     results: list[CheckResult] = []
     for name, fn in suites:
         reset_database(context)
-        InMemoryShortTermMemoryStore.reset()
         results.append(run_check(name, fn, context))
 
     report = write_report(context, results)
@@ -111,13 +73,16 @@ def configure_environment() -> None:
     root = Path(__file__).resolve().parents[2]
     target_dir = root / "target" / "harness"
     target_dir.mkdir(parents=True, exist_ok=True)
-    db_path = target_dir / "mindbridge-harness.sqlite3"
-    for suffix in ["", "-wal", "-shm"]:
-        candidate = Path(f"{db_path}{suffix}")
-        if candidate.exists():
-            candidate.unlink()
+    database_url = os.environ.get("MINDBRIDGE_HARNESS_DATABASE_URL") or os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError(
+            "Engineering harness requires a real MySQL database. "
+            "Set MINDBRIDGE_HARNESS_DATABASE_URL to a disposable Docker MySQL database URL."
+        )
+    if database_url.lower().startswith("sqlite"):
+        raise RuntimeError("SQLite is disabled. Use a disposable Docker MySQL database for the harness.")
 
-    os.environ["DATABASE_URL"] = f"sqlite:///{db_path.as_posix()}"
+    os.environ["DATABASE_URL"] = database_url
     os.environ["AI_PROVIDER"] = "mock"
     os.environ["AGENT_FRAMEWORK"] = "custom"
     os.environ["KNOWLEDGE_VECTOR_ENABLED"] = "false"
@@ -139,7 +104,7 @@ def build_context() -> HarnessContext:
     settings = get_settings()
     if getattr(database, "engine", None) is not None:
         database.engine.dispose()
-    database.engine = create_engine(settings.database_url, connect_args={"check_same_thread": False}, pool_pre_ping=True)
+    database.engine = create_engine(settings.database_url, pool_pre_ping=True, pool_recycle=3600)
     database.SessionLocal = sessionmaker(bind=database.engine, autoflush=False, autocommit=False)
     return HarnessContext(
         root=Path(__file__).resolve().parents[2],
@@ -147,14 +112,6 @@ def build_context() -> HarnessContext:
         settings=settings,
         database=database,
     )
-
-
-def install_harness_patches() -> None:
-    import app.agents.harness as harness_module
-    import app.agents.runtime as runtime_module
-
-    harness_module.RedisShortTermMemoryStore = InMemoryShortTermMemoryStore
-    runtime_module.RedisShortTermMemoryStore = InMemoryShortTermMemoryStore
 
 
 def reset_database(context: HarnessContext) -> None:
@@ -463,59 +420,62 @@ def run_rag_harness(context: HarnessContext) -> dict:
 
 
 def run_api_harness(context: HarnessContext) -> dict:
-    from fastapi.testclient import TestClient
-
-    from app.main import create_app
-
-    context.settings.tool_queue_enabled = False
-    app = create_app()
+    base_url = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8080").rstrip("/")
     student_auth = basic_auth("student", "student123")
     admin_auth = basic_auth("admin", "admin123")
     observed = {}
-    with TestClient(app) as client:
-        health = client.get("/actuator/health")
-        expect(health.status_code == 200 and health.json()["status"] == "UP", "health endpoint failed")
-        observed["health"] = health.json()
 
-        profile = client.get("/api/profile", headers=student_auth)
-        expect(profile.status_code == 200, f"student profile failed: {profile.status_code}")
-        expect(profile.json()["username"] == "student", "student profile returned wrong user")
+    health_status, health = http_json(base_url, "/actuator/health")
+    expect(health_status == 200 and health["status"] == "UP", "health endpoint failed")
+    observed["health"] = health
 
-        agent_status = client.get("/api/agent/status", headers=student_auth)
-        expect(agent_status.status_code == 200, f"agent status failed: {agent_status.status_code}")
-        status_skills = agent_status.json()["skills"]
-        expect(len(status_skills) >= 7, f"agent status exposed too few standard skills: {len(status_skills)}")
-        expect(all(skill["path"].endswith("/SKILL.md") for skill in status_skills), "agent status did not expose standard skill paths")
+    profile_status, profile = http_json(base_url, "/api/profile", headers=student_auth)
+    expect(profile_status == 200, f"student profile failed: {profile_status}")
+    expect(profile["username"] == "student", "student profile returned wrong user")
 
-        admin_chat = client.post("/api/chat/stream", headers=admin_auth, json={"message": "hello"})
-        expect(admin_chat.status_code == 403, f"admin chat should be forbidden, got {admin_chat.status_code}")
+    agent_status_code, agent_status = http_json(base_url, "/api/agent/status", headers=student_auth)
+    expect(agent_status_code == 200, f"agent status failed: {agent_status_code}")
+    status_skills = agent_status["skills"]
+    expect(len(status_skills) >= 7, f"agent status exposed too few standard skills: {len(status_skills)}")
+    expect(all(skill["path"].endswith("/SKILL.md") for skill in status_skills), "agent status did not expose standard skill paths")
 
-        chat = client.post("/api/chat/stream", headers=student_auth, json={"message": "帮我解释一下 Python 函数。"})
-        expect(chat.status_code == 200, f"student chat stream failed: {chat.status_code}")
-        expect("event: meta" in chat.text and "event: done" in chat.text, "chat stream missing meta/done events")
-        observed["chatStreamChars"] = len(chat.text)
+    admin_chat_status, _ = http_text(base_url, "/api/chat/stream", method="POST", payload={"message": "hello"}, headers=admin_auth)
+    expect(admin_chat_status == 403, f"admin chat should be forbidden, got {admin_chat_status}")
 
-        student_reports = client.get("/api/admin/reports", headers=student_auth)
-        expect(student_reports.status_code == 403, f"student should not read admin reports: {student_reports.status_code}")
+    chat_status, chat_text = http_text(
+        base_url,
+        "/api/chat/stream",
+        method="POST",
+        payload={"message": "帮我解释一下 Python 函数。"},
+        headers=student_auth,
+    )
+    expect(chat_status == 200, f"student chat stream failed: {chat_status}")
+    expect("event: meta" in chat_text and "event: done" in chat_text, "chat stream missing meta/done events")
+    observed["chatStreamChars"] = len(chat_text)
 
-        admin_reports = client.get("/api/admin/reports", headers=admin_auth)
-        expect(admin_reports.status_code == 200, f"admin reports failed: {admin_reports.status_code}")
+    student_reports_status, _ = http_json(base_url, "/api/admin/reports", headers=student_auth)
+    expect(student_reports_status == 403, f"student should not read admin reports: {student_reports_status}")
 
-        ingest = client.post(
-            "/api/admin/knowledge",
-            headers=admin_auth,
-            json={"source": "harness-note", "content": "考试焦虑时可以先做呼吸练习，并联系辅导员获得支持。"},
-        )
-        expect(ingest.status_code == 200, f"knowledge ingest failed: {ingest.status_code} {ingest.text}")
-        expect(ingest.json()["chunks"] >= 1, "knowledge ingest did not create chunks")
+    admin_reports_status, _ = http_json(base_url, "/api/admin/reports", headers=admin_auth)
+    expect(admin_reports_status == 200, f"admin reports failed: {admin_reports_status}")
 
-        status = client.get("/api/admin/knowledge/status", headers=admin_auth)
-        expect(status.status_code == 200, f"knowledge status failed: {status.status_code}")
-        expect(status.json()["databaseChunks"] >= 1, "knowledge status returned no chunks")
-        observed["knowledgeStatus"] = {
-            "databaseChunks": status.json()["databaseChunks"],
-            "vectorAvailable": status.json()["vectorAvailable"],
-        }
+    ingest_status, ingest = http_json(
+        base_url,
+        "/api/admin/knowledge",
+        method="POST",
+        payload={"source": "harness-note", "content": "考试焦虑时可以先做呼吸练习，并联系辅导员获得支持。"},
+        headers=admin_auth,
+    )
+    expect(ingest_status == 200, f"knowledge ingest failed: {ingest_status} {ingest}")
+    expect(ingest["chunks"] >= 1, "knowledge ingest did not create chunks")
+
+    status_code, status = http_json(base_url, "/api/admin/knowledge/status", headers=admin_auth)
+    expect(status_code == 200, f"knowledge status failed: {status_code}")
+    expect(status["databaseChunks"] >= 1, "knowledge status returned no chunks")
+    observed["knowledgeStatus"] = {
+        "databaseChunks": status["databaseChunks"],
+        "vectorAvailable": status["vectorAvailable"],
+    }
     return observed
 
 
@@ -647,6 +607,42 @@ def basic_auth(username: str, password: str) -> dict[str, str]:
     return {"Authorization": f"Basic {token}"}
 
 
+def http_json(
+    base_url: str,
+    path: str,
+    method: str = "GET",
+    payload: dict | None = None,
+    headers: dict | None = None,
+) -> tuple[int, dict]:
+    status, text = http_text(base_url, path, method, payload, headers)
+    return status, json.loads(text) if text else {}
+
+
+def http_text(
+    base_url: str,
+    path: str,
+    method: str = "GET",
+    payload: dict | None = None,
+    headers: dict | None = None,
+) -> tuple[int, str]:
+    body = json.dumps(payload).encode("utf-8") if payload is not None else None
+    request = Request(
+        f"{base_url}{path}",
+        data=body,
+        method=method,
+        headers={
+            "Accept": "application/json",
+            **({"Content-Type": "application/json"} if payload is not None else {}),
+            **(headers or {}),
+        },
+    )
+    try:
+        with urlopen(request, timeout=30) as response:
+            return response.status, response.read().decode("utf-8")
+    except HTTPError as exc:
+        return exc.code, exc.read().decode("utf-8")
+
+
 def expect(condition: bool, message: str) -> None:
     if not condition:
         raise HarnessFailure(message)
@@ -654,7 +650,7 @@ def expect(condition: bool, message: str) -> None:
 
 def write_report(context: HarnessContext, results: list[CheckResult]) -> dict:
     report = {
-        "createdAt": datetime.utcnow().isoformat(),
+        "createdAt": datetime.now(UTC).isoformat(),
         "environment": {
             "databaseUrl": context.settings.database_url,
             "aiProvider": context.settings.ai_provider,

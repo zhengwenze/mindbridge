@@ -3,12 +3,25 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1)
     sessionId: Optional[str] = None
+
+
+class StudentRegisterRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=32, pattern=r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
+    password: str = Field(min_length=6, max_length=64)
+    displayName: Optional[str] = Field(default=None, max_length=64)
+
+    @field_validator("username", "displayName", mode="before")
+    @classmethod
+    def strip_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        return value.strip()
 
 
 class ChatStreamEvent(BaseModel):

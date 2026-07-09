@@ -1,6 +1,7 @@
 services:
   mysql:
     image: mysql:8.0
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: mindbridge
@@ -18,9 +19,12 @@ services:
       interval: 5s
       timeout: 3s
       retries: 30
+    networks:
+      - mindbridge-network
 
   redis:
     image: redis:7.2-alpine
+    restart: unless-stopped
     ports:
       - "16379:6379"
     volumes:
@@ -30,20 +34,27 @@ services:
       interval: 5s
       timeout: 3s
       retries: 30
+    networks:
+      - mindbridge-network
 
   app:
     build: .
+    restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
     environment:
       AGENT_FRAMEWORK: ${AGENT_FRAMEWORK:-langgraph}
       AI_PROVIDER: ${AI_PROVIDER:-ollama}
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-mindbridge-qwen2.5-7b-ft:latest}
-      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text:latest}
+      OLLAMA_BASE_URL: ${DOCKER_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_AUTO_PULL: ${DOCKER_OLLAMA_AUTO_PULL:-false}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-qwen3-embedding:0.6b}
       DATABASE_URL: mysql+pymysql://mindbridge:mindbridge@mysql:3306/mindbridge?charset=utf8mb4
       REDIS_URL: redis://redis:6379/0
       KNOWLEDGE_VECTOR_ENABLED: ${KNOWLEDGE_VECTOR_ENABLED:-true}
@@ -61,7 +72,19 @@ services:
       - "8080:8080"
     volumes:
       - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    networks:
+      - mindbridge-network
 
 volumes:
   mysql-data:
   redis-data:
+
+networks:
+  mindbridge-network:
+    driver: bridge

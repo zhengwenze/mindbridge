@@ -10,6 +10,9 @@ __pycache__/
 data/
 dist/
 target/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
 *.log
 *.pem
 *.key

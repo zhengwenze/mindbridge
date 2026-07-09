@@ -126,75 +126,141 @@ REDIS_MEMORY_MAX_MESSAGES=40
 
 完整聊天记录写入 MySQL 的 `chat_sessions`、`chat_messages` 等表。Redis 只保存每个会话最近 `REDIS_MEMORY_MAX_MESSAGES` 条短期上下文，并通过 `REDIS_MEMORY_TTL_SECONDS` 自动过期。
 
-## Docker Compose 一键启动
+## 快速启动（Docker 一键启动）
 
-仓库提供 `Dockerfile` 和 `docker-compose.yml`。默认一键启动会把前端、后端和数据中间件放进 Docker，并复用电脑本机已安装的 Ollama 模型服务：
+### 前置条件
 
-- `mysql`：MySQL 8.0，容器内端口 `3306`，宿主机映射 `13306`
-- `redis`：Redis 7，容器内端口 `6379`，宿主机映射 `16379`
-- `app`：MindBridge FastAPI 服务，内置 Next.js 静态前端，宿主机端口 `8080`
-- `ollama`：使用电脑本机 Ollama，容器内通过 `http://host.docker.internal:11434` 访问
+1. **安装 Docker 和 Docker Compose**
+   - macOS：使用 [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+   - Linux：使用系统包管理器安装 `docker` 和 `docker-compose-plugin`
 
-启动前先确认本机 Ollama 已运行，并且模型已经存在：
+2. **安装 Ollama 并下载模型**
+
+   从 [Ollama 官网](https://ollama.com/) 安装 Ollama，然后下载所需模型：
+
+   ```bash
+   ollama pull qwen2.5:7b
+   ollama pull qwen3-embedding:0.6b
+   ```
+
+3. **启动本地 Ollama 服务**
+
+   ```bash
+   ollama serve
+   ```
+
+   > **注意**：Linux 用户需要确保 Ollama 监听外部地址：
+   > ```bash
+   > export OLLAMA_HOST=0.0.0.0:11434
+   > ollama serve
+   > ```
+
+### 一键启动
+
+进入项目目录，执行以下命令：
 
 ```bash
-ollama list
-```
-
-需要看到：
-
-```text
-qwen2.5:7b
-qwen3-embedding:0.6b
-```
-
-一键启动 Docker 服务：
-
-```bash
+cd mindbridge
 docker compose up -d --build
 ```
 
-也可以使用仓库内脚本：
+启动的服务：
+
+| 服务 | 镜像 | 宿主机端口 | 说明 |
+|------|------|-----------|------|
+| `mysql` | MySQL 8.0 | `13306` | 数据库，自动初始化 `mindbridge` 库 |
+| `redis` | Redis 7.2 | `16379` | 缓存，存储短期对话记忆 |
+| `app` | MindBridge | `8080` | 后端 API + 前端页面 |
+
+> **Ollama**：不启动 Ollama 容器，直接复用电脑本机的 Ollama 服务，容器通过 `http://host.docker.internal:11434` 访问。
+
+### 验证启动
+
+等待约 30 秒后，检查服务状态：
 
 ```bash
-./scripts/one-click-start.sh
+# 查看容器状态
+docker compose ps
+
+# 查看应用日志
+docker compose logs -f app
+
+# 健康检查
+curl http://localhost:8080/actuator/health
 ```
 
-启动后访问：
+### 访问应用
+
+启动成功后，打开浏览器访问：
 
 ```text
 http://localhost:8080
 ```
 
-默认账号：
+**默认账号：**
 
-```text
-学生端：student / student123
-管理端：admin / admin123
-```
+| 角色 | 用户名 | 密码 |
+|------|--------|------|
+| 学生 | `student` | `student123` |
+| 管理员 | `admin` | `admin123` |
 
-默认 `AI_PROVIDER=ollama`，`OLLAMA_BASE_URL=http://host.docker.internal:11434`，`OLLAMA_AUTO_PULL=false`。这样会直接复用你电脑本机已经下载好的模型，不会在 Docker volume 里重复下载：
-
-```text
-qwen2.5:7b
-qwen3-embedding:0.6b
-```
-
-如只想先验证服务链路，可在 `.env` 中设置 `AI_PROVIDER=mock` 后再执行同一个启动命令。运行日志和状态检查：
-
-```bash
-docker compose ps
-docker compose logs -f app
-curl http://localhost:8080/actuator/health
-```
-
-停止整套服务：
+### 停止服务
 
 ```bash
 docker compose down
 ```
 
-MySQL、Redis 和应用数据分别持久化在 Docker volume 或项目根目录 `data/` 下；Ollama 模型继续使用电脑本机的 Ollama 模型目录。
+如需清除数据：
+
+```bash
+docker compose down -v
+```
+
+### 数据持久化
+
+- **MySQL**：数据存储在 Docker volume `mysql-data` 中
+- **Redis**：数据存储在 Docker volume `redis-data` 中
+- **Chroma 向量库**：存储在项目目录 `data/chroma/` 下
+- **Excel 台账**：存储在项目目录 `data/mindbridge-risk-ledger.xlsx`
+- **Ollama 模型**：使用电脑本机的 Ollama 模型目录，不会重复下载
+
+### 环境变量配置
+
+在 `.env` 文件中可以自定义配置：
+
+```env
+# AI 配置（默认使用本机 Ollama）
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=http://host.docker.internal:11434
+OLLAMA_MODEL=qwen2.5:7b
+OLLAMA_EMBEDDING_MODEL=qwen3-embedding:0.6b
+OLLAMA_AUTO_PULL=false
+
+# Mock 模式（仅验证服务链路，不需要真实模型）
+# AI_PROVIDER=mock
+```
+
+### 常见问题
+
+**Q: 容器启动后无法连接 Ollama？**
+
+A: 确保：
+1. 本机 Ollama 服务已启动：`ollama serve`
+2. Linux 用户设置了 `OLLAMA_HOST=0.0.0.0:11434`
+3. Mac/Windows 用户 Docker Desktop 已开启 "Allow the default Docker socket to be used"
+
+**Q: 首次启动构建时间很长？**
+
+A: Docker 需要下载 Node.js 和 Python 基础镜像，以及安装依赖包，首次构建可能需要 5-10 分钟。
+
+**Q: 如何使用 OpenAI 模型？**
+
+A: 在 `.env` 中配置：
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=你的_API_Key
+OPENAI_MODEL=gpt-4o-mini
+```
 
 ## Chroma 向量库与快照
 

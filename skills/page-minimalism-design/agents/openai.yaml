@@ -1,0 +1,4 @@
+interface:
+  display_name: "Page Minimalism Design"
+  short_description: "Minimal UI copy and element reduction workflow"
+  default_prompt: "Use $page-minimalism-design to simplify this page so it keeps only essential UI, actions, and copy."

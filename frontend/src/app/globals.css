@@ -3,6 +3,9 @@
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+  --surface: #ffffff;
+  --border-subtle: #d9e2e7;
+  --brand: #12847f;
 }
 
 * {
@@ -12,6 +15,10 @@
 html,
 body {
   min-height: 100%;
+}
+
+html {
+  background: var(--background);
 }
 
 body {
@@ -26,4 +33,20 @@ body {
     "Hiragino Sans GB",
     "Microsoft YaHei",
     sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mindbridge-sidebar-menu.ant-menu,
+.mindbridge-sidebar-menu.ant-menu-inline-collapsed {
+  width: 100%;
+}
+
+.mindbridge-sidebar-menu.ant-menu-inline-collapsed > .ant-menu-item {
+  min-width: 0;
+  width: calc(100% - 8px);
+  margin-inline: 4px;
 }

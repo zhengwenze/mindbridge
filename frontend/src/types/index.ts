@@ -1,1 +1,1 @@
-export type AppRole = "student" | "admin";
+export type { AppRole, Authority, UserProfile } from "@/lib/auth/types";

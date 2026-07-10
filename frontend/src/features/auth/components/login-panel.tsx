@@ -87,19 +87,44 @@ export function LoginPanel() {
   const isSubmitting = loginMutation.isPending || registerMutation.isPending;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
+    <main className="flex min-h-screen items-center justify-center bg-white px-6 py-10">
       <Card
-        className="w-full max-w-[420px] shadow-sm"
-        variant="borderless"
-        classNames={{ body: "!px-8 !py-9" }}
+        className="w-full max-w-[420px] !rounded-2xl !border-slate-200 shadow-[0_12px_32px_rgba(15,23,42,0.08)]"
+        variant="outlined"
+        classNames={{ body: "!px-8 !py-9 sm:!px-10" }}
       >
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <Typography.Title
             level={2}
-            className="!m-0 !text-[28px] !font-semibold !text-slate-950"
+            className="!m-0 !text-[30px] !font-semibold !tracking-[-0.03em] !text-slate-950"
           >
             MindBridge
           </Typography.Title>
+          <Typography.Paragraph type="secondary" className="!mb-0 !mt-2">
+            {isLoginMode ? "登录后继续你的心理支持之旅" : "创建账号，开始使用 MindBridge"}
+          </Typography.Paragraph>
+        </div>
+
+        <div className="mb-7 grid grid-cols-2 rounded-xl bg-slate-100 p-1">
+          {(["login", "register"] as const).map((tab) => {
+            const active = mode === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                aria-pressed={active}
+                disabled={isSubmitting}
+                onClick={() => switchMode(tab)}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  active
+                    ? "bg-white text-slate-950 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                {tab === "login" ? "登录" : "注册"}
+              </button>
+            );
+          })}
         </div>
 
         <Form<LoginFormValues>
@@ -193,40 +218,15 @@ export function LoginPanel() {
           ) : null}
 
           <div className="mt-8">
-            {isLoginMode ? (
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  size="large"
-                  loading={loginMutation.isPending}
-                  className="!border-blue-600 !bg-blue-600 !font-medium hover:!border-blue-700 hover:!bg-blue-700"
-                >
-                  登录
-                </Button>
-                <Button
-                  htmlType="button"
-                  size="large"
-                  disabled={isSubmitting}
-                  onClick={() => switchMode("register")}
-                  className="!bg-white !font-medium"
-                >
-                  注册
-                </Button>
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  size="large"
-                  loading={registerMutation.isPending}
-                  className="!w-full !max-w-xs !border-blue-600 !bg-blue-600 !font-medium hover:!border-blue-700 hover:!bg-blue-700"
-                >
-                  注册
-                </Button>
-              </div>
-            )}
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={isLoginMode ? loginMutation.isPending : registerMutation.isPending}
+              className="!h-11 !w-full !rounded-xl !border-blue-600 !bg-blue-600 !font-medium hover:!border-blue-700 hover:!bg-blue-700"
+            >
+              {isLoginMode ? "登录" : "创建账号"}
+            </Button>
           </div>
         </Form>
       </Card>

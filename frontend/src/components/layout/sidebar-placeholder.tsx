@@ -1,16 +1,17 @@
 "use client";
 
 import {
-  AuditOutlined,
   BookOutlined,
+  BellOutlined,
   CommentOutlined,
   DashboardOutlined,
+  FileExcelOutlined,
   FileTextOutlined,
-  SafetyOutlined
+  SafetyOutlined,
 } from "@ant-design/icons";
 import { Menu, Typography } from "antd";
 import type { MenuProps } from "antd";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useUiStore } from "@/stores/use-ui-store";
 
@@ -22,42 +23,57 @@ const studentItems: MenuProps["items"] = [
   {
     key: "/student",
     icon: <CommentOutlined />,
-    label: "陪伴对话"
-  }
+    label: "心理咨询",
+  },
 ];
 
 const adminItems: MenuProps["items"] = [
   {
     key: "/admin",
     icon: <DashboardOutlined />,
-    label: "概览"
+    label: "数据概览",
   },
   {
-    key: "reports",
-    icon: <FileTextOutlined />,
-    label: "风险报告"
-  },
-  {
-    key: "cases",
+    key: "/admin/cases",
     icon: <SafetyOutlined />,
-    label: "风险个案"
+    label: "风险个案",
   },
   {
-    key: "knowledge",
+    key: "/admin/reports",
+    icon: <FileTextOutlined />,
+    label: "风险报告",
+  },
+  {
+    key: "/admin/ledger",
+    icon: <FileExcelOutlined />,
+    label: "数据台账",
+  },
+  {
+    key: "/admin/alerts",
+    icon: <BellOutlined />,
+    label: "预警记录",
+  },
+  {
+    key: "/admin/knowledge",
     icon: <BookOutlined />,
-    label: "知识库"
+    label: "知识库",
   },
-  {
-    key: "trace",
-    icon: <AuditOutlined />,
-    label: "Agent Trace"
-  }
 ];
 
 export function SidebarPlaceholder({ workspace }: SidebarPlaceholderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const collapsed = useUiStore((state) => state.sidebarCollapsed);
   const items = workspace === "admin" ? adminItems : studentItems;
+  const selectedKey =
+    items
+      ?.map((item) =>
+        item && "key" in item && typeof item.key === "string" ? item.key : "",
+      )
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length)
+      .find((key) => pathname === key || pathname.startsWith(`${key}/`)) ??
+    pathname;
 
   return (
     <aside
@@ -74,7 +90,7 @@ export function SidebarPlaceholder({ workspace }: SidebarPlaceholderProps) {
               MindBridge
             </Typography.Text>
             <Typography.Text className="block truncate !text-xs !text-slate-500">
-              {workspace === "admin" ? "咨询管理后台" : "学生陪伴端"}
+              {workspace === "admin" ? "管理后台" : "学生端"}
             </Typography.Text>
           </div>
         ) : null}
@@ -83,8 +99,9 @@ export function SidebarPlaceholder({ workspace }: SidebarPlaceholderProps) {
         <Menu
           mode="inline"
           inlineCollapsed={collapsed}
-          selectedKeys={[pathname]}
+          selectedKeys={[selectedKey]}
           items={items}
+          onClick={({ key }) => router.push(String(key))}
           className="mindbridge-sidebar-menu !border-0"
         />
       </div>

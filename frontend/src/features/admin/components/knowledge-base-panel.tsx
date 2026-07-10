@@ -67,7 +67,7 @@ export function KnowledgeBasePanel() {
           <Alert
             type={status?.vectorAvailable ? "success" : "warning"}
             showIcon
-            message={
+            title={
               statusQuery.isLoading
                 ? "正在读取知识库状态"
                 : `DB ${status?.databaseChunks ?? 0} 片段 · ${vectorText}`
@@ -79,6 +79,7 @@ export function KnowledgeBasePanel() {
           <Form.Item label="知识库文件" extra="支持 PDF、Markdown、txt 文件">
             <Input
               key={fileInputKey}
+              id="knowledge-file"
               type="file"
               accept=".pdf,.md,.markdown,.txt,application/pdf,text/markdown,text/plain"
               onChange={handleFileChange}

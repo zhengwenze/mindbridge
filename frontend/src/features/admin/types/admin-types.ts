@@ -24,10 +24,21 @@ export interface RiskCase {
 
 export interface ExcelRecord {
   id?: number | string;
+  reportId?: number | string;
+  status?: string;
+  message?: string;
+  createdAt?: string;
+  filePath?: string;
 }
 
 export interface AlertRecord {
   id?: number | string;
+  reportId?: number | string;
+  status?: string;
+  message?: string;
+  createdAt?: string;
+  channel?: string;
+  recipient?: string;
 }
 
 export interface ConversationMessage {

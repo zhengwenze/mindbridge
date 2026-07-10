@@ -6,6 +6,7 @@
   --surface: #ffffff;
   --border-subtle: #d9e2e7;
   --brand: #12847f;
+  --brand-dark: #0f766e;
 }
 
 * {
@@ -49,4 +50,53 @@ a {
   min-width: 0;
   width: calc(100% - 8px);
   margin-inline: 4px;
+}
+
+.mindbridge-sidebar-menu .ant-menu-item-selected {
+  font-weight: 600;
+}
+
+.metric-card {
+  min-height: 142px;
+  overflow: hidden;
+  position: relative;
+}
+
+.metric-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -26px -42px auto;
+  width: 112px;
+  height: 112px;
+  border-radius: 999px;
+  opacity: 0.12;
+}
+
+.metric-card-blue::after { background: #2563eb; }
+.metric-card-red::after { background: #dc2626; }
+.metric-card-amber::after { background: #d97706; }
+.metric-card-green::after { background: #16a34a; }
+.metric-card-purple::after { background: #7c3aed; }
+
+.metric-icon {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: var(--brand-dark);
+  font-size: 18px;
+}
+
+.metric-stat .ant-statistic-content {
+  color: #0f172a;
+  font-size: 30px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.ant-card-head-title {
+  min-width: 0;
 }

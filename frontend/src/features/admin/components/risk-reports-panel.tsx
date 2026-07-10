@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Card, Empty, List, Skeleton, Typography } from "antd";
+import { Alert, Card, Empty, Skeleton, Typography } from "antd";
 
 import { toApiError } from "@/lib/api/api-error";
 
@@ -44,12 +44,11 @@ export function RiskReportsPanel({
       {reports.length === 0 ? (
         <Empty description="暂无报告，学生咨询或风险场景会在这里沉淀记录" />
       ) : (
-        <List
-          dataSource={reports}
-          renderItem={(item) => {
+        <ul className="m-0 list-none divide-y divide-slate-200 p-0">
+          {reports.map((item, index) => {
             const isActive = Boolean(item.sessionId && item.sessionId === selectedSessionId);
             return (
-              <List.Item>
+              <li key={item.id ?? item.sessionId ?? `report-${index}`} className="py-3">
                 <button
                   type="button"
                   className={`w-full rounded border p-4 text-left transition ${
@@ -74,10 +73,10 @@ export function RiskReportsPanel({
                     查看会话档案
                   </span>
                 </button>
-              </List.Item>
+              </li>
             );
-          }}
-        />
+          })}
+        </ul>
       )}
     </Card>
   );

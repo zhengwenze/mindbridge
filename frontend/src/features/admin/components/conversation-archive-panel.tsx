@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Card, Empty, List, Skeleton, Typography } from "antd";
+import { Alert, Card, Empty, Skeleton, Typography } from "antd";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 import { toApiError } from "@/lib/api/api-error";
@@ -35,12 +35,14 @@ export function ConversationArchivePanel({ sessionId, missingSession, query }: C
           <Typography.Text type="secondary">
             {title} · {messages.length} 条消息
           </Typography.Text>
-          <List
-            dataSource={messages}
-            renderItem={(message) => {
+          <ul className="m-0 list-none divide-y divide-slate-200 p-0">
+            {messages.map((message, index) => {
               const isUser = (message.role ?? "").toUpperCase() === "USER";
               return (
-                <List.Item className={isUser ? "!justify-end" : undefined}>
+                <li
+                  key={message.id ?? `${message.createdAt ?? "message"}-${index}`}
+                  className={`py-3 ${isUser ? "flex justify-end" : ""}`}
+                >
                   <article className={`max-w-3xl ${isUser ? "ml-auto text-right" : "text-left"}`}>
                     <div className="mb-1 flex flex-wrap justify-between gap-3 text-xs text-slate-500">
                       <Typography.Text strong>{roleLabel(message.role)}</Typography.Text>
@@ -54,10 +56,10 @@ export function ConversationArchivePanel({ sessionId, missingSession, query }: C
                       {message.content || "暂无内容"}
                     </div>
                   </article>
-                </List.Item>
+                </li>
               );
-            }}
-          />
+            })}
+          </ul>
         </div>
       )}
     </Card>

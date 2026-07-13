@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { streamChatMessage } from "../api/chat-stream-api";
+import { fetchStudentSession } from "../api/student-session-api";
 import type { ChatStreamEvent, Message, SessionStatus } from "../types/chat-types";
 
 function createMessageId(role: Message["role"]): string {
@@ -16,7 +17,9 @@ function createMessageId(role: Message["role"]): string {
 export function useChatStream() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionTitle, setSessionTitle] = useState<string | null>(null);
   const [streaming, setStreaming] = useState(false);
+  const [loadingSession, setLoadingSession] = useState(false);
   const [sessionStatus, setSessionStatus] = useState<SessionStatus>("READY");
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -25,8 +28,35 @@ export function useChatStream() {
     abortControllerRef.current = null;
     setMessages([]);
     setSessionId(null);
+    setSessionTitle(null);
+    setLoadingSession(false);
     setStreaming(false);
     setSessionStatus("READY");
+  }, []);
+
+  const loadSession = useCallback(async (nextSessionId: string) => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setLoadingSession(true);
+    setMessages([]);
+    setSessionId(null);
+    setSessionTitle(null);
+    setStreaming(false);
+    setSessionStatus("READY");
+    try {
+      const detail = await fetchStudentSession(nextSessionId);
+      setMessages(
+        detail.messages.map((message) => ({
+          id: String(message.id),
+          role: message.role.toLowerCase() as Message["role"],
+          content: message.content
+        }))
+      );
+      setSessionId(detail.sessionId);
+      setSessionTitle(detail.title);
+    } finally {
+      setLoadingSession(false);
+    }
   }, []);
 
   const sendMessage = useCallback(
@@ -127,9 +157,12 @@ export function useChatStream() {
   return {
     messages,
     sessionId,
+    sessionTitle,
     streaming,
+    loadingSession,
     sessionStatus,
     sendMessage,
-    resetSession
+    resetSession,
+    loadSession
   };
 }

@@ -43,3 +43,8 @@ def require_admin(user: Annotated[UserAccount, Depends(current_user)]) -> UserAc
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin role required")
     return user
 
+
+def require_student(user: Annotated[UserAccount, Depends(current_user)]) -> UserAccount:
+    if "ROLE_ADMIN" in user.roles:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Student access required")
+    return user

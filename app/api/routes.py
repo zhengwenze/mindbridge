@@ -9,7 +9,7 @@ from app.agents.factory import agent_framework_status
 from app.agents.runtime import AgentRuntimeService
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.core.security import current_user, hash_password, require_admin
+from app.core.security import current_user, hash_password, require_admin, require_student
 from app.models.entities import UserAccount
 from app.schemas.dtos import ChatRequest, KnowledgeIngestRequest, KnowledgeIngestResponse, StudentRegisterRequest, authority
 from app.services.chat import ChatService
@@ -65,6 +65,19 @@ def profile(user: Annotated[UserAccount, Depends(current_user)]):
     return profile_response(user)
 
 
+@router.get("/api/student/sessions")
+def student_sessions(user: Annotated[UserAccount, Depends(require_student)], db: Annotated[Session, Depends(get_db)]):
+    return ReportService(db).student_sessions(user.id)
+
+
+@router.get("/api/student/sessions/{session_id}")
+def student_conversation(session_id: str, user: Annotated[UserAccount, Depends(require_student)], db: Annotated[Session, Depends(get_db)]):
+    try:
+        return ReportService(db).student_conversation(user.id, session_id)
+    except ValueError as exc:
+        raise HTTPException(404, "Session not found") from exc
+
+
 @router.post("/api/chat/stream")
 async def chat_stream(
     request: ChatRequest,
@@ -74,7 +87,15 @@ async def chat_stream(
     if "ROLE_ADMIN" in user.roles:
         raise HTTPException(403, "管理员账号只能查看后台记录，不能发起学生对话。")
     service = ChatService(db, get_settings())
-    return StreamingResponse(service.stream_chat(user, request), media_type="text/event-stream")
+    return StreamingResponse(
+        service.stream_chat(user, request),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get("/api/agent/status")

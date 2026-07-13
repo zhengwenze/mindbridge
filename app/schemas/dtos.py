@@ -68,6 +68,28 @@ class ConversationResponse(BaseModel):
     messages: list[ConversationMessageResponse]
 
 
+class StudentSessionSummaryResponse(BaseModel):
+    sessionId: str
+    title: str
+    lastMessage: str
+    messageCount: int
+    createdAt: datetime
+    updatedAt: datetime
+
+
+class StudentConversationMessageResponse(BaseModel):
+    id: int
+    role: str
+    content: str
+    createdAt: datetime
+
+
+class StudentConversationResponse(BaseModel):
+    sessionId: str
+    title: str
+    messages: list[StudentConversationMessageResponse]
+
+
 class ToolRecordResponse(BaseModel):
     id: int
     reportId: int

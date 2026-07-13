@@ -52,6 +52,12 @@ a {
   margin-inline: 4px;
 }
 
+.mindbridge-sidebar-menu.ant-menu-inline > .ant-menu-item {
+  width: 100%;
+  margin-inline: 0;
+  padding-inline: 12px;
+}
+
 .mindbridge-sidebar-menu .ant-menu-item-selected {
   font-weight: 600;
 }

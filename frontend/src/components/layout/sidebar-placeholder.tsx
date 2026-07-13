@@ -7,6 +7,7 @@ import {
   DashboardOutlined,
   FileExcelOutlined,
   FileTextOutlined,
+  HistoryOutlined,
   SafetyOutlined,
 } from "@ant-design/icons";
 import { Menu, Typography } from "antd";
@@ -24,6 +25,11 @@ const studentItems: MenuProps["items"] = [
     key: "/student",
     icon: <CommentOutlined />,
     label: "心理咨询",
+  },
+  {
+    key: "/student/history",
+    icon: <HistoryOutlined />,
+    label: "历史会话",
   },
 ];
 
@@ -78,7 +84,7 @@ export function SidebarPlaceholder({ workspace }: SidebarPlaceholderProps) {
   return (
     <aside
       className="hidden shrink-0 overflow-hidden border-r border-slate-200 bg-white transition-[width] duration-200 md:block"
-      style={{ width: collapsed ? 80 : 248 }}
+      style={{ width: collapsed ? 80 : 160 }}
     >
       <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-teal-700 text-sm font-semibold text-white">
@@ -95,7 +101,7 @@ export function SidebarPlaceholder({ workspace }: SidebarPlaceholderProps) {
           </div>
         ) : null}
       </div>
-      <div className="p-3">
+      <div className="p-2">
         <Menu
           mode="inline"
           inlineCollapsed={collapsed}

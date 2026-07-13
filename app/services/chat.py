@@ -23,6 +23,9 @@ class ChatService:
         self.agent_harness = MindBridgeAgentHarness(db, settings)
 
     async def stream_chat(self, user: UserAccount, request: ChatRequest):
+        # Establish the SSE response before synchronous orchestration begins so
+        # proxy layers do not wait to buffer the first model token.
+        yield ": stream-start\n\n"
         outcome = self.agent_harness.run(user, request)
         yield sse("meta", ChatStreamEvent(type="meta", sessionId=outcome.session.public_id).model_dump(by_alias=True))
         assistant = []

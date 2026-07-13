@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.models.entities import AlertRecord, AgentRunTrace, CaseNote, ChatMessage, ChatSession, DeadLetterRecord, ExcelRecord, PsychologicalReport, RiskCase, ToolAuditRecord, ToolJob, UserAccount
-from app.schemas.dtos import AgentRunTraceResponse, CaseNoteResponse, ConversationMessageResponse, ConversationResponse, DeadLetterResponse, ReportResponse, RiskCaseResponse, ToolAuditResponse, ToolJobResponse, ToolRecordResponse
+from app.schemas.dtos import AgentRunTraceResponse, CaseNoteResponse, ConversationMessageResponse, ConversationResponse, DeadLetterResponse, ReportResponse, RiskCaseResponse, StudentConversationMessageResponse, StudentConversationResponse, StudentSessionSummaryResponse, ToolAuditResponse, ToolJobResponse, ToolRecordResponse
 
 
 class ReportService:
@@ -152,6 +152,62 @@ class ReportService:
             sessionId=session.public_id,
             title=session.title,
             messages=[ConversationMessageResponse(role=row.role, content=row.content, createdAt=row.created_at) for row in rows],
+        )
+
+    def student_sessions(self, user_id: int) -> list[StudentSessionSummaryResponse]:
+        sessions = (
+            self.db.query(ChatSession)
+            .filter(ChatSession.user_id == user_id)
+            .order_by(ChatSession.updated_at.desc())
+            .all()
+        )
+        summaries = []
+        for session in sessions:
+            last_message = (
+                self.db.query(ChatMessage)
+                .filter(ChatMessage.session_id == session.id)
+                .order_by(ChatMessage.created_at.desc(), ChatMessage.id.desc())
+                .first()
+            )
+            message_count = self.db.query(ChatMessage).filter(ChatMessage.session_id == session.id).count()
+            summaries.append(
+                StudentSessionSummaryResponse(
+                    sessionId=session.public_id,
+                    title=session.title,
+                    lastMessage=last_message.content if last_message else "",
+                    messageCount=message_count,
+                    createdAt=session.created_at,
+                    updatedAt=session.updated_at,
+                )
+            )
+        return summaries
+
+    def student_conversation(self, user_id: int, public_id: str) -> StudentConversationResponse:
+        session = (
+            self.db.query(ChatSession)
+            .filter(ChatSession.public_id == public_id, ChatSession.user_id == user_id)
+            .first()
+        )
+        if session is None:
+            raise ValueError("Session not found")
+        rows = (
+            self.db.query(ChatMessage)
+            .filter(ChatMessage.session_id == session.id)
+            .order_by(ChatMessage.created_at.asc(), ChatMessage.id.asc())
+            .all()
+        )
+        return StudentConversationResponse(
+            sessionId=session.public_id,
+            title=session.title,
+            messages=[
+                StudentConversationMessageResponse(
+                    id=row.id,
+                    role=row.role,
+                    content=row.content,
+                    createdAt=row.created_at,
+                )
+                for row in rows
+            ],
         )
 
     def _report_response(self, report: PsychologicalReport) -> ReportResponse:

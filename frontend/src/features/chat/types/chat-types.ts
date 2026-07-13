@@ -8,6 +8,28 @@ export interface Message {
   content: string;
 }
 
+export interface StudentSessionSummary {
+  sessionId: string;
+  title: string;
+  lastMessage: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudentConversationMessage {
+  id: number;
+  role: ChatRole;
+  content: string;
+  createdAt: string;
+}
+
+export interface StudentConversationDetail {
+  sessionId: string;
+  title: string;
+  messages: StudentConversationMessage[];
+}
+
 export interface ChatMetaEvent {
   type: "meta";
   sessionId: string;

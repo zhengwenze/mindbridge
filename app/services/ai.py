@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import asyncio
 from typing import Iterable
 
 import httpx
@@ -84,6 +85,9 @@ class AiClient:
         text = self._mock(messages)
         for chunk in split_text(text, 12):
             yield chunk
+            # The mock provider is synchronous; a brief yield prevents all
+            # development chunks from being coalesced into one browser update.
+            await asyncio.sleep(0.015)
 
     def _ollama(self, messages: list[AiMessage], stream: bool) -> str:
         payload = {

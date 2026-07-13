@@ -40,7 +40,7 @@ function parseChatStreamEvent(raw: unknown): ChatStreamEvent | null {
 }
 
 function parseSseChunk(buffer: string, onEvent: (event: ChatStreamEvent) => void): string {
-  const parts = buffer.split("\n\n");
+  const parts = buffer.replace(/\r\n/g, "\n").split("\n\n");
   const rest = parts.pop() ?? "";
 
   for (const part of parts) {
@@ -72,6 +72,8 @@ export async function streamChatMessage({
 }: StreamChatParams): Promise<void> {
   const authSession = readAuthSession();
   const headers = new Headers({
+    "Accept": "text/event-stream",
+    "Cache-Control": "no-cache",
     "Content-Type": "application/json"
   });
 

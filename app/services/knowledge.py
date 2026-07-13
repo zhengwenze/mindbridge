@@ -5,12 +5,15 @@ import logging
 import math
 import re
 import shutil
+import unicodedata
 import uuid
+import zipfile
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from pathlib import Path
-from typing import Hashable, Iterable
+from pathlib import Path, PurePosixPath
+from typing import Any, Hashable, Iterable, Iterator
 
+from docx import Document as DocxDocument
 from pypdf import PdfReader
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -35,6 +38,7 @@ MANAGEABLE_STATUSES = {"active", "disabled"}
 DELETING = "DELETING"
 DELETE_FAILED = "DELETE_FAILED"
 REFERENCE_TYPES = {"agent", "application", "department", "running_task"}
+SUPPORTED_DOCUMENT_EXTENSIONS = {".txt", ".md", ".markdown", ".pdf", ".docx"}
 
 
 class KnowledgeBaseError(RuntimeError):
@@ -55,6 +59,22 @@ class KnowledgeBaseConflict(KnowledgeBaseError):
 
 class KnowledgeBaseUnavailable(KnowledgeBaseError):
     status_code = 409
+
+
+class KnowledgeDocumentTooLarge(KnowledgeBaseError):
+    status_code = 413
+
+
+class KnowledgeDocumentUnsupported(KnowledgeBaseError):
+    status_code = 415
+
+
+class KnowledgeDocumentInvalid(KnowledgeBaseError):
+    status_code = 422
+
+
+class KnowledgeDocumentProcessingError(KnowledgeBaseError):
+    status_code = 503
 
 
 @dataclass
@@ -342,41 +362,120 @@ class KnowledgeDocumentService:
         self.bases = KnowledgeBaseService(db, settings)
         self.vector_store = self.bases.vector_store
 
-    def ingest_file(self, knowledge_base_id: int, filename: str, data: bytes, actor: UserAccount | None = None) -> dict:
+    def ingest_file(
+        self,
+        knowledge_base_id: int,
+        filename: str,
+        data: bytes,
+        actor: UserAccount | None = None,
+        *,
+        relative_path: str | None = None,
+        replace_existing: bool = False,
+    ) -> dict:
+        if len(data) > self.settings.knowledge_upload_max_bytes:
+            raise KnowledgeDocumentTooLarge("单个文件不能超过 50 MB")
+        temp_path = create_upload_temp(self.settings, Path(filename).suffix)
+        try:
+            temp_path.write_bytes(data)
+            return self.ingest_path(
+                knowledge_base_id,
+                filename,
+                relative_path,
+                temp_path,
+                len(data),
+                actor,
+                replace_existing=replace_existing,
+            )
+        finally:
+            temp_path.unlink(missing_ok=True)
+
+    def ingest_path(
+        self,
+        knowledge_base_id: int,
+        filename: str,
+        relative_path: str | None,
+        temp_path: Path,
+        file_size: int,
+        actor: UserAccount | None = None,
+        *,
+        replace_existing: bool = False,
+    ) -> dict:
         base = self.bases.get(knowledge_base_id)
         self._assert_writable(base)
-        safe_name = safe_file_name(filename)
-        content = extract_pdf(data) if safe_name.lower().endswith(".pdf") else data.decode("utf-8", errors="ignore")
-        chunks = chunk_text(content, self.settings.knowledge_chunk_size, self.settings.knowledge_chunk_overlap)
+        normalized_path = normalize_relative_path(relative_path, filename)
+        safe_name = PurePosixPath(normalized_path).name
+        validate_document_extension(safe_name)
+        existing = self.db.query(KnowledgeDocument).filter(
+            KnowledgeDocument.knowledge_base_id == base.id,
+            KnowledgeDocument.relative_path == normalized_path,
+        ).first()
+        if existing is not None and not replace_existing:
+            raise KnowledgeBaseConflict("该知识库中已存在相同路径的文档")
+
+        chunks = list(extract_document_chunks(temp_path, safe_name, self.settings))
         if not chunks:
-            raise KnowledgeBaseError("文档没有可索引文本")
-        old = self.db.query(KnowledgeDocument).filter(KnowledgeDocument.knowledge_base_id == base.id, KnowledgeDocument.file_name == safe_name).first()
-        if old is not None:
+            raise KnowledgeDocumentInvalid("文档没有可索引文本")
+
+        if existing is not None:
             if self.vector_store.can_embed:
-                self.vector_store.delete_document(base.collection_name, old.id)
-            remove_stored_file(old.storage_path, self.settings)
-            self.db.delete(old)
+                self.vector_store.delete_document(base.collection_name, existing.id)
+            remove_stored_file(existing.storage_path, self.settings)
+            self.db.delete(existing)
             self.db.flush()
-        storage_path = write_upload(base.id, safe_name, data, self.settings)
-        document = KnowledgeDocument(knowledge_base_id=base.id, file_name=safe_name, file_type=file_type(safe_name), file_size=len(data), storage_path=storage_path, index_status="indexing")
+
+        document = KnowledgeDocument(
+            knowledge_base_id=base.id,
+            file_name=safe_name,
+            relative_path=normalized_path,
+            file_type=file_type(safe_name),
+            file_size=file_size,
+            index_status="indexing",
+        )
+        stored_path: Path | None = None
         self.db.add(document)
-        self.db.flush()
-        rows = [KnowledgeChunk(knowledge_base_id=base.id, document_id=document.id, source=safe_name, source_index=index, content=chunk) for index, chunk in enumerate(chunks)]
-        self.db.add_all(rows)
-        self.db.flush()
         try:
+            self.db.flush()
+            rows = [
+                KnowledgeChunk(
+                    knowledge_base_id=base.id,
+                    document_id=document.id,
+                    document=document,
+                    source=normalized_path,
+                    source_index=index,
+                    content=chunk,
+                )
+                for index, chunk in enumerate(chunks)
+            ]
+            self.db.add_all(rows)
+            self.db.flush()
             self._index(base, rows)
+            stored_path = move_upload_to_storage(temp_path, base.id, safe_name, self.settings)
+            document.storage_path = str(stored_path.relative_to(self.settings.project_root))
             document.index_status = "active"
-            self.bases._audit(base.id, actor, "upload", "success", {"documentId": document.id, "chunks": len(rows)})
+            self.bases._audit(
+                base.id,
+                actor,
+                "upload",
+                "success",
+                {"documentId": document.id, "relativePath": normalized_path, "chunks": len(rows)},
+            )
             self.db.commit()
+        except IntegrityError as exc:
+            self._rollback_upload(base, document, stored_path)
+            raise KnowledgeBaseConflict("该知识库中已存在相同路径的文档") from exc
         except Exception as exc:
-            document.index_status = "error"
-            document.error_message = safe_error(exc)
-            base.status = "error"
-            self.bases._audit(base.id, actor, "upload", "error", {"error": safe_error(exc)})
-            self.db.commit()
-            raise KnowledgeBaseError("文档索引失败，请在修复向量服务后重建") from exc
-        return {"id": document.id, "fileName": document.file_name, "chunks": len(rows), "indexStatus": document.index_status}
+            self._rollback_upload(base, document, stored_path)
+            self._audit_failed_upload(base.id, actor, normalized_path, exc)
+            raise KnowledgeDocumentProcessingError("文档处理失败，请检查解析或向量服务后重试") from exc
+        return {
+            "id": document.id,
+            "knowledgeBaseId": base.id,
+            "fileName": document.file_name,
+            "relativePath": document.relative_path,
+            "fileSize": document.file_size,
+            "chunks": len(rows),
+            "indexStatus": document.index_status,
+        }
 
     def rebuild(self, knowledge_base_id: int, actor: UserAccount | None = None) -> int:
         base = self.bases.get(knowledge_base_id)
@@ -398,27 +497,63 @@ class KnowledgeDocumentService:
             raise KnowledgeBaseError("知识库重建失败") from exc
 
     def ensure_source(self, knowledge_base_id: int, source: str, content: str) -> int:
-        existing = self.db.query(KnowledgeDocument).filter(KnowledgeDocument.knowledge_base_id == knowledge_base_id, KnowledgeDocument.file_name == safe_file_name(source)).first()
+        normalized_path = normalize_relative_path(source, source)
+        existing = self.db.query(KnowledgeDocument).filter(
+            KnowledgeDocument.knowledge_base_id == knowledge_base_id,
+            KnowledgeDocument.relative_path == normalized_path,
+        ).first()
         chunks = chunk_text(content, self.settings.knowledge_chunk_size, self.settings.knowledge_chunk_overlap)
         if existing and [row.content for row in existing.chunks] == chunks:
             return len(chunks)
-        return int(self.ingest_file(knowledge_base_id, source, content.encode("utf-8"))["chunks"])
+        return int(self.ingest_file(knowledge_base_id, source, content.encode("utf-8"), replace_existing=True)["chunks"])
 
     def _index(self, base: KnowledgeBase, chunks: list[KnowledgeChunk]) -> None:
         if not self.vector_store.can_embed:
             return
-        embeddings = self.vector_store.embed_texts([chunk.content for chunk in chunks])
-        for chunk, embedding in zip(chunks, embeddings):
-            chunk.embedding_json = json.dumps(embedding, separators=(",", ":"))
-        self.vector_store.upsert_chunks(base.collection_name, chunks, embeddings)
+        batch_size = max(1, self.settings.knowledge_embedding_batch_size)
+        for start in range(0, len(chunks), batch_size):
+            batch = chunks[start:start + batch_size]
+            embeddings = self.vector_store.embed_texts([chunk.content for chunk in batch])
+            for chunk, embedding in zip(batch, embeddings):
+                chunk.embedding_json = json.dumps(embedding, separators=(",", ":"))
+            self.vector_store.upsert_chunks(base.collection_name, batch, embeddings)
 
     def _sync(self, base: KnowledgeBase, chunks: list[KnowledgeChunk]) -> None:
         if not self.vector_store.can_embed:
             return
-        embeddings = self.vector_store.embed_texts([chunk.content for chunk in chunks])
-        for chunk, embedding in zip(chunks, embeddings):
-            chunk.embedding_json = json.dumps(embedding, separators=(",", ":"))
-        self.vector_store.sync_chunks(base.collection_name, chunks, embeddings)
+        self._index(base, chunks)
+        self.vector_store.prune_chunks(base.collection_name, chunks)
+
+    def _rollback_upload(self, base: KnowledgeBase, document: KnowledgeDocument, stored_path: Path | None) -> None:
+        document_id = document.id
+        self.db.rollback()
+        if stored_path is not None:
+            stored_path.unlink(missing_ok=True)
+        if document_id is not None and self.vector_store.can_embed:
+            try:
+                self.vector_store.delete_document(base.collection_name, document_id)
+            except Exception:
+                logger.exception("failed to compensate vectors for document id=%s", document_id)
+
+    def _audit_failed_upload(
+        self,
+        knowledge_base_id: int,
+        actor: UserAccount | None,
+        relative_path: str,
+        exc: Exception,
+    ) -> None:
+        try:
+            self.bases._audit(
+                knowledge_base_id,
+                actor,
+                "upload",
+                "error",
+                {"relativePath": relative_path, "error": safe_error(exc)},
+            )
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            logger.exception("failed to write document upload audit")
 
     @staticmethod
     def _assert_writable(base: KnowledgeBase) -> None:
@@ -535,12 +670,64 @@ def file_type(name: str) -> str:
     return name.rsplit(".", 1)[-1].lower() if "." in name else "text"
 
 
-def write_upload(knowledge_base_id: int, name: str, data: bytes, settings: Settings) -> str:
+def normalize_relative_path(value: str | None, fallback: str) -> str:
+    raw = unicodedata.normalize("NFC", (value or fallback or "").strip()).replace("\\", "/")
+    if not raw or raw.startswith("/") or re.match(r"^[A-Za-z]:", raw):
+        raise KnowledgeDocumentInvalid("文档相对路径无效")
+    raw_parts = raw.split("/")
+    if any(part in {"", ".", ".."} for part in raw_parts):
+        raise KnowledgeDocumentInvalid("文档相对路径不能包含空目录、. 或 ..")
+    if any(any(ord(character) < 32 for character in part) for part in raw_parts):
+        raise KnowledgeDocumentInvalid("文档相对路径包含非法字符")
+    normalized = str(PurePosixPath(*raw_parts))
+    if len(normalized) > 512 or len(PurePosixPath(normalized).name) > 256:
+        raise KnowledgeDocumentInvalid("文档相对路径不能超过 512 字符，文件名不能超过 256 字符")
+    return normalized
+
+
+def validate_document_extension(name: str) -> None:
+    if Path(name).suffix.lower() not in SUPPORTED_DOCUMENT_EXTENSIONS:
+        raise KnowledgeDocumentUnsupported("仅支持 txt、md、markdown、pdf、docx 格式")
+
+
+def create_upload_temp(settings: Settings, suffix: str = "") -> Path:
+    root = settings.project_root / "data" / "knowledge-files" / ".tmp"
+    root.mkdir(parents=True, exist_ok=True)
+    safe_suffix = suffix.lower() if suffix.lower() in SUPPORTED_DOCUMENT_EXTENSIONS else ""
+    return root / f"{uuid.uuid4().hex}{safe_suffix}"
+
+
+async def receive_upload(file: Any, settings: Settings) -> tuple[Path, int]:
+    """Stream a multipart upload to a staging file with a hard byte limit."""
+    temp_path = create_upload_temp(settings, Path(file.filename or "").suffix)
+    total = 0
+    block_size = max(1, settings.knowledge_upload_read_chunk_bytes)
+    try:
+        with temp_path.open("wb") as target:
+            while True:
+                block = await file.read(block_size)
+                if not block:
+                    break
+                total += len(block)
+                if total > settings.knowledge_upload_max_bytes:
+                    raise KnowledgeDocumentTooLarge("单个文件不能超过 50 MB")
+                target.write(block)
+        return temp_path, total
+    except Exception:
+        temp_path.unlink(missing_ok=True)
+        raise
+
+
+def move_upload_to_storage(
+    temp_path: Path,
+    knowledge_base_id: int,
+    name: str,
+    settings: Settings,
+) -> Path:
     root = settings.project_root / "data" / "knowledge-files" / str(knowledge_base_id)
     root.mkdir(parents=True, exist_ok=True)
-    path = root / f"{uuid.uuid4().hex}_{safe_file_name(name)}"
-    path.write_bytes(data)
-    return str(path.relative_to(settings.project_root))
+    destination = root / f"{uuid.uuid4().hex}_{safe_file_name(name)}"
+    return Path(shutil.move(str(temp_path), destination))
 
 
 def remove_stored_file(value: str | None, settings: Settings) -> None:
@@ -565,17 +752,77 @@ def safe_error(exc: Exception) -> str:
     return re.sub(r"[\r\n]+", " ", str(exc))[:300] or type(exc).__name__
 
 
-def extract_pdf(data: bytes) -> str:
-    from io import BytesIO
-    return "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(data)).pages)
+def extract_document_chunks(path: Path, name: str, settings: Settings) -> Iterator[str]:
+    try:
+        extension = Path(name).suffix.lower()
+        if extension in {".txt", ".md", ".markdown"}:
+            blocks = iter_text_blocks(path)
+        elif extension == ".pdf":
+            blocks = iter_pdf_blocks(path)
+        elif extension == ".docx":
+            blocks = iter_docx_blocks(path, settings)
+        else:
+            raise KnowledgeDocumentUnsupported("不支持的文档格式")
+        yield from chunk_blocks(blocks, settings.knowledge_chunk_size, settings.knowledge_chunk_overlap)
+    except KnowledgeBaseError:
+        raise
+    except UnicodeDecodeError as exc:
+        raise KnowledgeDocumentInvalid("TXT 和 Markdown 文档必须使用 UTF-8 编码") from exc
+    except Exception as exc:
+        raise KnowledgeDocumentInvalid("文档损坏或无法解析") from exc
+
+
+def iter_text_blocks(path: Path) -> Iterator[str]:
+    with path.open("r", encoding="utf-8-sig") as source:
+        while block := source.read(64 * 1024):
+            yield block
+
+
+def iter_pdf_blocks(path: Path) -> Iterator[str]:
+    reader = PdfReader(str(path))
+    if reader.is_encrypted:
+        raise KnowledgeDocumentInvalid("暂不支持加密 PDF")
+    for page in reader.pages:
+        yield page.extract_text() or ""
+
+
+def iter_docx_blocks(path: Path, settings: Settings) -> Iterator[str]:
+    with zipfile.ZipFile(path) as archive:
+        entries = archive.infolist()
+        uncompressed_size = sum(entry.file_size for entry in entries)
+        if len(entries) > 10_000 or uncompressed_size > settings.knowledge_docx_max_uncompressed_bytes:
+            raise KnowledgeDocumentInvalid("DOCX 解压后的内容超过安全限制")
+        if "[Content_Types].xml" not in archive.namelist():
+            raise KnowledgeDocumentInvalid("DOCX 文件结构无效")
+    document = DocxDocument(str(path))
+    for paragraph in document.paragraphs:
+        yield paragraph.text
+    for table in document.tables:
+        for row in table.rows:
+            yield "\t".join(cell.text for cell in row.cells)
+
+
+def chunk_blocks(blocks: Iterable[str], size: int, overlap: int) -> Iterator[str]:
+    chunk_size = max(1, size)
+    chunk_overlap = min(max(0, overlap), chunk_size - 1)
+    step = chunk_size - chunk_overlap
+    buffer = ""
+    emitted = False
+    for block in blocks:
+        normalized = re.sub(r"\s+", " ", block or "").strip()
+        if not normalized:
+            continue
+        buffer = f"{buffer} {normalized}".strip() if buffer else normalized
+        while len(buffer) >= chunk_size:
+            yield buffer[:chunk_size]
+            emitted = True
+            buffer = buffer[step:]
+    if buffer and (not emitted or len(buffer) > chunk_overlap):
+        yield buffer
 
 
 def chunk_text(content: str, size: int, overlap: int) -> list[str]:
-    text = re.sub(r"\s+", " ", content or "").strip()
-    if not text:
-        return []
-    step = max(1, size - overlap)
-    return [text[start:start + size] for start in range(0, len(text), step)]
+    return list(chunk_blocks([content], size, overlap))
 
 
 def bm25_scores(query: str, chunks: list[KnowledgeChunk]) -> dict[int, float]:

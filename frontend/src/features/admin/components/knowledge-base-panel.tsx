@@ -455,7 +455,7 @@ function KnowledgeDocumentDrawer({
           </Typography.Text>
           <Input
             type="file"
-            accept=".pdf,.md,.markdown,.txt,application/pdf,text/markdown,text/plain"
+            accept=".pdf,.docx,.md,.markdown,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/markdown,text/plain"
             onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             disabled={base.status !== "active"}
           />

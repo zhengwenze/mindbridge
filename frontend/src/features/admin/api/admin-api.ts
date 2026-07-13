@@ -72,10 +72,28 @@ export async function deleteKnowledgeBase(id: number): Promise<void> {
   await apiClient.delete(`/api/admin/knowledge-bases/${id}`);
 }
 
-export async function uploadKnowledgeDocument(id: number, file: File): Promise<KnowledgeDocumentUploadResult> {
+export async function uploadKnowledgeDocument(
+  id: number,
+  file: File,
+  relativePath = file.name,
+  onProgress?: (percent: number) => void
+): Promise<KnowledgeDocumentUploadResult> {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await apiClient.post<KnowledgeDocumentUploadResult>(`/api/admin/knowledge-bases/${id}/documents`, formData);
+  formData.append("relative_path", relativePath);
+  const response = await apiClient.post<KnowledgeDocumentUploadResult>(
+    `/api/admin/knowledge-bases/${id}/documents`,
+    formData,
+    {
+      timeout: 30 * 60 * 1000,
+      onUploadProgress: (event) => {
+        const total = event.total ?? file.size;
+        if (total > 0) {
+          onProgress?.(Math.min(100, Math.round((event.loaded / total) * 100)));
+        }
+      }
+    }
+  );
   return response.data;
 }
 

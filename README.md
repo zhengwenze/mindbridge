@@ -302,6 +302,10 @@ KNOWLEDGE_CANDIDATE_K=16
 KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
 KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
 KNOWLEDGE_RERANK_ENABLED=true
+KNOWLEDGE_UPLOAD_MAX_BYTES=52428800
+KNOWLEDGE_UPLOAD_READ_CHUNK_BYTES=1048576
+KNOWLEDGE_DOCX_MAX_UNCOMPRESSED_BYTES=209715200
+KNOWLEDGE_EMBEDDING_BATCH_SIZE=32
 CHROMA_PERSIST_DIR=data/chroma
 CHROMA_SNAPSHOT_DIR=data/chroma-snapshots
 ```
@@ -315,6 +319,8 @@ curl -u admin:admin123 -X POST http://127.0.0.1:8000/api/admin/knowledge/backup
 ```
 
 当 `KNOWLEDGE_VECTOR_REQUIRED=false` 时，如果 Chroma 或 embedding 服务不可用，系统会降级到本地 BM25 + 词面 rerank；设为 `true` 则启动或检索失败时直接暴露错误。
+
+管理员可在 `http://localhost:3000/admin/docs` 选择具体知识库，拖拽文件或选择整个文件夹上传。首版支持 TXT、Markdown、PDF 和 DOCX，单文件默认上限为 50 MB；文件夹的相对路径会保留，同一知识库内重复路径会返回冲突而不会覆盖原文档。上传字节完成后，页面会继续显示“解析入库中”，直到分片和索引处理完成。
 
 ## 工具队列、限流与死信
 

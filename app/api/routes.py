@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ from app.core.security import current_user, hash_password, require_admin, requir
 from app.models.entities import UserAccount
 from app.schemas.dtos import ChatRequest, KnowledgeBaseCreateRequest, KnowledgeBaseUpdateRequest, StudentRegisterRequest, authority
 from app.services.chat import ChatService
-from app.services.knowledge import KnowledgeBaseError, KnowledgeBaseService, KnowledgeDocumentService
+from app.services.knowledge import KnowledgeBaseError, KnowledgeBaseService, KnowledgeDocumentService, receive_upload
 from app.services.model_assets import finetuned_model_status
 from app.services.report import ReportService
 from app.services.skills import MindBridgeSkillLibrary
@@ -264,11 +264,30 @@ def knowledge_base_status(knowledge_base_id: int, _: Annotated[UserAccount, Depe
 
 
 @router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents", status_code=201)
-async def ingest_knowledge_document(knowledge_base_id: int, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)], file: UploadFile = File(...)):
+async def ingest_knowledge_document(
+    knowledge_base_id: int,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    file: UploadFile = File(...),
+    relative_path: str | None = Form(default=None),
+):
+    temp_path = None
     try:
-        return KnowledgeDocumentService(db, get_settings()).ingest_file(knowledge_base_id, file.filename or "uploaded-file", await file.read(), user)
+        settings = get_settings()
+        temp_path, file_size = await receive_upload(file, settings)
+        return KnowledgeDocumentService(db, settings).ingest_path(
+            knowledge_base_id,
+            file.filename or "uploaded-file",
+            relative_path,
+            temp_path,
+            file_size,
+            user,
+        )
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
 
 
 @router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild")

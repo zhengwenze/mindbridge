@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     knowledge_candidate_k: int = 16
     knowledge_chunk_size: int = 512
     knowledge_chunk_overlap: int = 64
+    knowledge_upload_max_bytes: int = 50 * 1024 * 1024
+    knowledge_upload_read_chunk_bytes: int = 1024 * 1024
+    knowledge_docx_max_uncompressed_bytes: int = 200 * 1024 * 1024
+    knowledge_embedding_batch_size: int = 32
     knowledge_hybrid_vector_weight: float = 0.65
     knowledge_hybrid_bm25_weight: float = 0.35
     knowledge_rerank_enabled: bool = True

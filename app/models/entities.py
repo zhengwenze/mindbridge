@@ -89,11 +89,12 @@ class KnowledgeBase(Base):
 
 class KnowledgeDocument(Base):
     __tablename__ = "knowledge_documents"
-    __table_args__ = (UniqueConstraint("knowledge_base_id", "file_name", name="uq_knowledge_document_file"),)
+    __table_args__ = (UniqueConstraint("knowledge_base_id", "relative_path", name="uq_knowledge_document_path"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     knowledge_base_id: Mapped[int] = mapped_column(ForeignKey("knowledge_bases.id"), index=True)
     file_name: Mapped[str] = mapped_column(String(256), nullable=False)
+    relative_path: Mapped[str] = mapped_column(String(512), nullable=False)
     file_type: Mapped[str] = mapped_column(String(32), default="text")
     file_size: Mapped[int] = mapped_column(Integer, default=0)
     storage_path: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
@@ -111,7 +112,7 @@ class KnowledgeChunk(Base):
     __tablename__ = "knowledge_chunks"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    source: Mapped[str] = mapped_column(String(256), index=True)
+    source: Mapped[str] = mapped_column(String(512), index=True)
     source_index: Mapped[int] = mapped_column(Integer)
     content: Mapped[str] = mapped_column(Text)
     embedding_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

@@ -148,6 +148,16 @@ class ChromaVectorStore:
             collection.delete(ids=stale)
         return indexed
 
+    def prune_chunks(self, collection_name: str, chunks: list[KnowledgeChunk]) -> None:
+        """Remove vectors not present in the supplied complete chunk set."""
+        self._require_available()
+        collection = self._collection(collection_name)
+        desired = {self._id(int(chunk.id)) for chunk in chunks if chunk.id is not None}
+        current = set(collection.get().get("ids", []))
+        stale = sorted(current - desired)
+        if stale:
+            collection.delete(ids=stale)
+
     def query(self, collection_name: str, query_embedding: list[float], top_k: int) -> list[VectorSearchHit]:
         self._require_available()
         if not self.collection_exists(collection_name) or self.count(collection_name) == 0:

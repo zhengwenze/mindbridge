@@ -1,4 +1,5 @@
 import { readAuthSession } from "@/lib/auth/token-storage";
+import { buildApiUrl } from "@/lib/config/api";
 
 import type { ChatStreamEvent } from "../types/chat-types";
 
@@ -81,7 +82,7 @@ export async function streamChatMessage({
     headers.set("Authorization", `Basic ${authSession.token}`);
   }
 
-  const response = await fetch("/api/chat/stream", {
+  const response = await fetch(buildApiUrl("/api/chat/stream"), {
     method: "POST",
     headers,
     body: JSON.stringify({ sessionId, message }),

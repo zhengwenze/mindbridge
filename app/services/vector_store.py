@@ -22,84 +22,138 @@ class VectorStoreUnavailable(RuntimeError):
 @dataclass
 class VectorSearchHit:
     chunk_id: int | None
+    document_id: int | None
     source: str
     source_index: int
     content: str
     score: float
 
 
-class ChromaKnowledgeStore:
-    """Primary RAG path: Chroma vector recall with OpenAI or local Ollama embeddings."""
+class EmbeddingService:
+    """The only embedding implementation used by every knowledge base."""
 
     def __init__(self, settings: Settings):
         self.settings = settings
-        self.can_embed = False
+
+    @property
+    def model_name(self) -> str:
+        return self.settings.embedding_model
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        response = httpx.post(
+            f"{self.settings.ollama_base_url}/api/embed",
+            json={"model": self.model_name, "input": [text if text.strip() else " " for text in texts]},
+            timeout=self.settings.embedding_timeout_seconds,
+        )
+        response.raise_for_status()
+        embeddings = response.json().get("embeddings", [])
+        if len(embeddings) != len(texts) or any(not embedding for embedding in embeddings):
+            raise VectorStoreUnavailable("Embedding service returned an invalid vector response")
+        return [[float(value) for value in embedding] for embedding in embeddings]
+
+
+class ChromaVectorStore:
+    """One persistent Chroma client; all collection names originate in MySQL."""
+
+    def __init__(self, settings: Settings):
+        self.settings = settings
         self.error = ""
+        self.can_embed = False
+        self.embedding_service = EmbeddingService(settings)
         if not settings.knowledge_vector_enabled:
             self.error = "Chroma 向量库未启用"
-            return
-        self.embedding_provider = self._embedding_provider()
-        if self.embedding_provider is None:
-            if settings.knowledge_vector_required:
-                raise VectorStoreUnavailable("缺少 OPENAI_API_KEY 且未配置 Ollama embedding 模型，无法启用 Chroma 主检索方案")
-            self.error = f"缺少可用 embedding provider，Chroma 不可用，已回退到{FALLBACK_RETRIEVAL_LABEL}"
             return
         try:
             import chromadb
         except ImportError as exc:
             if settings.knowledge_vector_required:
-                raise VectorStoreUnavailable("缺少 chromadb 依赖，无法启用 Chroma + text-embedding-3-small 主检索方案") from exc
-            self.error = f"缺少 chromadb 依赖，Chroma + text-embedding-3-small 不可用，已回退到{FALLBACK_RETRIEVAL_LABEL}"
+                raise VectorStoreUnavailable("缺少 chromadb 依赖") from exc
+            self.error = "缺少 chromadb 依赖，已回退到本地 BM25"
             return
+        self.persist_dir = self._resolve_path(settings.chroma_persist_dir)
+        self.persist_dir.mkdir(parents=True, exist_ok=True)
+        self.client = chromadb.PersistentClient(path=str(self.persist_dir))
+        self.can_embed = True
 
-        persist_dir = self._resolve_path(settings.chroma_persist_dir)
-        persist_dir.mkdir(parents=True, exist_ok=True)
-        self.persist_dir = persist_dir
-        self.client = chromadb.PersistentClient(path=str(persist_dir))
-        self.collection = self.client.get_or_create_collection(
-            name=settings.chroma_collection_name,
+    @property
+    def embedding_model_name(self) -> str:
+        return self.embedding_service.model_name
+
+    def create_collection(self, collection_name: str) -> None:
+        self._require_available()
+        self.client.get_or_create_collection(
+            name=collection_name,
             embedding_function=None,
             metadata={"hnsw:space": "cosine", "embedding_model": self.embedding_model_name},
         )
-        self.can_embed = settings.knowledge_vector_enabled
 
-    def upsert_chunks(self, chunks: list[KnowledgeChunk], embeddings: list[list[float]]) -> int:
+    def collection_exists(self, collection_name: str) -> bool:
+        if not self.can_embed:
+            return False
+        return any(item.name == collection_name for item in self.client.list_collections())
+
+    def delete_collection(self, collection_name: str) -> None:
+        self._require_available()
+        if self.collection_exists(collection_name):
+            self.client.delete_collection(collection_name)
+
+    def count(self, collection_name: str) -> int:
+        self._require_available()
+        if not self.collection_exists(collection_name):
+            return 0
+        return int(self._collection(collection_name).count())
+
+    def upsert_chunks(self, collection_name: str, chunks: list[KnowledgeChunk], embeddings: list[list[float]]) -> int:
+        self._require_available()
         rows = [chunk for chunk in chunks if chunk.id is not None and chunk.content.strip()]
         if not rows:
             return 0
-        ids = [self._id(chunk.id) for chunk in rows]
-        documents = [chunk.content for chunk in rows]
-        metadatas = [
-            {"db_id": int(chunk.id), "source": chunk.source, "source_index": int(chunk.source_index)}
-            for chunk in rows
-        ]
-        self.collection.upsert(ids=ids, documents=documents, metadatas=metadatas, embeddings=embeddings)
-        self.snapshot()
+        if len(rows) != len(embeddings):
+            raise ValueError("Embedding response count did not match chunks")
+        collection = self._collection(collection_name)
+        collection.upsert(
+            ids=[self._id(int(chunk.id)) for chunk in rows],
+            documents=[chunk.content for chunk in rows],
+            metadatas=[
+                {
+                    "knowledge_base_id": int(chunk.knowledge_base_id),
+                    "document_id": int(chunk.document_id),
+                    "chunk_id": int(chunk.id),
+                    "file_name": chunk.document.file_name if chunk.document is not None else chunk.source,
+                    "chunk_index": int(chunk.source_index),
+                    "source": chunk.source,
+                }
+                for chunk in rows
+            ],
+            embeddings=embeddings,
+        )
         return len(rows)
 
-    def sync_chunks(self, chunks: list[KnowledgeChunk], embeddings: list[list[float]]) -> int:
-        valid_ids = {self._id(int(chunk.id)) for chunk in chunks if chunk.id is not None}
-        current_ids = set(self.collection.get().get("ids", []))
-        stale_ids = sorted(current_ids - valid_ids)
-        if stale_ids:
-            self.collection.delete(ids=stale_ids)
-        return self.upsert_chunks(chunks, embeddings)
+    def delete_document(self, collection_name: str, document_id: int) -> None:
+        self._require_available()
+        if self.collection_exists(collection_name):
+            self._collection(collection_name).delete(where={"document_id": int(document_id)})
 
-    def has_exact_chunk_ids(self, chunks: list[KnowledgeChunk]) -> bool:
-        valid_ids = {self._id(int(chunk.id)) for chunk in chunks if chunk.id is not None}
-        current_ids = set(self.collection.get().get("ids", []))
-        return current_ids == valid_ids
+    def sync_chunks(self, collection_name: str, chunks: list[KnowledgeChunk], embeddings: list[list[float]]) -> int:
+        """Update first and prune only after all desired vectors are present."""
+        self._require_available()
+        indexed = self.upsert_chunks(collection_name, chunks, embeddings)
+        collection = self._collection(collection_name)
+        desired = {self._id(int(chunk.id)) for chunk in chunks if chunk.id is not None}
+        current = set(collection.get().get("ids", []))
+        stale = sorted(current - desired)
+        if stale:
+            collection.delete(ids=stale)
+        return indexed
 
-    def delete_source(self, source: str) -> None:
-        if not self.can_embed:
-            return
-        self.collection.delete(where={"source": source})
-
-    def query(self, query_embedding: list[float], top_k: int) -> list[VectorSearchHit]:
-        result = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            include=["documents", "metadatas", "distances"],
+    def query(self, collection_name: str, query_embedding: list[float], top_k: int) -> list[VectorSearchHit]:
+        self._require_available()
+        if not self.collection_exists(collection_name) or self.count(collection_name) == 0:
+            return []
+        result = self._collection(collection_name).query(
+            query_embeddings=[query_embedding], n_results=top_k, include=["documents", "metadatas", "distances"]
         )
         documents = (result.get("documents") or [[]])[0]
         metadatas = (result.get("metadatas") or [[]])[0]
@@ -110,99 +164,60 @@ class ChromaKnowledgeStore:
             distance = float(distances[index]) if index < len(distances) else 1.0
             hits.append(
                 VectorSearchHit(
-                    chunk_id=int(metadata["db_id"]) if metadata.get("db_id") is not None else None,
+                    chunk_id=_int_or_none(metadata.get("chunk_id")),
+                    document_id=_int_or_none(metadata.get("document_id")),
                     source=str(metadata.get("source", "")),
-                    source_index=int(metadata.get("source_index", 0)),
+                    source_index=int(metadata.get("chunk_index", 0)),
                     content=document or "",
                     score=1.0 / (1.0 + max(0.0, distance)),
                 )
             )
         return hits
 
-    def embed_texts(self, texts: list[str]) -> list[list[float]]:
-        if not self.can_embed:
-            raise VectorStoreUnavailable(self.error or "Chroma + text-embedding-3-small 主检索方案不可用")
-        return self._embed(texts)
-
     def snapshot(self) -> str | None:
-        if not self.can_embed:
-            return None
-        if not self.persist_dir.exists():
+        if not self.can_embed or not self.persist_dir.exists():
             return None
         snapshot_root = self._resolve_path(self.settings.chroma_snapshot_dir)
         snapshot_root.mkdir(parents=True, exist_ok=True)
         destination = snapshot_root / datetime.utcnow().strftime("%Y%m%d-%H%M%S-%f")
         shutil.copytree(self.persist_dir, destination)
-        self._prune_snapshots(snapshot_root)
+        snapshots = sorted((path for path in snapshot_root.iterdir() if path.is_dir()), reverse=True)
+        for stale in snapshots[max(1, self.settings.chroma_snapshot_keep):]:
+            shutil.rmtree(stale, ignore_errors=True)
         return str(destination)
 
-    def count(self) -> int:
+    def embed_texts(self, texts: list[str]) -> list[list[float]]:
+        self._require_available()
+        return self.embedding_service.embed(texts)
+
+    def _collection(self, collection_name: str):
+        return self.client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=None,
+            metadata={"hnsw:space": "cosine", "embedding_model": self.embedding_model_name},
+        )
+
+    def _require_available(self) -> None:
         if not self.can_embed:
-            return 0
-        return int(self.collection.count())
-
-    def _embed(self, texts: list[str]) -> list[list[float]]:
-        if self.embedding_provider == "ollama":
-            return self._embed_ollama(texts)
-        return self._embed_openai(texts)
-
-    def _embed_openai(self, texts: list[str]) -> list[list[float]]:
-        payload = {
-            "model": self.settings.openai_embedding_model,
-            "input": [text if text.strip() else " " for text in texts],
-        }
-        headers = {"Authorization": f"Bearer {self.settings.openai_api_key}"}
-        response = httpx.post(
-            f"{self.settings.openai_base_url}/embeddings",
-            headers=headers,
-            json=payload,
-            timeout=self.settings.embedding_timeout_seconds,
-        )
-        response.raise_for_status()
-        rows = sorted(response.json().get("data", []), key=lambda item: item.get("index", 0))
-        embeddings = [row.get("embedding") for row in rows]
-        if len(embeddings) != len(texts) or any(not embedding for embedding in embeddings):
-            raise VectorStoreUnavailable("OpenAI embeddings 接口返回向量数量不匹配")
-        return [[float(value) for value in embedding] for embedding in embeddings]
-
-    def _embed_ollama(self, texts: list[str]) -> list[list[float]]:
-        payload = {
-            "model": self.settings.ollama_embedding_model,
-            "input": [text if text.strip() else " " for text in texts],
-        }
-        response = httpx.post(
-            f"{self.settings.ollama_base_url}/api/embed",
-            json=payload,
-            timeout=self.settings.embedding_timeout_seconds,
-        )
-        response.raise_for_status()
-        embeddings = response.json().get("embeddings", [])
-        if len(embeddings) != len(texts) or any(not embedding for embedding in embeddings):
-            raise VectorStoreUnavailable("Ollama embeddings 接口返回向量数量不匹配")
-        return [[float(value) for value in embedding] for embedding in embeddings]
-
-    def _embedding_provider(self) -> str | None:
-        if self.settings.openai_api_key:
-            self.embedding_model_name = self.settings.openai_embedding_model
-            return "openai"
-        if getattr(self.settings, "ollama_embedding_model", "").strip():
-            self.embedding_model_name = self.settings.ollama_embedding_model
-            return "ollama"
-        self.embedding_model_name = ""
-        return None
+            raise VectorStoreUnavailable(self.error or "Chroma 向量库不可用")
 
     def _resolve_path(self, value: str) -> Path:
         path = Path(value)
         return path if path.is_absolute() else self.settings.project_root / path
 
-    def _prune_snapshots(self, snapshot_root: Path) -> None:
-        keep = max(1, self.settings.chroma_snapshot_keep)
-        snapshots = sorted([path for path in snapshot_root.iterdir() if path.is_dir()], reverse=True)
-        for stale in snapshots[keep:]:
-            shutil.rmtree(stale, ignore_errors=True)
-
-    def _id(self, chunk_id: int) -> str:
+    @staticmethod
+    def _id(chunk_id: int) -> str:
         return f"knowledge-chunk-{chunk_id}"
 
 
-ChromaKnowledgeVectorStore = ChromaKnowledgeStore
+def _int_or_none(value: object) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+# Compatibility name for imports outside this module. It no longer owns a
+# global collection; callers must always provide the DB-owned collection name.
+ChromaKnowledgeStore = ChromaVectorStore
+ChromaKnowledgeVectorStore = ChromaVectorStore

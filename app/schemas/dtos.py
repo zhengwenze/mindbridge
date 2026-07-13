@@ -41,6 +41,27 @@ class KnowledgeIngestResponse(BaseModel):
     chunks: int
 
 
+class KnowledgeBaseCreateRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=128)
+    description: str = Field(default="", max_length=4000)
+
+    @field_validator("name", "description", mode="before")
+    @classmethod
+    def strip_knowledge_base_text(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
+
+
+class KnowledgeBaseUpdateRequest(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=128)
+    description: Optional[str] = Field(default=None, max_length=4000)
+    status: Optional[str] = None
+
+    @field_validator("name", "description", mode="before")
+    @classmethod
+    def strip_knowledge_base_text(cls, value: str | None) -> str | None:
+        return value.strip() if isinstance(value, str) else value
+
+
 class ReportResponse(BaseModel):
     id: int
     sessionId: str

@@ -13,7 +13,9 @@ export function toApiError(error: unknown): ApiError {
       typeof details === "string"
         ? details
         : typeof details === "object" && details !== null && "detail" in details
-          ? String(details.detail)
+          ? typeof details.detail === "object" && details.detail !== null && "message" in details.detail
+            ? String(details.detail.message)
+            : String(details.detail)
           : error.message;
 
     return {

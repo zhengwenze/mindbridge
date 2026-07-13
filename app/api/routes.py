@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,9 +12,9 @@ from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.security import current_user, hash_password, require_admin, require_student
 from app.models.entities import UserAccount
-from app.schemas.dtos import ChatRequest, KnowledgeIngestRequest, KnowledgeIngestResponse, StudentRegisterRequest, authority
+from app.schemas.dtos import ChatRequest, KnowledgeBaseCreateRequest, KnowledgeBaseUpdateRequest, StudentRegisterRequest, authority
 from app.services.chat import ChatService
-from app.services.knowledge import KnowledgeService
+from app.services.knowledge import KnowledgeBaseError, KnowledgeBaseService, KnowledgeDocumentService
 from app.services.model_assets import finetuned_model_status
 from app.services.report import ReportService
 from app.services.skills import MindBridgeSkillLibrary
@@ -201,44 +202,78 @@ def admin_conversation(session_id: str, _: Annotated[UserAccount, Depends(requir
         raise HTTPException(404, str(exc)) from exc
 
 
-@router.post("/api/admin/knowledge")
-def ingest_knowledge(
-    request: KnowledgeIngestRequest,
+def knowledge_error(exc: KnowledgeBaseError) -> HTTPException:
+    return HTTPException(exc.status_code, exc.detail or str(exc))
+
+
+@router.post("/api/admin/knowledge-bases", status_code=201)
+def create_knowledge_base(request: KnowledgeBaseCreateRequest, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+    try:
+        base = KnowledgeBaseService(db, get_settings()).create(request.name, request.description, user)
+        return KnowledgeBaseService(db, get_settings()).detail(base.id)
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.get("/api/admin/knowledge-bases")
+def list_knowledge_bases(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
+    name: str | None = None,
+    status: str | None = None,
+    created_from: datetime | None = None,
+    created_to: datetime | None = None,
+    include_deleted: bool = False,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
 ):
-    chunks = KnowledgeService(db, get_settings()).ingest(request.source, request.content)
-    return KnowledgeIngestResponse(source=request.source, chunks=chunks)
+    return KnowledgeBaseService(db, get_settings()).list(name=name, status=status, created_from=created_from, created_to=created_to, include_deleted=include_deleted, page=page, page_size=page_size)
 
 
-@router.get("/api/admin/knowledge/status")
-def knowledge_status(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
-    return KnowledgeService(db, get_settings()).status()
-
-
-@router.post("/api/admin/knowledge/rebuild-vector")
-def rebuild_knowledge_vector(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+@router.get("/api/admin/knowledge-bases/{knowledge_base_id}")
+def knowledge_base_detail(knowledge_base_id: int, _: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)], include_deleted: bool = False):
     try:
-        indexed = KnowledgeService(db, get_settings()).rebuild_vector_index()
-    except RuntimeError as exc:
-        raise HTTPException(503, str(exc)) from exc
-    return {"indexedChunks": indexed}
+        return KnowledgeBaseService(db, get_settings()).detail(knowledge_base_id, include_deleted)
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge/backup")
-def backup_knowledge_vector(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+@router.patch("/api/admin/knowledge-bases/{knowledge_base_id}")
+def update_knowledge_base(knowledge_base_id: int, request: KnowledgeBaseUpdateRequest, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
     try:
-        snapshot = KnowledgeService(db, get_settings()).backup_vector_index()
-    except RuntimeError as exc:
-        raise HTTPException(503, str(exc)) from exc
-    return {"snapshot": snapshot}
+        base = KnowledgeBaseService(db, get_settings()).update(knowledge_base_id, name=request.name, description=request.description, status=request.status, actor=user)
+        return KnowledgeBaseService(db, get_settings()).detail(base.id)
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge/file")
-async def ingest_file(
-    _: Annotated[UserAccount, Depends(require_admin)],
-    db: Annotated[Session, Depends(get_db)],
-    file: UploadFile = File(...),
-):
-    chunks = KnowledgeService(db, get_settings()).ingest_file(file.filename or "uploaded-file", await file.read())
-    return KnowledgeIngestResponse(source=file.filename or "uploaded-file", chunks=chunks)
+@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}")
+def delete_knowledge_base(knowledge_base_id: int, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+    try:
+        return KnowledgeBaseService(db, get_settings()).delete(knowledge_base_id, user)
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/status")
+def knowledge_base_status(knowledge_base_id: int, _: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+    try:
+        return KnowledgeBaseService(db, get_settings()).status(knowledge_base_id)
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents", status_code=201)
+async def ingest_knowledge_document(knowledge_base_id: int, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)], file: UploadFile = File(...)):
+    try:
+        return KnowledgeDocumentService(db, get_settings()).ingest_file(knowledge_base_id, file.filename or "uploaded-file", await file.read(), user)
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild")
+def rebuild_knowledge_base(knowledge_base_id: int, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+    try:
+        return {"indexedChunks": KnowledgeDocumentService(db, get_settings()).rebuild(knowledge_base_id, user)}
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc

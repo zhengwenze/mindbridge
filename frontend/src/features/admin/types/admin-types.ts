@@ -54,21 +54,59 @@ export interface ConversationArchive {
   messages?: ConversationMessage[];
 }
 
-export interface KnowledgeStatus {
-  databaseChunks?: number;
-  vectorAvailable?: boolean;
-  vectorChunks?: number;
+export type KnowledgeBaseStatus = "active" | "disabled" | "indexing" | "error" | "DELETING" | "DELETE_FAILED";
+
+export interface KnowledgeBaseReferenceDetail {
+  type: "agent" | "application" | "department" | "running_task";
+  id: string;
+  name: string;
+  status: string;
 }
 
-export interface KnowledgeUploadResult {
-  source?: string;
-  chunks?: number;
+export interface KnowledgeBase {
+  id: number;
+  name: string;
+  description: string;
+  collectionName: string;
+  status: KnowledgeBaseStatus;
+  createdBy?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+  documentCount: number;
+  chunkCount: number;
+  vectorCount?: number;
+  collectionExists?: boolean;
+  embeddingModel?: string;
+  vectorError?: string;
 }
 
-export interface KnowledgeRebuildResult {
-  indexedChunks?: number;
+export interface KnowledgeBaseListResponse {
+  items: KnowledgeBase[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
-export interface KnowledgeBackupResult {
-  snapshot?: string;
+export interface KnowledgeBaseFilters {
+  name?: string;
+  status?: KnowledgeBaseStatus;
+  createdFrom?: string;
+  createdTo?: string;
+  includeDeleted?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface KnowledgeBasePayload {
+  name?: string;
+  description?: string;
+  status?: "active" | "disabled";
+}
+
+export interface KnowledgeDocumentUploadResult {
+  id: number;
+  fileName: string;
+  chunks: number;
+  indexStatus: string;
 }

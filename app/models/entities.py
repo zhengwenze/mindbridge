@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Computed, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -64,6 +64,49 @@ class ChatMessage(Base):
     session: Mapped[ChatSession] = relationship(back_populates="messages")
 
 
+class KnowledgeBase(Base):
+    __tablename__ = "knowledge_bases"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="")
+    collection_name: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="indexing", index=True)
+    created_by: Mapped[Optional[int]] = mapped_column(ForeignKey("user_accounts.id"), nullable=True, index=True)
+    # MySQL permits multiple NULL values in a unique index, which makes active
+    # names unique while allowing a deleted knowledge base to be recreated.
+    active_name: Mapped[Optional[str]] = mapped_column(
+        String(128), Computed("IF(deleted_at IS NULL, name, NULL)"), unique=True, nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+
+    documents: Mapped[list["KnowledgeDocument"]] = relationship(
+        back_populates="knowledge_base", cascade="all, delete-orphan"
+    )
+
+
+class KnowledgeDocument(Base):
+    __tablename__ = "knowledge_documents"
+    __table_args__ = (UniqueConstraint("knowledge_base_id", "file_name", name="uq_knowledge_document_file"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    knowledge_base_id: Mapped[int] = mapped_column(ForeignKey("knowledge_bases.id"), index=True)
+    file_name: Mapped[str] = mapped_column(String(256), nullable=False)
+    file_type: Mapped[str] = mapped_column(String(32), default="text")
+    file_size: Mapped[int] = mapped_column(Integer, default=0)
+    storage_path: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    index_status: Mapped[str] = mapped_column(String(32), default="indexing", index=True)
+    error_message: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+
+    knowledge_base: Mapped["KnowledgeBase"] = relationship(back_populates="documents")
+    chunks: Mapped[list["KnowledgeChunk"]] = relationship(back_populates="document", cascade="all, delete-orphan")
+
+
 class KnowledgeChunk(Base):
     __tablename__ = "knowledge_chunks"
 
@@ -72,7 +115,42 @@ class KnowledgeChunk(Base):
     source_index: Mapped[int] = mapped_column(Integer)
     content: Mapped[str] = mapped_column(Text)
     embedding_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    knowledge_base_id: Mapped[int] = mapped_column(ForeignKey("knowledge_bases.id"), index=True)
+    document_id: Mapped[int] = mapped_column(ForeignKey("knowledge_documents.id"), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+    document: Mapped["KnowledgeDocument"] = relationship(back_populates="chunks")
+
+
+class KnowledgeBaseOperationLog(Base):
+    __tablename__ = "knowledge_base_operation_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    knowledge_base_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    actor_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    action: Mapped[str] = mapped_column(String(48), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    detail_json: Mapped[str] = mapped_column(Text, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class KnowledgeBaseReference(Base):
+    """Blocking references owned by Agent/application/department/task configuration."""
+
+    __tablename__ = "knowledge_base_references"
+    __table_args__ = (
+        UniqueConstraint("knowledge_base_id", "reference_type", "reference_id", name="uq_knowledge_base_reference"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    knowledge_base_id: Mapped[int] = mapped_column(ForeignKey("knowledge_bases.id"), index=True)
+    reference_type: Mapped[str] = mapped_column(String(32), index=True)
+    reference_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    reference_name: Mapped[str] = mapped_column(String(256), default="")
+    status: Mapped[str] = mapped_column(String(32), default="active", index=True)
+    blocking: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
 
 
 class PsychologicalReport(Base):
@@ -201,4 +279,3 @@ class ToolAuditRecord(Base):
     payload: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now)
-

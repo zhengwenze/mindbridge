@@ -8,7 +8,6 @@ import { toApiError } from "@/lib/api/api-error";
 
 import { useAdminConversation } from "../hooks/use-admin-conversation";
 import { useAdminDashboard } from "../hooks/use-admin-dashboard";
-import { useKnowledgeActions, useKnowledgeStatus } from "../hooks/use-knowledge-actions";
 import { AdminMetrics } from "./admin-metrics";
 import { AdminRecordTable } from "./admin-record-table";
 import { ConversationArchivePanel } from "./conversation-archive-panel";
@@ -170,54 +169,14 @@ export function AdminKnowledgePage() {
 }
 
 export function AdminSystemStatusPage() {
-  const statusQuery = useKnowledgeStatus();
-  const { rebuildMutation, backupMutation } = useKnowledgeActions();
-
   return (
-    <PageContainer title="系统状态" description="查看知识索引状态和后台基础设施运行情况。">
+    <PageContainer title="系统状态" description="知识库索引状态已迁移到每个知识库的文档管理面板。">
       <Card title="知识索引状态" variant="outlined">
-        {statusQuery.isLoading ? <Typography.Text type="secondary">正在读取状态…</Typography.Text> : null}
-        {statusQuery.error ? <Alert type="error" showIcon description={toApiError(statusQuery.error).message} /> : null}
-        {statusQuery.data ? (
-          <div className="grid gap-3 sm:grid-cols-3">
-            <StatusValue label="数据库片段" value={statusQuery.data.databaseChunks ?? 0} />
-            <StatusValue label="向量索引" value={statusQuery.data.vectorAvailable ? "可用" : "不可用"} />
-            <StatusValue label="向量片段" value={statusQuery.data.vectorChunks ?? 0} />
-          </div>
-        ) : null}
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:border-teal-500 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
-            type="button"
-            onClick={() => rebuildMutation.mutate()}
-            disabled={rebuildMutation.isPending}
-          >
-            {rebuildMutation.isPending ? "重建中…" : "重建向量索引"}
-          </button>
-          <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:border-teal-500 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
-            type="button"
-            onClick={() => backupMutation.mutate()}
-            disabled={backupMutation.isPending}
-          >
-            {backupMutation.isPending ? "备份中…" : "备份向量索引"}
-          </button>
-        </div>
+        <Typography.Paragraph type="secondary" className="!mb-0">
+          请在“知识库”页面打开具体知识库的“管理文档”，查看 collection、向量数量并重建该知识库的索引。
+        </Typography.Paragraph>
       </Card>
     </PageContainer>
-  );
-}
-
-function StatusValue({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-      <Typography.Text type="secondary" className="block !text-xs">
-        {label}
-      </Typography.Text>
-      <Typography.Title level={4} className="!mb-0 !mt-1">
-        {value}
-      </Typography.Title>
-    </div>
   );
 }
 

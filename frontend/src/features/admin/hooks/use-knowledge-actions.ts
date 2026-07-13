@@ -3,45 +3,34 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
-  backupKnowledgeVector,
-  fetchKnowledgeStatus,
-  rebuildKnowledgeVector,
-  uploadKnowledgeFile
+  createKnowledgeBase,
+  deleteKnowledgeBase,
+  fetchKnowledgeBase,
+  fetchKnowledgeBases,
+  rebuildKnowledgeBase,
+  updateKnowledgeBase,
+  uploadKnowledgeDocument
 } from "../api/admin-api";
-import { adminQueryKeys } from "./use-admin-dashboard";
+import type { KnowledgeBaseFilters, KnowledgeBasePayload } from "../types/admin-types";
 
-export function useKnowledgeStatus() {
-  return useQuery({
-    queryKey: adminQueryKeys.knowledgeStatus,
-    queryFn: fetchKnowledgeStatus
-  });
+const knowledgeBaseKey = ["admin", "knowledge-bases"] as const;
+
+export function useKnowledgeBases(filters: KnowledgeBaseFilters) {
+  return useQuery({ queryKey: [...knowledgeBaseKey, filters], queryFn: () => fetchKnowledgeBases(filters) });
+}
+
+export function useKnowledgeBase(id: number | null) {
+  return useQuery({ queryKey: [...knowledgeBaseKey, id], queryFn: () => fetchKnowledgeBase(id as number), enabled: id !== null });
 }
 
 export function useKnowledgeActions() {
-  const queryClient = useQueryClient();
-
-  function refreshKnowledgeStatus() {
-    return queryClient.invalidateQueries({ queryKey: adminQueryKeys.knowledgeStatus });
-  }
-
-  const uploadMutation = useMutation({
-    mutationFn: uploadKnowledgeFile,
-    onSuccess: refreshKnowledgeStatus
-  });
-
-  const rebuildMutation = useMutation({
-    mutationFn: rebuildKnowledgeVector,
-    onSuccess: refreshKnowledgeStatus
-  });
-
-  const backupMutation = useMutation({
-    mutationFn: backupKnowledgeVector,
-    onSuccess: refreshKnowledgeStatus
-  });
-
+  const client = useQueryClient();
+  const refresh = () => client.invalidateQueries({ queryKey: knowledgeBaseKey });
   return {
-    uploadMutation,
-    rebuildMutation,
-    backupMutation
+    createMutation: useMutation({ mutationFn: createKnowledgeBase, onSuccess: refresh }),
+    updateMutation: useMutation({ mutationFn: ({ id, payload }: { id: number; payload: KnowledgeBasePayload }) => updateKnowledgeBase(id, payload), onSuccess: refresh }),
+    deleteMutation: useMutation({ mutationFn: deleteKnowledgeBase, onSuccess: refresh }),
+    uploadMutation: useMutation({ mutationFn: ({ id, file }: { id: number; file: File }) => uploadKnowledgeDocument(id, file), onSuccess: refresh }),
+    rebuildMutation: useMutation({ mutationFn: rebuildKnowledgeBase, onSuccess: refresh })
   };
 }

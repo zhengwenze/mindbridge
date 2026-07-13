@@ -2,6 +2,16 @@
 
 本文档定义 MindBridge 前端开发流程。后续开发必须按阶段推进，避免一次性生成全部业务页面。
 
+## 本地运行约束
+
+- Docker Compose 只运行 FastAPI、MySQL、Redis 和后端依赖，不管理 Next.js。
+- 在项目根目录运行 `docker compose up -d` 启动后端。
+- 在 `frontend/` 运行 `npm install` 和 `npm run dev` 启动宿主机前端。
+- 前端地址为 `http://localhost:3000`，API 地址由 `NEXT_PUBLIC_API_BASE_URL` 统一配置，开发默认值为 `http://localhost:8000`。
+- Axios、SSE、上传下载与健康检查都必须复用统一 API 配置，不得在业务组件中硬编码 Docker service name。
+- `.next/` 与 `node_modules/` 只存在于宿主机且必须保持 Git 忽略；页面和样式修改由 Next.js HMR 生效。
+- 不要执行 `docker compose down -v`，除非明确需要删除全部开发数据。
+
 ## 1. 总体策略
 
 开发顺序：
@@ -328,4 +338,3 @@
 - 一轮只做报告页。
 
 不要在同一轮同时做多个业务模块，避免难以审查和回退。
-

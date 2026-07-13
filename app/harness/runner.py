@@ -115,10 +115,16 @@ def build_context() -> HarnessContext:
 
 
 def reset_database(context: HarnessContext) -> None:
+    from alembic import command
+    from alembic.config import Config
     from app.core.bootstrap import seed_data
 
     context.database.Base.metadata.drop_all(bind=context.database.engine)
-    context.database.Base.metadata.create_all(bind=context.database.engine)
+    with context.database.engine.begin() as connection:
+        connection.exec_driver_sql("DROP TABLE IF EXISTS alembic_version")
+    config = Config(str(context.root / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", context.settings.database_url)
+    command.upgrade(config, "head")
     db = context.session()
     try:
         seed_data(db)
@@ -420,7 +426,7 @@ def run_rag_harness(context: HarnessContext) -> dict:
 
 
 def run_api_harness(context: HarnessContext) -> dict:
-    base_url = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8080").rstrip("/")
+    base_url = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
     student_auth = basic_auth("student", "student123")
     admin_auth = basic_auth("admin", "admin123")
     observed = {}
@@ -459,23 +465,18 @@ def run_api_harness(context: HarnessContext) -> dict:
     admin_reports_status, _ = http_json(base_url, "/api/admin/reports", headers=admin_auth)
     expect(admin_reports_status == 200, f"admin reports failed: {admin_reports_status}")
 
-    ingest_status, ingest = http_json(
+    create_status, created = http_json(
         base_url,
-        "/api/admin/knowledge",
+        "/api/admin/knowledge-bases",
         method="POST",
-        payload={"source": "harness-note", "content": "考试焦虑时可以先做呼吸练习，并联系辅导员获得支持。"},
+        payload={"name": f"harness-{uuid.uuid4().hex[:8]}", "description": "harness knowledge base"},
         headers=admin_auth,
     )
-    expect(ingest_status == 200, f"knowledge ingest failed: {ingest_status} {ingest}")
-    expect(ingest["chunks"] >= 1, "knowledge ingest did not create chunks")
-
-    status_code, status = http_json(base_url, "/api/admin/knowledge/status", headers=admin_auth)
-    expect(status_code == 200, f"knowledge status failed: {status_code}")
-    expect(status["databaseChunks"] >= 1, "knowledge status returned no chunks")
-    observed["knowledgeStatus"] = {
-        "databaseChunks": status["databaseChunks"],
-        "vectorAvailable": status["vectorAvailable"],
-    }
+    expect(create_status == 201, f"knowledge base create failed: {create_status} {created}")
+    status_code, status = http_json(base_url, f"/api/admin/knowledge-bases/{created['id']}/status", headers=admin_auth)
+    expect(status_code == 200, f"knowledge base status failed: {status_code}")
+    expect(status["collectionName"] == f"mindbridge_kb_{created['id']}", "knowledge base collection was not ID-isolated")
+    observed["knowledgeStatus"] = {"knowledgeBaseId": created["id"], "collectionName": status["collectionName"]}
     return observed
 
 

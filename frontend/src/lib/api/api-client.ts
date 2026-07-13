@@ -2,10 +2,11 @@ import axios from "axios";
 
 import { handleUnauthorizedSession } from "@/lib/auth/session";
 import { readAuthSession } from "@/lib/auth/token-storage";
+import { apiBaseUrl } from "@/lib/config/api";
 import { routes } from "@/lib/config/routes";
 
 export const apiClient = axios.create({
-  baseURL: "",
+  baseURL: apiBaseUrl,
   timeout: 20_000
 });
 

@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
-from app.core.bootstrap import create_schema, seed_data
+from app.core.bootstrap import seed_data
 from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.services.tool_queue import get_tool_queue_worker
@@ -32,7 +32,6 @@ def create_app() -> FastAPI:
 
     @app.on_event("startup")
     def startup() -> None:
-        create_schema()
         db = SessionLocal()
         try:
             seed_data(db)

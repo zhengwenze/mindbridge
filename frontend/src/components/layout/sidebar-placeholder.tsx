@@ -84,7 +84,7 @@ export function SidebarPlaceholder({ workspace }: SidebarPlaceholderProps) {
   return (
     <aside
       className="hidden shrink-0 overflow-hidden border-r border-slate-200 bg-white transition-[width] duration-200 md:block"
-      style={{ width: collapsed ? 80 : 160 }}
+      style={{ width: collapsed ? 80 : 180 }}
     >
       <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-teal-700 text-sm font-semibold text-white">

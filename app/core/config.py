@@ -39,14 +39,13 @@ class Settings(BaseSettings):
     ai_max_tokens: int = 512
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "mindbridge-qwen2.5-7b-ft:latest"
-    ollama_embedding_model: str = "qwen3-embedding:0.6b"
+    embedding_model: str = "qwen3-embedding:0.6b"
     finetuned_model_name: str = "mindbridge-qwen2.5-7b-ft:latest"
     finetuned_model_dir: str = "models/mindbridge-qwen2.5-7b-ft"
     finetuned_model_file: str = "mindbridge-qwen2.5-7b-ft-q4_k_m.gguf"
     openai_base_url: str = "https://api.openai.com/v1"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
-    openai_embedding_model: str = "text-embedding-3-small"
     database_url: str = "mysql+pymysql://mindbridge:mindbridge@127.0.0.1:3306/mindbridge?charset=utf8mb4"
     chat_history_limit: int = 10
     knowledge_top_k: int = 4
@@ -59,7 +58,6 @@ class Settings(BaseSettings):
     knowledge_vector_enabled: bool = True
     knowledge_vector_required: bool = False
     chroma_persist_dir: str = "data/chroma"
-    chroma_collection_name: str = "mindbridge_knowledge"
     chroma_snapshot_dir: str = "data/chroma-snapshots"
     chroma_snapshot_keep: int = 5
     embedding_timeout_seconds: float = 30.0

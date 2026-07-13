@@ -8,7 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
-BASE_URL = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8080").rstrip("/")
+BASE_URL = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 
 
 def request_json(path: str, method: str = "GET", payload: dict | None = None, headers: dict | None = None) -> tuple[int, dict]:
@@ -25,7 +25,8 @@ def request_json(path: str, method: str = "GET", payload: dict | None = None, he
     )
     try:
         with urlopen(request, timeout=10) as response:
-            return response.status, json.loads(response.read().decode("utf-8"))
+            raw = response.read().decode("utf-8")
+            return response.status, json.loads(raw) if raw else {}
     except HTTPError as exc:
         data = exc.read().decode("utf-8")
         return exc.code, json.loads(data) if data else {}

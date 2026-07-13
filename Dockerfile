@@ -13,15 +13,17 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY migrations ./migrations
+COPY alembic.ini ./alembic.ini
 COPY tests ./tests
 COPY skills ./skills
 COPY models/mindbridge-qwen2.5-7b-ft/Modelfile ./models/mindbridge-qwen2.5-7b-ft/Modelfile
-COPY scripts/entrypoint.sh ./scripts/entrypoint.sh
+COPY scripts ./scripts
 
 RUN chmod +x scripts/entrypoint.sh
 
-EXPOSE 8080
+EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -fsS http://127.0.0.1:8080/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD curl -fsS http://127.0.0.1:8000/actuator/health || exit 1
 
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]

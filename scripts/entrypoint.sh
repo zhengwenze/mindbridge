@@ -88,7 +88,7 @@ if [ -n "$OLLAMA_BASE_URL" ]; then
 
     if is_truthy "${OLLAMA_AUTO_PULL:-false}"; then
         pull_ollama_model "${OLLAMA_MODEL:-}"
-        pull_ollama_model "${OLLAMA_EMBEDDING_MODEL:-}"
+        pull_ollama_model "${EMBEDDING_MODEL:-qwen3-embedding:0.6b}"
     else
         echo "OLLAMA_AUTO_PULL=false, skipping Ollama model pulls."
     fi
@@ -96,4 +96,6 @@ fi
 
 echo "All services are ready. Starting MindBridge..."
 
-exec uvicorn app.main:app --host 0.0.0.0 --port 8080
+alembic upgrade head
+
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000

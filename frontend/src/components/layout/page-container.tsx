@@ -1,3 +1,5 @@
+"use client";
+
 import { Breadcrumb, Typography } from "antd";
 
 interface PageContainerProps {

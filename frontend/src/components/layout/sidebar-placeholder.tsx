@@ -7,6 +7,7 @@ import {
   DashboardOutlined,
   FileExcelOutlined,
   FileTextOutlined,
+  FolderOpenOutlined,
   HistoryOutlined,
   SafetyOutlined,
 } from "@ant-design/icons";
@@ -64,9 +65,9 @@ const adminItems: MenuProps["items"] = [
     icon: <BookOutlined />,
     label: "知识库管理",
   },
-    {
+  {
     key: "/admin/docs",
-    icon: <BookOutlined />,
+    icon: <FolderOpenOutlined />,
     label: "文档管理",
   },
 ];

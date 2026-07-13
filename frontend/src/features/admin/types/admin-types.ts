@@ -106,7 +106,10 @@ export interface KnowledgeBasePayload {
 
 export interface KnowledgeDocumentUploadResult {
   id: number;
+  knowledgeBaseId: number;
   fileName: string;
+  relativePath: string;
+  fileSize: number;
   chunks: number;
   indexStatus: string;
 }

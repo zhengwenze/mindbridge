@@ -50,6 +50,115 @@ description: "Commits and pushes local code changes to GitHub remote repository.
 - **权限不足**: 提示检查 GitHub 凭据
 - **分支冲突**: 提示先拉取远程代码解决冲突
 
+## Troubleshooting Guide（按优先级顺序）:
+
+### 1. HTTP2 Framing 错误 / 443 连接超时
+
+**现象**: `Error in the HTTP2 framing layer` 或 `Couldn't connect to server port 443`
+**解决方案**: 在仓库级别降级 HTTP 版本到 HTTP/1.1
+
+```bash
+git config http.version HTTP/1.1
+```
+
+### 2. HTTPS SSL 证书验证失败
+
+**现象**: `SSL: no alternative certificate subject name matches target ipv4 address`
+**原因**: 配置了 `url.<IP>.insteadOf` 使用 IP 访问导致证书不匹配
+**解决方案**: 移除错误的 URL 替换配置
+
+```bash
+git config --global --unset url."https://<IP>/".insteadOf
+```
+
+### 3. /etc/hosts 拦截 GitHub 域名
+
+**现象**: ping github.com 返回 127.0.0.1，curl 无法连接
+**原因**: Steam++ 等工具将 github.com 映射到本地
+**解决方案**:
+
+- 有 sudo 权限: `sudo sed -i.bak '/github/d' /etc/hosts`
+- 无 sudo 权限: 改用 SSH over HTTPS 端口 443（见下方）
+
+### 4. SSH 连接失败（权限拒绝）
+
+**现象**: `git@github.com: Permission denied (publickey)`
+**解决方案**:
+
+1. 检查 SSH config 是否配置正确（~/.ssh/config）:
+
+```ssh-config
+Host github.com
+    HostName ssh.github.com
+    Port 443
+    User git
+    IdentityFile ~/.ssh/id_ed25519_mindbridge
+    IdentitiesOnly yes
+```
+
+2. 确认公钥已添加到 GitHub 账户
+3. 测试连接: `ssh -T git@github.com`
+
+### 5. SSH 端口受限（22端口被封）
+
+**现象**: SSH 连接超时或拒绝
+**解决方案**: 将 SSH 连接改走 443 端口
+
+```bash
+git remote set-url origin git@github.com:zhengwenze/mindbridge.git
+```
+
+配合 SSH config 中设置 `HostName ssh.github.com` 和 `Port 443`
+
+### 6. macOS Keychain 凭据
+
+**现象**: HTTPS 推送时提示认证失败但未弹出密码输入
+**解决方案**: 检查钥匙串中是否有 GitHub PAT token
+
+```bash
+git credential-osxkeychain get
+```
+
+确保 token 有 repo 权限且未过期
+
+### 7. 提交后推送失败（本地已 ahead）
+
+**现象**: push 失败但本地 commit 已存在
+**解决方案**: 先确认本地状态，再聚焦网络/协议层修复
+
+```bash
+git log --oneline -5
+git status
+```
+
+### 8. 配置修改注意事项
+
+- **不要**把配置修改和推送串在同一条命令中
+- **优先使用仓库级配置**（不加 --global），减少对全局环境的副作用
+- **避免**使用 `git config --global http.postBuffer` 等临时配置
+
+## 推送失败处理流程:
+
+```
+推送失败
+    ↓
+检查错误类型
+    ↓
+┌─────────────────────────────────────────────┐
+│ 1. HTTP2/443超时 → 降级HTTP/1.1             │
+├─────────────────────────────────────────────┤
+│ 2. SSL证书错误 → 移除IP替换配置              │
+├─────────────────────────────────────────────┤
+│ 3. 连接拒绝 → 检查hosts文件                  │
+├─────────────────────────────────────────────┤
+│ 4. 权限拒绝(HTTPS) → 检查Keychain凭据        │
+├─────────────────────────────────────────────┤
+│ 5. 权限拒绝(SSH) → 配置SSH密钥和端口         │
+└─────────────────────────────────────────────┘
+    ↓
+重新推送
+```
+
 ## Security:
 
 - 不使用 `--force` 强制推送

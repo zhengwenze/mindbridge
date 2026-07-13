@@ -62,7 +62,12 @@ const adminItems: MenuProps["items"] = [
   {
     key: "/admin/knowledge",
     icon: <BookOutlined />,
-    label: "知识库",
+    label: "知识库管理",
+  },
+    {
+    key: "/admin/docs",
+    icon: <BookOutlined />,
+    label: "文档管理",
   },
 ];
 

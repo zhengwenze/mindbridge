@@ -77,6 +77,36 @@ DATABASE_URL='mysql+pymysql://mindbridge:mindbridge@127.0.0.1:13306/mindbridge?c
 
 所有接口要求管理员 Basic Auth。物理删除不支持 `force`；存在检索引用会返回 HTTP 409。
 
+## 文档上传
+
+管理员页面 `http://localhost:3000/admin/docs` 支持拖拽、多文件选择和文件夹选择。一个上传队列固定归属一个状态为 `active` 的知识库，默认同时处理两个文件，并分别显示上传百分比和后端解析入库状态。
+
+上传接口使用 `multipart/form-data`：
+
+```bash
+curl -u admin:admin123 \
+  -F 'file=@./guide.pdf' \
+  -F 'relative_path=制度/guide.pdf' \
+  http://127.0.0.1:8000/api/admin/knowledge-bases/1/documents
+```
+
+- `file` 为必填文件字段，`relative_path` 可选；未传时使用文件名。
+- 支持 `.txt`、`.md`、`.markdown`、`.pdf`、`.docx`，不支持旧版 `.doc` 和扫描 PDF OCR。
+- 服务端以 1 MiB 分块接收，单文件默认最多 50 MB；DOCX 解压内容默认最多 200 MB。
+- 相对路径会写入 `knowledge_documents.relative_path`，磁盘文件仍使用 UUID 安全命名。
+- 同一知识库内相对路径唯一；重复上传返回 409，不覆盖已有文档。不同文件夹下的同名文件可以共存。
+- 413 表示文件过大，415 表示格式不支持，422 表示路径、编码或文档内容无法解析，503 表示索引依赖处理失败。
+- 上传任一步失败都会清理临时文件、数据库新记录和已写入的文档向量，之后可以直接重试。
+
+相关配置：
+
+```env
+KNOWLEDGE_UPLOAD_MAX_BYTES=52428800
+KNOWLEDGE_UPLOAD_READ_CHUNK_BYTES=1048576
+KNOWLEDGE_DOCX_MAX_UNCOMPRESSED_BYTES=209715200
+KNOWLEDGE_EMBEDDING_BATCH_SIZE=32
+```
+
 ## 运行与验证
 
 ```bash
@@ -85,4 +115,4 @@ docker compose up -d --build
 cd frontend && npm run typecheck && npm run build
 ```
 
-在 `http://localhost:3000/admin/knowledge` 创建知识库后，上传相同文件名到两个不同知识库，再分别重建并查询，可验证其文档、片段和 collection 相互隔离。
+在 `http://localhost:3000/admin/knowledge` 创建知识库，再到 `http://localhost:3000/admin/docs` 上传文档。向两个知识库上传相同文件，或向一个知识库上传 `A/说明.txt` 与 `B/说明.txt`，再分别查询，可验证文档、片段和 collection 相互隔离。

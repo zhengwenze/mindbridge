@@ -8,5 +8,6 @@ data/*.sqlite
 data/*.xlsx
 data/chroma/
 data/chroma-snapshots/
+data/knowledge-files/
 target/
 .DS_Store

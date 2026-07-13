@@ -1,170 +1,83 @@
 ---
 name: "git-push-to-github"
-description: "Commits and pushes local code changes to GitHub remote repository. 当用户要求提交代码、推送更新到GitHub远程仓库时调用。"
+description: "Safely commits intended local changes and pushes them to a GitHub branch. 当用户明确要求提交并推送代码到 GitHub 时调用。"
 ---
 
 # Git Push to GitHub
 
-## Use this skill when:
+## Use this skill when
 
-- 用户要求将本地代码推送到 GitHub
-- 用户要求提交（commit）并推送（push）代码变更
-- 用户要求上传更新到远程仓库
+- 用户明确要求提交并推送本地代码到 GitHub。
+- 用户明确指定要更新的远程分支。
+- 用户要求把已经完成的提交同步到 GitHub。
 
-## Do NOT use this skill when:
+不要用于只读状态查询、回滚、强制推送或未经授权的分支合并。
 
-- 用户仅查询 git 状态或历史
-- 用户要求回滚、撤销或解决分支冲突
-- 用户要求修改 .gitignore 配置
+## Inputs
 
-## Input:
+- `repo_path`: 仓库路径，默认当前目录。
+- `remote`: 远程名称，默认 `origin`。
+- `branch`: 目标分支，默认当前分支；不要擅自假定为 `main`。
+- `commit_message`: 可选提交说明；未提供时根据本次明确范围内的变更生成简短中文说明。
+- `paths`: 本次允许暂存的文件路径；应从任务范围和 `git status` 中明确得出。
 
-- repo_path: string # 仓库路径，默认当前目录
-- remote_url: string # GitHub URL（可选）
-- branch: string # 目标分支，默认 main
-- commit_message: string # 提交说明，默认自动生成
+## Outputs
 
-## Output:
+- `success`: 是否完成。
+- `branch`: 实际推送的目标分支。
+- `commit_hash`: 推送后的提交哈希。
+- `commit_message`: 提交说明。
+- `push_result`: 推送与远程校验结果。
+- `error_message`: 失败原因及安全的下一步建议。
 
-- success: boolean
-- commit_hash: string
-- commit_message: string
-- push_result: string
-- error_message: string
+## Safe workflow
 
-## Steps:
+1. 确认仓库与范围：
+   - 运行 `git status --short --branch`、`git remote -v`、`git branch -vv`。
+   - 确认目标远程和目标分支与用户要求一致。
+   - 工作区包含无关或来源不明的改动时，保留它们且不要暂存；无法隔离时停止并说明。
+2. 获取远程状态：
+   - 运行 `git fetch <remote> --prune`。
+   - 比较本地目标分支与 `<remote>/<branch>`，禁止在不了解远程新提交时直接推送。
+3. 暂存与审查：
+   - 只运行 `git add -- <明确文件路径...>`，禁止无条件使用 `git add .`、`git add -A`。
+   - 用 `git diff --cached --check` 和 `git diff --cached --stat` 检查暂存内容。
+   - 检查敏感文件、构建缓存和临时文件是否被意外纳入。
+4. 验证：
+   - 运行与改动风险相匹配的测试、类型检查、Lint 或构建。
+   - 验证失败时不要提交或推送；报告失败并保留现场。
+5. 提交：
+   - 仅在存在已暂存变更时执行 `git commit -m "<说明>"`。
+   - 若改动已经提交，复用现有提交，不创建空提交。
+6. 同步目标分支：
+   - 当前分支就是目标分支时，先以 `git pull --ff-only <remote> <branch>` 更新。
+   - 当前分支不是目标分支且用户明确要求直接更新目标分支时，切换到目标分支，以 `--ff-only` 同步远程，再 `cherry-pick` 本次明确提交。
+   - 出现冲突时停止，不自动丢弃、覆盖或重写任何一方的改动。
+7. 推送：
+   - 使用 `git push <remote> HEAD:<branch>`。
+   - 禁止 `--force`、`--force-with-lease`，除非用户在了解风险后单独明确授权。
+8. 远程校验：
+   - 再次 `git fetch <remote>`。
+   - 确认 `git rev-parse HEAD` 与 `git rev-parse <remote>/<branch>` 一致。
+   - 输出分支、提交哈希、提交说明和验证结果。
 
-1. 检查 git 仓库状态和远程配置
-2. 暂存所有变更：`git add .`
-3. 生成中文提交说明：优先使用用户传入中文message；无输入则根据文件改动自动生成简短中文变更描述
-4. 执行提交：`git commit -m "<中文简易变更说明>"`
-5. 推送代码：`git push origin <branch>`
-6. 验证推送成功，输出提交信息
+## Failure handling
 
-## On Failure:
+- **非 Git 仓库或远程缺失**：停止并报告；未经确认不要初始化仓库或新增远程。
+- **身份缺失**：报告缺失项；不要自行设置 `user.name` 或 `user.email`。
+- **远程领先或非快进**：先 fetch 并展示分叉；只使用 fast-forward、rebase 或明确的 cherry-pick 方案，冲突时停止。
+- **认证或权限失败**：报告 GitHub 返回的原始错误，建议用户检查凭据和仓库权限。
+- **网络、HTTP/2、SSL、SSH 失败**：先执行只读诊断；不要自动修改远程 URL、`/etc/hosts`、SSH 配置或全局 Git 配置。
+- **推送后连接中断**：先 fetch 并比较远程提交，确认是否其实已经成功，避免重复操作。
 
-- **非 git 仓库**: 提示用户初始化仓库
-- **远程未配置**: 使用 remote_url 添加或询问用户
-- **身份缺失**: 在当前仓库级别设置 user.name/email
-- **网络失败**: 检查代理配置，重置 remote URL 为官方地址
-- **权限不足**: 提示检查 GitHub 凭据
-- **分支冲突**: 提示先拉取远程代码解决冲突
+## Security and repository hygiene
 
-## Troubleshooting Guide（按优先级顺序）:
-
-### 1. HTTP2 Framing 错误 / 443 连接超时
-
-**现象**: `Error in the HTTP2 framing layer` 或 `Couldn't connect to server port 443`
-**解决方案**: 在仓库级别降级 HTTP 版本到 HTTP/1.1
-
-```bash
-git config http.version HTTP/1.1
-```
-
-### 2. HTTPS SSL 证书验证失败
-
-**现象**: `SSL: no alternative certificate subject name matches target ipv4 address`
-**原因**: 配置了 `url.<IP>.insteadOf` 使用 IP 访问导致证书不匹配
-**解决方案**: 移除错误的 URL 替换配置
-
-```bash
-git config --global --unset url."https://<IP>/".insteadOf
-```
-
-### 3. /etc/hosts 拦截 GitHub 域名
-
-**现象**: ping github.com 返回 127.0.0.1，curl 无法连接
-**原因**: Steam++ 等工具将 github.com 映射到本地
-**解决方案**:
-
-- 有 sudo 权限: `sudo sed -i.bak '/github/d' /etc/hosts`
-- 无 sudo 权限: 改用 SSH over HTTPS 端口 443（见下方）
-
-### 4. SSH 连接失败（权限拒绝）
-
-**现象**: `git@github.com: Permission denied (publickey)`
-**解决方案**:
-
-1. 检查 SSH config 是否配置正确（~/.ssh/config）:
-
-```ssh-config
-Host github.com
-    HostName ssh.github.com
-    Port 443
-    User git
-    IdentityFile ~/.ssh/id_ed25519_mindbridge
-    IdentitiesOnly yes
-```
-
-2. 确认公钥已添加到 GitHub 账户
-3. 测试连接: `ssh -T git@github.com`
-
-### 5. SSH 端口受限（22端口被封）
-
-**现象**: SSH 连接超时或拒绝
-**解决方案**: 将 SSH 连接改走 443 端口
-
-```bash
-git remote set-url origin git@github.com:zhengwenze/mindbridge.git
-```
-
-配合 SSH config 中设置 `HostName ssh.github.com` 和 `Port 443`
-
-### 6. macOS Keychain 凭据
-
-**现象**: HTTPS 推送时提示认证失败但未弹出密码输入
-**解决方案**: 检查钥匙串中是否有 GitHub PAT token
-
-```bash
-git credential-osxkeychain get
-```
-
-确保 token 有 repo 权限且未过期
-
-### 7. 提交后推送失败（本地已 ahead）
-
-**现象**: push 失败但本地 commit 已存在
-**解决方案**: 先确认本地状态，再聚焦网络/协议层修复
-
-```bash
-git log --oneline -5
-git status
-```
-
-### 8. 配置修改注意事项
-
-- **不要**把配置修改和推送串在同一条命令中
-- **优先使用仓库级配置**（不加 --global），减少对全局环境的副作用
-- **避免**使用 `git config --global http.postBuffer` 等临时配置
-
-## 推送失败处理流程:
-
-```
-推送失败
-    ↓
-检查错误类型
-    ↓
-┌─────────────────────────────────────────────┐
-│ 1. HTTP2/443超时 → 降级HTTP/1.1             │
-├─────────────────────────────────────────────┤
-│ 2. SSL证书错误 → 移除IP替换配置              │
-├─────────────────────────────────────────────┤
-│ 3. 连接拒绝 → 检查hosts文件                  │
-├─────────────────────────────────────────────┤
-│ 4. 权限拒绝(HTTPS) → 检查Keychain凭据        │
-├─────────────────────────────────────────────┤
-│ 5. 权限拒绝(SSH) → 配置SSH密钥和端口         │
-└─────────────────────────────────────────────┘
-    ↓
-重新推送
-```
-
-## Security:
-
-- 不使用 `--force` 强制推送
-- 不修改全局 git 配置
-- 确保 .gitignore 排除缓存和敏感文件
+- 不读取或输出令牌、私钥、密码和凭据内容。
+- 不关闭 SSL 校验，不修改全局 Git 配置。
+- 不使用破坏性命令，例如 `git reset --hard`、`git clean -fd` 或强制推送。
+- 不覆盖用户已有改动；所有暂存文件都必须属于当前任务范围。
+- 修改远程地址、本地身份、代理、SSH 或系统网络配置前必须取得用户确认。
 
 ---
 
-**Skill Version**: 1.0
+**Skill Version**: 1.1

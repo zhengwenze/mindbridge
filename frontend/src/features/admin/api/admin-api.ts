@@ -8,6 +8,13 @@ import type {
   KnowledgeBaseFilters,
   KnowledgeBaseListResponse,
   KnowledgeBasePayload,
+  BatchDeleteDocumentsResult,
+  DocumentSplitConfig,
+  DocumentSplitPreviewResponse,
+  KnowledgeDocumentFilters,
+  KnowledgeDocumentListResponse,
+  KnowledgeDocumentReindexResult,
+  KnowledgeDocumentUploadOptions,
   KnowledgeDocumentUploadResult,
   RiskCase,
   RiskReport
@@ -76,11 +83,17 @@ export async function uploadKnowledgeDocument(
   id: number,
   file: File,
   relativePath = file.name,
-  onProgress?: (percent: number) => void
+  onProgress?: (percent: number) => void,
+  splitOptions?: KnowledgeDocumentUploadOptions
 ): Promise<KnowledgeDocumentUploadResult> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("relative_path", relativePath);
+  if (splitOptions) {
+    formData.append("chunk_size", String(splitOptions.chunkSize));
+    formData.append("chunk_overlap", String(splitOptions.chunkOverlap));
+    formData.append("splitter_type", splitOptions.splitterType);
+  }
   const response = await apiClient.post<KnowledgeDocumentUploadResult>(
     `/api/admin/knowledge-bases/${id}/documents`,
     formData,
@@ -93,6 +106,69 @@ export async function uploadKnowledgeDocument(
         }
       }
     }
+  );
+  return response.data;
+}
+
+export async function fetchKnowledgeDocuments(
+  knowledgeBaseId: number,
+  filters: KnowledgeDocumentFilters,
+): Promise<KnowledgeDocumentListResponse> {
+  const params = new URLSearchParams();
+  if (filters.name) params.set("name", filters.name);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.createdFrom) params.set("created_from", filters.createdFrom);
+  if (filters.createdTo) params.set("created_to", `${filters.createdTo}T23:59:59.999`);
+  params.set("page", String(filters.page ?? 1));
+  params.set("page_size", String(filters.pageSize ?? 20));
+  if (filters.sortBy) params.set("sort_by", filters.sortBy);
+  if (filters.sortOrder) params.set("sort_order", filters.sortOrder);
+  const response = await apiClient.get<KnowledgeDocumentListResponse>(
+    `/api/admin/knowledge-bases/${knowledgeBaseId}/documents?${params.toString()}`,
+  );
+  return response.data;
+}
+
+export async function previewKnowledgeDocumentSplit(
+  knowledgeBaseId: number,
+  documentId: number,
+  payload: DocumentSplitConfig,
+): Promise<DocumentSplitPreviewResponse> {
+  const response = await apiClient.post<DocumentSplitPreviewResponse>(
+    `/api/admin/knowledge-bases/${knowledgeBaseId}/documents/${documentId}/split-preview`,
+    payload,
+  );
+  return response.data;
+}
+
+export async function reindexKnowledgeDocument(
+  knowledgeBaseId: number,
+  documentId: number,
+  payload: DocumentSplitConfig,
+): Promise<KnowledgeDocumentReindexResult> {
+  const response = await apiClient.post<KnowledgeDocumentReindexResult>(
+    `/api/admin/knowledge-bases/${knowledgeBaseId}/documents/${documentId}/reindex`,
+    payload,
+  );
+  return response.data;
+}
+
+export async function deleteKnowledgeDocument(
+  knowledgeBaseId: number,
+  documentId: number,
+): Promise<void> {
+  await apiClient.delete(
+    `/api/admin/knowledge-bases/${knowledgeBaseId}/documents/${documentId}`,
+  );
+}
+
+export async function batchDeleteKnowledgeDocuments(
+  knowledgeBaseId: number,
+  documentIds: number[],
+): Promise<BatchDeleteDocumentsResult> {
+  const response = await apiClient.post<BatchDeleteDocumentsResult>(
+    `/api/admin/knowledge-bases/${knowledgeBaseId}/documents/batch-delete`,
+    { documentIds },
   );
   return response.data;
 }

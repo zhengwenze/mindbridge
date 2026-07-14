@@ -13,8 +13,10 @@ from app.core.database import get_db
 from app.core.security import current_user, hash_password, require_admin, require_student
 from app.models.entities import UserAccount
 from app.schemas.dtos import ChatRequest, KnowledgeBaseCreateRequest, KnowledgeBaseUpdateRequest, StudentRegisterRequest, authority
+from app.schemas.knowledge import DocumentBatchDeleteRequest, DocumentSplitRequest
 from app.services.chat import ChatService
-from app.services.knowledge import KnowledgeBaseError, KnowledgeBaseService, KnowledgeDocumentService, receive_upload
+from app.services.document_management import KnowledgeDocumentService, receive_upload
+from app.services.knowledge import KnowledgeBaseError, KnowledgeBaseService
 from app.services.model_assets import finetuned_model_status
 from app.services.report import ReportService
 from app.services.skills import MindBridgeSkillLibrary
@@ -270,6 +272,9 @@ async def ingest_knowledge_document(
     db: Annotated[Session, Depends(get_db)],
     file: UploadFile = File(...),
     relative_path: str | None = Form(default=None),
+    chunk_size: int | None = Form(default=None, ge=100, le=4000),
+    chunk_overlap: int | None = Form(default=None, ge=0, le=1000),
+    splitter_type: str = Form(default="recursive_character"),
 ):
     temp_path = None
     try:
@@ -282,12 +287,121 @@ async def ingest_knowledge_document(
             temp_path,
             file_size,
             user,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            splitter_type=splitter_type,
+            mime_type=file.content_type,
         )
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
+
+
+@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/documents")
+def list_knowledge_documents(
+    knowledge_base_id: int,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    name: str | None = None,
+    status: str | None = None,
+    created_from: datetime | None = None,
+    created_to: datetime | None = None,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    sort_by: str = Query(default="created_at"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
+):
+    try:
+        return KnowledgeDocumentService(db, get_settings()).list(
+            knowledge_base_id,
+            name=name,
+            status=status,
+            created_from=created_from,
+            created_to=created_to,
+            page=page,
+            page_size=page_size,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents/batch-delete")
+def batch_delete_knowledge_documents(
+    knowledge_base_id: int,
+    request: DocumentBatchDeleteRequest,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    try:
+        return KnowledgeDocumentService(db, get_settings()).batch_delete(
+            knowledge_base_id, request.documentIds, user
+        )
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.post(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}/split-preview"
+)
+def preview_knowledge_document_split(
+    knowledge_base_id: int,
+    document_id: int,
+    request: DocumentSplitRequest,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    try:
+        return KnowledgeDocumentService(db, get_settings()).split_preview(
+            knowledge_base_id,
+            document_id,
+            chunk_size=request.chunkSize,
+            chunk_overlap=request.chunkOverlap,
+            splitter_type=request.splitterType,
+        )
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.post(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}/reindex"
+)
+def reindex_knowledge_document(
+    knowledge_base_id: int,
+    document_id: int,
+    request: DocumentSplitRequest,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    try:
+        return KnowledgeDocumentService(db, get_settings()).reindex(
+            knowledge_base_id,
+            document_id,
+            chunk_size=request.chunkSize,
+            chunk_overlap=request.chunkOverlap,
+            splitter_type=request.splitterType,
+            actor=user,
+        )
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
+
+
+@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}")
+def delete_knowledge_document(
+    knowledge_base_id: int,
+    document_id: int,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    try:
+        return KnowledgeDocumentService(db, get_settings()).delete(
+            knowledge_base_id, document_id, user
+        )
+    except KnowledgeBaseError as exc:
+        raise knowledge_error(exc) from exc
 
 
 @router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild")

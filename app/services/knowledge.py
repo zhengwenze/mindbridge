@@ -6,15 +6,10 @@ import math
 import re
 import shutil
 import unicodedata
-import uuid
-import zipfile
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Any, Hashable, Iterable, Iterator
-
-from docx import Document as DocxDocument
-from pypdf import PdfReader
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -355,216 +350,12 @@ class KnowledgeBaseService:
         self.db.add(KnowledgeBaseOperationLog(knowledge_base_id=base_id, actor_id=actor.id if actor else None, action=action, status=status, detail_json=json.dumps(detail, ensure_ascii=False)))
 
 
-class KnowledgeDocumentService:
-    def __init__(self, db: Session, settings: Settings):
-        self.db = db
-        self.settings = settings
-        self.bases = KnowledgeBaseService(db, settings)
-        self.vector_store = self.bases.vector_store
-
-    def ingest_file(
-        self,
-        knowledge_base_id: int,
-        filename: str,
-        data: bytes,
-        actor: UserAccount | None = None,
-        *,
-        relative_path: str | None = None,
-        replace_existing: bool = False,
-    ) -> dict:
-        if len(data) > self.settings.knowledge_upload_max_bytes:
-            raise KnowledgeDocumentTooLarge("单个文件不能超过 50 MB")
-        temp_path = create_upload_temp(self.settings, Path(filename).suffix)
-        try:
-            temp_path.write_bytes(data)
-            return self.ingest_path(
-                knowledge_base_id,
-                filename,
-                relative_path,
-                temp_path,
-                len(data),
-                actor,
-                replace_existing=replace_existing,
-            )
-        finally:
-            temp_path.unlink(missing_ok=True)
-
-    def ingest_path(
-        self,
-        knowledge_base_id: int,
-        filename: str,
-        relative_path: str | None,
-        temp_path: Path,
-        file_size: int,
-        actor: UserAccount | None = None,
-        *,
-        replace_existing: bool = False,
-    ) -> dict:
-        base = self.bases.get(knowledge_base_id)
-        self._assert_writable(base)
-        normalized_path = normalize_relative_path(relative_path, filename)
-        safe_name = PurePosixPath(normalized_path).name
-        validate_document_extension(safe_name)
-        existing = self.db.query(KnowledgeDocument).filter(
-            KnowledgeDocument.knowledge_base_id == base.id,
-            KnowledgeDocument.relative_path == normalized_path,
-        ).first()
-        if existing is not None and not replace_existing:
-            raise KnowledgeBaseConflict("该知识库中已存在相同路径的文档")
-
-        chunks = list(extract_document_chunks(temp_path, safe_name, self.settings))
-        if not chunks:
-            raise KnowledgeDocumentInvalid("文档没有可索引文本")
-
-        if existing is not None:
-            if self.vector_store.can_embed:
-                self.vector_store.delete_document(base.collection_name, existing.id)
-            remove_stored_file(existing.storage_path, self.settings)
-            self.db.delete(existing)
-            self.db.flush()
-
-        document = KnowledgeDocument(
-            knowledge_base_id=base.id,
-            file_name=safe_name,
-            relative_path=normalized_path,
-            file_type=file_type(safe_name),
-            file_size=file_size,
-            index_status="indexing",
-        )
-        stored_path: Path | None = None
-        self.db.add(document)
-        try:
-            self.db.flush()
-            rows = [
-                KnowledgeChunk(
-                    knowledge_base_id=base.id,
-                    document_id=document.id,
-                    document=document,
-                    source=normalized_path,
-                    source_index=index,
-                    content=chunk,
-                )
-                for index, chunk in enumerate(chunks)
-            ]
-            self.db.add_all(rows)
-            self.db.flush()
-            self._index(base, rows)
-            stored_path = move_upload_to_storage(temp_path, base.id, safe_name, self.settings)
-            document.storage_path = str(stored_path.relative_to(self.settings.project_root))
-            document.index_status = "active"
-            self.bases._audit(
-                base.id,
-                actor,
-                "upload",
-                "success",
-                {"documentId": document.id, "relativePath": normalized_path, "chunks": len(rows)},
-            )
-            self.db.commit()
-        except IntegrityError as exc:
-            self._rollback_upload(base, document, stored_path)
-            raise KnowledgeBaseConflict("该知识库中已存在相同路径的文档") from exc
-        except Exception as exc:
-            self._rollback_upload(base, document, stored_path)
-            self._audit_failed_upload(base.id, actor, normalized_path, exc)
-            raise KnowledgeDocumentProcessingError("文档处理失败，请检查解析或向量服务后重试") from exc
-        return {
-            "id": document.id,
-            "knowledgeBaseId": base.id,
-            "fileName": document.file_name,
-            "relativePath": document.relative_path,
-            "fileSize": document.file_size,
-            "chunks": len(rows),
-            "indexStatus": document.index_status,
-        }
-
-    def rebuild(self, knowledge_base_id: int, actor: UserAccount | None = None) -> int:
-        base = self.bases.get(knowledge_base_id)
-        self._assert_writable(base)
-        base.status = "indexing"
-        self.db.commit()
-        chunks = self.db.query(KnowledgeChunk).options(joinedload(KnowledgeChunk.document)).filter(KnowledgeChunk.knowledge_base_id == base.id).order_by(KnowledgeChunk.document_id, KnowledgeChunk.source_index).all()
-        try:
-            self._sync(base, chunks)
-            self.db.query(KnowledgeDocument).filter(KnowledgeDocument.knowledge_base_id == base.id).update({KnowledgeDocument.index_status: "active", KnowledgeDocument.error_message: ""})
-            base.status = "active"
-            self.bases._audit(base.id, actor, "rebuild", "success", {"chunks": len(chunks)})
-            self.db.commit()
-            return len(chunks)
-        except Exception as exc:
-            base.status = "error"
-            self.bases._audit(base.id, actor, "rebuild", "error", {"error": safe_error(exc)})
-            self.db.commit()
-            raise KnowledgeBaseError("知识库重建失败") from exc
-
-    def ensure_source(self, knowledge_base_id: int, source: str, content: str) -> int:
-        normalized_path = normalize_relative_path(source, source)
-        existing = self.db.query(KnowledgeDocument).filter(
-            KnowledgeDocument.knowledge_base_id == knowledge_base_id,
-            KnowledgeDocument.relative_path == normalized_path,
-        ).first()
-        chunks = chunk_text(content, self.settings.knowledge_chunk_size, self.settings.knowledge_chunk_overlap)
-        if existing and [row.content for row in existing.chunks] == chunks:
-            return len(chunks)
-        return int(self.ingest_file(knowledge_base_id, source, content.encode("utf-8"), replace_existing=True)["chunks"])
-
-    def _index(self, base: KnowledgeBase, chunks: list[KnowledgeChunk]) -> None:
-        if not self.vector_store.can_embed:
-            return
-        batch_size = max(1, self.settings.knowledge_embedding_batch_size)
-        for start in range(0, len(chunks), batch_size):
-            batch = chunks[start:start + batch_size]
-            embeddings = self.vector_store.embed_texts([chunk.content for chunk in batch])
-            for chunk, embedding in zip(batch, embeddings):
-                chunk.embedding_json = json.dumps(embedding, separators=(",", ":"))
-            self.vector_store.upsert_chunks(base.collection_name, batch, embeddings)
-
-    def _sync(self, base: KnowledgeBase, chunks: list[KnowledgeChunk]) -> None:
-        if not self.vector_store.can_embed:
-            return
-        self._index(base, chunks)
-        self.vector_store.prune_chunks(base.collection_name, chunks)
-
-    def _rollback_upload(self, base: KnowledgeBase, document: KnowledgeDocument, stored_path: Path | None) -> None:
-        document_id = document.id
-        self.db.rollback()
-        if stored_path is not None:
-            stored_path.unlink(missing_ok=True)
-        if document_id is not None and self.vector_store.can_embed:
-            try:
-                self.vector_store.delete_document(base.collection_name, document_id)
-            except Exception:
-                logger.exception("failed to compensate vectors for document id=%s", document_id)
-
-    def _audit_failed_upload(
-        self,
-        knowledge_base_id: int,
-        actor: UserAccount | None,
-        relative_path: str,
-        exc: Exception,
-    ) -> None:
-        try:
-            self.bases._audit(
-                knowledge_base_id,
-                actor,
-                "upload",
-                "error",
-                {"relativePath": relative_path, "error": safe_error(exc)},
-            )
-            self.db.commit()
-        except Exception:
-            self.db.rollback()
-            logger.exception("failed to write document upload audit")
-
-    @staticmethod
-    def _assert_writable(base: KnowledgeBase) -> None:
-        if base.status != "active":
-            raise KnowledgeBaseUnavailable("知识库不是 active 状态，不能上传或重建")
-
-
 class KnowledgeService:
     """RAG façade. Retrieval is always constrained to trusted knowledge-base IDs."""
 
     def __init__(self, db: Session, settings: Settings):
+        from app.services.document_management import KnowledgeDocumentService
+
         self.db = db
         self.settings = settings
         self.bases = KnowledgeBaseService(db, settings)
@@ -690,55 +481,6 @@ def validate_document_extension(name: str) -> None:
         raise KnowledgeDocumentUnsupported("仅支持 txt、md、markdown、pdf、docx 格式")
 
 
-def create_upload_temp(settings: Settings, suffix: str = "") -> Path:
-    root = settings.project_root / "data" / "knowledge-files" / ".tmp"
-    root.mkdir(parents=True, exist_ok=True)
-    safe_suffix = suffix.lower() if suffix.lower() in SUPPORTED_DOCUMENT_EXTENSIONS else ""
-    return root / f"{uuid.uuid4().hex}{safe_suffix}"
-
-
-async def receive_upload(file: Any, settings: Settings) -> tuple[Path, int]:
-    """Stream a multipart upload to a staging file with a hard byte limit."""
-    temp_path = create_upload_temp(settings, Path(file.filename or "").suffix)
-    total = 0
-    block_size = max(1, settings.knowledge_upload_read_chunk_bytes)
-    try:
-        with temp_path.open("wb") as target:
-            while True:
-                block = await file.read(block_size)
-                if not block:
-                    break
-                total += len(block)
-                if total > settings.knowledge_upload_max_bytes:
-                    raise KnowledgeDocumentTooLarge("单个文件不能超过 50 MB")
-                target.write(block)
-        return temp_path, total
-    except Exception:
-        temp_path.unlink(missing_ok=True)
-        raise
-
-
-def move_upload_to_storage(
-    temp_path: Path,
-    knowledge_base_id: int,
-    name: str,
-    settings: Settings,
-) -> Path:
-    root = settings.project_root / "data" / "knowledge-files" / str(knowledge_base_id)
-    root.mkdir(parents=True, exist_ok=True)
-    destination = root / f"{uuid.uuid4().hex}_{safe_file_name(name)}"
-    return Path(shutil.move(str(temp_path), destination))
-
-
-def remove_stored_file(value: str | None, settings: Settings) -> None:
-    if not value:
-        return
-    root = (settings.project_root / "data" / "knowledge-files").resolve()
-    path = (settings.project_root / value).resolve()
-    if path.is_relative_to(root) and path.is_file():
-        path.unlink()
-
-
 def remove_knowledge_base_files(knowledge_base_id: int, settings: Settings) -> None:
     root = (settings.project_root / "data" / "knowledge-files").resolve()
     directory = (root / str(knowledge_base_id)).resolve()
@@ -748,81 +490,43 @@ def remove_knowledge_base_files(knowledge_base_id: int, settings: Settings) -> N
         shutil.rmtree(directory)
 
 
+async def receive_upload(file: Any, settings: Settings) -> tuple[Path, int]:
+    """Compatibility wrapper for the original upload helper import path."""
+    from app.services.document_storage import receive_upload as stream_upload
+
+    return await stream_upload(file, settings)
+
+
 def safe_error(exc: Exception) -> str:
     return re.sub(r"[\r\n]+", " ", str(exc))[:300] or type(exc).__name__
 
 
 def extract_document_chunks(path: Path, name: str, settings: Settings) -> Iterator[str]:
+    """Compatibility wrapper for callers of the original upload parser."""
+    from app.services.document_parser import DocumentParseError, parse_document
+    from app.services.document_splitter import SplitterConfigError, split_text, validate_splitter_config
+
     try:
-        extension = Path(name).suffix.lower()
-        if extension in {".txt", ".md", ".markdown"}:
-            blocks = iter_text_blocks(path)
-        elif extension == ".pdf":
-            blocks = iter_pdf_blocks(path)
-        elif extension == ".docx":
-            blocks = iter_docx_blocks(path, settings)
-        else:
-            raise KnowledgeDocumentUnsupported("不支持的文档格式")
-        yield from chunk_blocks(blocks, settings.knowledge_chunk_size, settings.knowledge_chunk_overlap)
-    except KnowledgeBaseError:
-        raise
-    except UnicodeDecodeError as exc:
-        raise KnowledgeDocumentInvalid("TXT 和 Markdown 文档必须使用 UTF-8 编码") from exc
-    except Exception as exc:
-        raise KnowledgeDocumentInvalid("文档损坏或无法解析") from exc
-
-
-def iter_text_blocks(path: Path) -> Iterator[str]:
-    with path.open("r", encoding="utf-8-sig") as source:
-        while block := source.read(64 * 1024):
-            yield block
-
-
-def iter_pdf_blocks(path: Path) -> Iterator[str]:
-    reader = PdfReader(str(path))
-    if reader.is_encrypted:
-        raise KnowledgeDocumentInvalid("暂不支持加密 PDF")
-    for page in reader.pages:
-        yield page.extract_text() or ""
-
-
-def iter_docx_blocks(path: Path, settings: Settings) -> Iterator[str]:
-    with zipfile.ZipFile(path) as archive:
-        entries = archive.infolist()
-        uncompressed_size = sum(entry.file_size for entry in entries)
-        if len(entries) > 10_000 or uncompressed_size > settings.knowledge_docx_max_uncompressed_bytes:
-            raise KnowledgeDocumentInvalid("DOCX 解压后的内容超过安全限制")
-        if "[Content_Types].xml" not in archive.namelist():
-            raise KnowledgeDocumentInvalid("DOCX 文件结构无效")
-    document = DocxDocument(str(path))
-    for paragraph in document.paragraphs:
-        yield paragraph.text
-    for table in document.tables:
-        for row in table.rows:
-            yield "\t".join(cell.text for cell in row.cells)
-
-
-def chunk_blocks(blocks: Iterable[str], size: int, overlap: int) -> Iterator[str]:
-    chunk_size = max(1, size)
-    chunk_overlap = min(max(0, overlap), chunk_size - 1)
-    step = chunk_size - chunk_overlap
-    buffer = ""
-    emitted = False
-    for block in blocks:
-        normalized = re.sub(r"\s+", " ", block or "").strip()
-        if not normalized:
-            continue
-        buffer = f"{buffer} {normalized}".strip() if buffer else normalized
-        while len(buffer) >= chunk_size:
-            yield buffer[:chunk_size]
-            emitted = True
-            buffer = buffer[step:]
-    if buffer and (not emitted or len(buffer) > chunk_overlap):
-        yield buffer
+        parsed = parse_document(path, name, settings)
+        if not parsed.text:
+            return
+        config = validate_splitter_config(
+            settings.knowledge_chunk_size,
+            settings.knowledge_chunk_overlap,
+            "recursive_character",
+        )
+        yield from split_text(parsed.text, config)
+    except (DocumentParseError, SplitterConfigError) as exc:
+        raise KnowledgeDocumentInvalid(str(exc)) from exc
 
 
 def chunk_text(content: str, size: int, overlap: int) -> list[str]:
-    return list(chunk_blocks([content], size, overlap))
+    from app.services.document_splitter import SplitterConfigError, split_text, validate_splitter_config
+
+    try:
+        return split_text(content, validate_splitter_config(size, overlap))
+    except SplitterConfigError as exc:
+        raise KnowledgeDocumentInvalid(str(exc)) from exc
 
 
 def bm25_scores(query: str, chunks: list[KnowledgeChunk]) -> dict[int, float]:

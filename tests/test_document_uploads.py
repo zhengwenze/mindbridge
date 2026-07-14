@@ -146,7 +146,7 @@ class DocumentExtractionTests(unittest.TestCase):
             document.save(docx_path)
             extracted = " ".join(extract_document_chunks(docx_path, docx_path.name, config))
             self.assertIn("DOCX upload guide", extracted)
-            self.assertIn("folder document", extracted)
+            self.assertIn("| folder | document |", extracted)
 
     def test_rejects_invalid_or_empty_documents(self):
         with tempfile.TemporaryDirectory() as directory:

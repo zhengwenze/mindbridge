@@ -7,6 +7,7 @@ cryptography>=42.0.0
 redis==5.2.1
 pydantic-settings==2.7.1
 langchain-core==0.3.59
+langchain-text-splitters==0.3.8
 langgraph==0.4.3
 chromadb==0.5.23
 python-multipart==0.0.20

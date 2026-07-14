@@ -70,14 +70,16 @@ DATABASE_URL='mysql+pymysql://mindbridge:mindbridge@127.0.0.1:13306/mindbridge?c
 - `POST /api/admin/knowledge-bases`：创建知识库。
 - `GET /api/admin/knowledge-bases`：名称、状态、创建时间筛选和分页。
 - `GET/PATCH /api/admin/knowledge-bases/{id}`：详情与编辑；仅可将状态改为 `active` 或 `disabled`。
-- `DELETE /api/admin/knowledge-bases/{id}`：逻辑删除。
-- `POST /api/admin/knowledge-bases/{id}/restore`：恢复；collection 缺失时转为 `error`，需重建。
-- `DELETE /api/admin/knowledge-bases/{id}/purge`：仅已逻辑删除且没有检索日志引用时物理删除。失败保留错误状态和操作日志，可修复 Chroma 后重试。
-- `POST /api/admin/knowledge-bases/{id}/documents`、`GET .../{id}/status`、`POST .../{id}/rebuild`：知识库级文档和索引操作。
+- `DELETE /api/admin/knowledge-bases/{id}`：校验引用并进入删除屏障，再清理独立 collection、原文件和数据库记录；失败保留 `DELETE_FAILED` 和操作日志，可修复后重试。
+- `POST/GET /api/admin/knowledge-bases/{id}/documents`：上传或聚合查询知识库下的文档。
+- `POST .../{id}/documents/{document_id}/split-preview`：无副作用预览字符拆分结果。
+- `POST .../{id}/documents/{document_id}/reindex`：应用逐文档拆分配置并替换索引。
+- `DELETE .../{id}/documents/{document_id}`、`POST .../{id}/documents/batch-delete`：单删或最多 100 个文档的全成全败批删。
+- `GET .../{id}/status`、`POST .../{id}/rebuild`：知识库级状态与索引重建。
 
-所有接口要求管理员 Basic Auth。物理删除不支持 `force`；存在检索引用会返回 HTTP 409。
+所有接口要求管理员 Basic Auth。知识库删除不支持 `force`；存在检索引用会返回 HTTP 409。
 
-## 文档上传
+## 文档上传与管理
 
 管理员页面 `http://localhost:3000/admin/docs` 支持拖拽、多文件选择和文件夹选择。一个上传队列固定归属一个状态为 `active` 的知识库，默认同时处理两个文件，并分别显示上传百分比和后端解析入库状态。
 
@@ -87,16 +89,22 @@ DATABASE_URL='mysql+pymysql://mindbridge:mindbridge@127.0.0.1:13306/mindbridge?c
 curl -u admin:admin123 \
   -F 'file=@./guide.pdf' \
   -F 'relative_path=制度/guide.pdf' \
+  -F 'chunk_size=512' \
+  -F 'chunk_overlap=64' \
+  -F 'splitter_type=recursive_character' \
   http://127.0.0.1:8000/api/admin/knowledge-bases/1/documents
 ```
 
-- `file` 为必填文件字段，`relative_path` 可选；未传时使用文件名。
+- `file` 为必填文件字段，`relative_path` 和拆分参数可选；未传拆分参数时使用系统字符数默认值。
 - 支持 `.txt`、`.md`、`.markdown`、`.pdf`、`.docx`，不支持旧版 `.doc` 和扫描 PDF OCR。
+- TXT/Markdown 保留标题、列表和换行；DOCX 保留段落顺序并转换标题、列表和表格；PDF 保留页边界。
 - 服务端以 1 MiB 分块接收，单文件默认最多 50 MB；DOCX 解压内容默认最多 200 MB。
 - 相对路径会写入 `knowledge_documents.relative_path`，磁盘文件仍使用 UUID 安全命名。
 - 同一知识库内相对路径唯一；重复上传返回 409，不覆盖已有文档。不同文件夹下的同名文件可以共存。
 - 413 表示文件过大，415 表示格式不支持，422 表示路径、编码或文档内容无法解析，503 表示索引依赖处理失败。
 - 上传任一步失败都会清理临时文件、数据库新记录和已写入的文档向量，之后可以直接重试。
+- 文档管理页从 MySQL 聚合 Chunk 数，不逐行访问 Chroma；拆分预览不写数据库或向量库。
+- reindex 先生成全部新 embedding，再按旧 Chunk 精确 ID 替换；失败时清理新向量并恢复实际旧 Chroma 记录。
 
 相关配置：
 
@@ -105,7 +113,12 @@ KNOWLEDGE_UPLOAD_MAX_BYTES=52428800
 KNOWLEDGE_UPLOAD_READ_CHUNK_BYTES=1048576
 KNOWLEDGE_DOCX_MAX_UNCOMPRESSED_BYTES=209715200
 KNOWLEDGE_EMBEDDING_BATCH_SIZE=32
+KNOWLEDGE_CHUNK_SIZE=512
+KNOWLEDGE_CHUNK_OVERLAP=64
+KNOWLEDGE_SPLIT_PREVIEW_MAX_CHUNKS=200
 ```
+
+详细契约和补偿时序见[知识库文档管理第一阶段](knowledge/document-management-phase-1.md)。
 
 ## 运行与验证
 

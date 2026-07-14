@@ -27,9 +27,9 @@ Web 框架：FastAPI
 配置管理：pydantic-settings，.env
 AI 接入：Ollama，本地微调 GGUF 模型，OpenAI-compatible API，Mock Provider
 Agent 编排：LangGraph bounded agent loop，自研 runtime 兜底
-RAG：本地知识库切块、OpenAI Embeddings、Chroma 向量库、BM25、分数融合、本地 reranker、上下文扩展
+RAG：结构化文档解析、Ollama Embeddings、Chroma 向量库、BM25、分数融合、本地 reranker、上下文扩展
 流式输出：Server-Sent Events
-文档解析：pypdf
+文档解析：pypdf、python-docx
 Excel 台账：openpyxl
 邮件预警：SMTP / smtplib
 前端：Next.js / React / Ant Design，仅在 Mac 宿主机运行开发服务器并使用 HMR
@@ -37,7 +37,7 @@ Excel 台账：openpyxl
 工具协议：MCP
 ```
 
-说明：本项目提供 LangGraph runtime，入口在 `app/agents/langgraph_runtime.py`；同时保留 `app/agents/runtime.py` 作为无框架兜底。RAG 默认使用 Chroma 本地持久化向量库做语义召回，同时用 BM25 做关键词召回，再融合并本地 rerank；未安装 Chroma、未配置 `OPENAI_API_KEY` 或向量服务异常时，会自动回退到本地 BM25 + `hybrid_score` reranker，避免演示环境中断。
+说明：本项目提供 LangGraph runtime，入口在 `app/agents/langgraph_runtime.py`；同时保留 `app/agents/runtime.py` 作为无框架兜底。RAG 默认使用 Chroma 本地持久化向量库做语义召回，同时用 BM25 做关键词召回，再融合并本地 rerank；Chroma 或 Ollama embedding 服务异常且未强制要求向量时，会自动回退到本地 BM25 + `hybrid_score` reranker，避免演示环境中断。
 
 ## 目录结构
 
@@ -334,6 +334,8 @@ curl -u admin:admin123 -X POST http://127.0.0.1:8000/api/admin/knowledge/backup
 
 默认拆分参数只用于未显式传参的新上传，历史文档和已上传文档继续使用各自保存的生效配置。
 
+完整的数据模型、API 契约、索引替换时序、失败补偿与测试矩阵见[知识库文档管理第一阶段设计](docs/knowledge/document-management-phase-1.md)。
+
 ## 工具队列、限流与死信
 
 心理报告生成后，工具链不会阻塞学生端流式回复，而是写入 `tool_jobs` 队列表：
@@ -437,7 +439,6 @@ custom
 AI_PROVIDER=openai \
 OPENAI_API_KEY=你的_API_Key \
 OPENAI_MODEL=gpt-4o-mini \
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small \
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 

@@ -460,7 +460,10 @@ class ResponseAgent(BaseAutonomousAgent):
         memory_brief = context_payload.get("memoryBrief") or "无相关历史记忆。"
         knowledge = context_payload.get("retrievedKnowledge") or []
         skill_context = context_payload.get("skillContext") or ""
-        knowledge_context = "\n\n".join(f"- [{item.source}] {item.content}" for item in knowledge)
+        knowledge_context = "\n\n".join(
+            f"- [sourceId=source-{index}] [文档={item.document_name or item.source}] {item.content}"
+            for index, item in enumerate(knowledge, start=1)
+        )
         if intent == IntentType.CHAT and risk == RiskLevel.LOW:
             messages = [
                 PromptTemplates.answer_system_prompt(IntentType.CHAT, RiskLevel.LOW, "", self.services.user.display_name),

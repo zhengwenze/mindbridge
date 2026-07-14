@@ -1,7 +1,7 @@
 import { readAuthSession } from "@/lib/auth/token-storage";
 import { buildApiUrl } from "@/lib/config/api";
 
-import type { ChatStreamEvent } from "../types/chat-types";
+import type { ChatSource, ChatStreamEvent } from "../types/chat-types";
 
 interface StreamChatParams {
   message: string;
@@ -27,6 +27,15 @@ function parseChatStreamEvent(raw: unknown): ChatStreamEvent | null {
       type: "token",
       content: typeof event.content === "string" ? event.content : ""
     };
+  }
+
+  if (event.type === "sources" && Array.isArray(event.sources)) {
+    const sources = event.sources.filter((source): source is ChatSource => (
+      typeof source === "object" && source !== null &&
+      typeof source.sourceId === "string" && typeof source.documentId === "number" &&
+      typeof source.knowledgeBaseId === "number" && typeof source.fileName === "string"
+    ));
+    return { type: "sources", sessionId: typeof event.sessionId === "string" ? event.sessionId : undefined, sources };
   }
 
   if (event.type === "error") {

@@ -28,7 +28,17 @@ class ChatStreamEvent(BaseModel):
     sessionId: Optional[str] = None
     content: Optional[str] = None
     message: Optional[str] = None
+    sources: Optional[list[dict[str, Any]]] = None
     type: str
+
+
+class StudentDocumentPreviewResponse(BaseModel):
+    documentId: int
+    knowledgeBaseId: int
+    fileName: str
+    fileType: str
+    content: str
+    highlight: Optional[str] = None
 
 
 class KnowledgeIngestRequest(BaseModel):
@@ -103,6 +113,7 @@ class StudentConversationMessageResponse(BaseModel):
     role: str
     content: str
     createdAt: datetime
+    sources: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class StudentConversationResponse(BaseModel):

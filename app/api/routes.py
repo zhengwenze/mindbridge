@@ -11,8 +11,8 @@ from app.agents.runtime import AgentRuntimeService
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.security import current_user, hash_password, require_admin, require_student
-from app.models.entities import UserAccount
-from app.schemas.dtos import ChatRequest, KnowledgeBaseCreateRequest, KnowledgeBaseUpdateRequest, StudentRegisterRequest, authority
+from app.models.entities import KnowledgeChunk, KnowledgeDocument, UserAccount
+from app.schemas.dtos import ChatRequest, KnowledgeBaseCreateRequest, KnowledgeBaseUpdateRequest, StudentDocumentPreviewResponse, StudentRegisterRequest, authority
 from app.schemas.knowledge import DocumentBatchDeleteRequest, DocumentSplitRequest
 from app.services.chat import ChatService
 from app.services.document_management import KnowledgeDocumentService, receive_upload
@@ -79,6 +79,38 @@ def student_conversation(session_id: str, user: Annotated[UserAccount, Depends(r
         return ReportService(db).student_conversation(user.id, session_id)
     except ValueError as exc:
         raise HTTPException(404, "Session not found") from exc
+
+
+@router.get("/api/student/documents/{document_id}", response_model=StudentDocumentPreviewResponse)
+def student_document_preview(
+    document_id: int,
+    user: Annotated[UserAccount, Depends(require_student)],
+    db: Annotated[Session, Depends(get_db)],
+    chunk_id: int | None = Query(default=None, ge=1),
+):
+    document = db.query(KnowledgeDocument).filter(
+        KnowledgeDocument.id == document_id,
+        KnowledgeDocument.deleted_at.is_(None),
+        KnowledgeDocument.index_status == "active",
+    ).first()
+    if document is None:
+        raise HTTPException(404, "文档不存在或暂不可用")
+    highlight = None
+    if chunk_id is not None:
+        chunk = db.query(KnowledgeChunk).filter(
+            KnowledgeChunk.id == chunk_id,
+            KnowledgeChunk.document_id == document.id,
+        ).first()
+        if chunk is not None:
+            highlight = chunk.content
+    return StudentDocumentPreviewResponse(
+        documentId=document.id,
+        knowledgeBaseId=document.knowledge_base_id,
+        fileName=document.file_name,
+        fileType=document.file_type,
+        content=document.parsed_content or "",
+        highlight=highlight,
+    )
 
 
 @router.post("/api/chat/stream")

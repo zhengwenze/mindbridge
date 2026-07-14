@@ -194,7 +194,10 @@ class AgentRuntimeService:
             return False
         context.response_agent = "CounselorAgent"
         context.response_plan = "先共情，再给出具体支持步骤；高风险时优先安全。"
-        knowledge_context = "\n\n".join(f"- [{item.source}] {item.content}" for item in context.retrieved_knowledge)
+        knowledge_context = "\n\n".join(
+            f"- [sourceId=source-{index}] [文档={item.document_name or item.source}] {item.content}"
+            for index, item in enumerate(context.retrieved_knowledge, start=1)
+        )
         skill_context = MindBridgeSkillLibrary.response_skill_context(
             context.intent or IntentType.CONSULT,
             context.risk_level,

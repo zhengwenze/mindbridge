@@ -6,6 +6,16 @@ export interface Message {
   id: string;
   role: ChatRole;
   content: string;
+  sources?: ChatSource[];
+}
+
+export interface ChatSource {
+  sourceId: string;
+  documentId: number;
+  knowledgeBaseId: number;
+  fileName: string;
+  chunkId?: number | null;
+  snippet?: string;
 }
 
 export interface StudentSessionSummary {
@@ -22,6 +32,7 @@ export interface StudentConversationMessage {
   role: ChatRole;
   content: string;
   createdAt: string;
+  sources?: ChatSource[];
 }
 
 export interface StudentConversationDetail {
@@ -40,10 +51,16 @@ export interface ChatTokenEvent {
   content: string;
 }
 
+export interface ChatSourcesEvent {
+  type: "sources";
+  sessionId?: string;
+  sources: ChatSource[];
+}
+
 export interface ChatErrorEvent {
   type: "error";
   message: string;
   sessionId?: string;
 }
 
-export type ChatStreamEvent = ChatMetaEvent | ChatTokenEvent | ChatErrorEvent;
+export type ChatStreamEvent = ChatMetaEvent | ChatTokenEvent | ChatSourcesEvent | ChatErrorEvent;

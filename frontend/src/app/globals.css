@@ -106,3 +106,32 @@ a {
 .ant-card-head-title {
   min-width: 0;
 }
+
+.mindbridge-markdown {
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.mindbridge-markdown > :first-child {
+  margin-top: 0;
+}
+
+.mindbridge-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.mindbridge-markdown .mindbridge-inline-code {
+  border-radius: 4px;
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  color: #be123c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+.mindbridge-markdown pre .mindbridge-inline-code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}

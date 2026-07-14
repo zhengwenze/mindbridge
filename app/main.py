@@ -49,7 +49,11 @@ def create_app() -> FastAPI:
 
     app.include_router(router)
     static_dir = Path(__file__).resolve().parent / "static"
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+    # The student frontend is developed and served independently. The legacy
+    # bundled frontend is optional, so its removal must not prevent the API
+    # application (including authentication) from starting.
+    if static_dir.is_dir():
+        app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
     return app
 
 

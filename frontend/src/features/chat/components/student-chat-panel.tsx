@@ -6,6 +6,9 @@ import { useEffect, useRef, useState } from "react";
 
 import type { useChatStream } from "../hooks/use-chat-stream";
 import type { Message, SessionStatus } from "../types/chat-types";
+import type { ChatSource } from "../types/chat-types";
+import { MarkdownMessage } from "./markdown-message";
+import { StudentDocumentDrawer } from "./student-document-drawer";
 
 export const quickPrompts = [
   { label: "压力失眠", prompt: "我最近压力很大，晚上总是睡不着。" },
@@ -23,7 +26,7 @@ const sessionStatusMeta: Record<SessionStatus, { label: string; color: string }>
 
 type ChatController = ReturnType<typeof useChatStream>;
 
-function ChatMessage({ message }: { message: Message }) {
+function ChatMessage({ message, onSourceClick }: { message: Message; onSourceClick: (source: ChatSource) => void }) {
   const isUser = message.role === "user";
   return (
     <article className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -31,8 +34,10 @@ function ChatMessage({ message }: { message: Message }) {
         <Typography.Text className="mb-1 block !text-xs !font-semibold !text-slate-500">
           {isUser ? "我" : "MindBridge"}
         </Typography.Text>
-        <div className={`whitespace-pre-wrap break-words rounded-md border px-4 py-3 text-left leading-7 ${isUser ? "border-teal-200 bg-teal-50 text-slate-900" : "border-slate-200 bg-white text-slate-900"}`}>
-          {message.content || <span className="text-slate-400">正在输入...</span>}
+        <div className={`break-words rounded-md border px-4 py-3 text-left leading-7 ${isUser ? "border-teal-200 bg-teal-50 text-slate-900" : "border-slate-200 bg-white text-slate-900"}`}>
+          {message.content ? (isUser ? <div className="whitespace-pre-wrap">{message.content}</div> : (
+            <MarkdownMessage content={message.content} sources={message.sources} onSourceClick={onSourceClick} />
+          )) : <span className="text-slate-400">正在输入...</span>}
         </div>
       </div>
     </article>
@@ -48,6 +53,7 @@ interface StudentChatPanelProps {
 export function StudentChatPanel({ chat, title, compact = false }: StudentChatPanelProps) {
   const { messages, sessionId, streaming, loadingSession, sessionStatus, sendMessage, resetSession } = chat;
   const [draft, setDraft] = useState("");
+  const [selectedSource, setSelectedSource] = useState<ChatSource | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const statusMeta = sessionStatusMeta[sessionStatus];
 
@@ -85,7 +91,7 @@ export function StudentChatPanel({ chat, title, compact = false }: StudentChatPa
             <Empty description="开始对话" className="flex min-h-[260px] flex-col justify-center" />
           ) : (
             <div className="flex flex-col gap-4">
-              {messages.map((message) => <ChatMessage key={message.id} message={message} />)}
+              {messages.map((message) => <ChatMessage key={message.id} message={message} onSourceClick={setSelectedSource} />)}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -99,6 +105,7 @@ export function StudentChatPanel({ chat, title, compact = false }: StudentChatPa
           </Space>
         </form>
       </div>
+      <StudentDocumentDrawer source={selectedSource} onClose={() => setSelectedSource(null)} />
     </Card>
   );
 }

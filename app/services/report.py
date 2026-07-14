@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import re
+
 from sqlalchemy.orm import Session
 
-from app.models.entities import AlertRecord, AgentRunTrace, CaseNote, ChatMessage, ChatSession, DeadLetterRecord, ExcelRecord, PsychologicalReport, RiskCase, ToolAuditRecord, ToolJob, UserAccount
+from app.models.entities import AlertRecord, AgentRunTrace, CaseNote, ChatMessage, ChatSession, DeadLetterRecord, ExcelRecord, KnowledgeDocument, PsychologicalReport, RiskCase, ToolAuditRecord, ToolJob, UserAccount
 from app.schemas.dtos import AgentRunTraceResponse, CaseNoteResponse, ConversationMessageResponse, ConversationResponse, DeadLetterResponse, ReportResponse, RiskCaseResponse, StudentConversationMessageResponse, StudentConversationResponse, StudentSessionSummaryResponse, ToolAuditResponse, ToolJobResponse, ToolRecordResponse
 
 
@@ -205,10 +207,32 @@ class ReportService:
                     role=row.role,
                     content=row.content,
                     createdAt=row.created_at,
+                    sources=self._message_sources(row.content),
                 )
                 for row in rows
             ],
         )
+
+    def _message_sources(self, content: str) -> list[dict]:
+        names = list(dict.fromkeys(re.findall(r"【来源：\s*([^】|]+?)\s*】", content or "")))
+        if not names:
+            return []
+        rows = self.db.query(KnowledgeDocument).filter(
+            KnowledgeDocument.file_name.in_(names),
+            KnowledgeDocument.deleted_at.is_(None),
+            KnowledgeDocument.index_status == "active",
+        ).all()
+        by_name = {row.file_name: row for row in rows}
+        return [
+            {
+                "sourceId": f"history-source-{index}",
+                "documentId": by_name[name].id,
+                "knowledgeBaseId": by_name[name].knowledge_base_id,
+                "fileName": name,
+            }
+            for index, name in enumerate(names, start=1)
+            if name in by_name
+        ]
 
     def _report_response(self, report: PsychologicalReport) -> ReportResponse:
         user = self.db.get(UserAccount, report.user_id)

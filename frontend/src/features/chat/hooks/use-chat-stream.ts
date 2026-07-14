@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { streamChatMessage } from "../api/chat-stream-api";
 import { fetchStudentSession } from "../api/student-session-api";
-import type { ChatStreamEvent, Message, SessionStatus } from "../types/chat-types";
+import type { ChatSource, ChatStreamEvent, Message, SessionStatus } from "../types/chat-types";
 
 function createMessageId(role: Message["role"]): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -49,7 +49,8 @@ export function useChatStream() {
         detail.messages.map((message) => ({
           id: String(message.id),
           role: message.role.toLowerCase() as Message["role"],
-          content: message.content
+          content: message.content,
+          sources: message.sources
         }))
       );
       setSessionId(detail.sessionId);
@@ -100,6 +101,13 @@ export function useChatStream() {
                 : item
             )
           );
+          return;
+        }
+
+        if (event.type === "sources") {
+          setMessages((current) => current.map((item) => (
+            item.id === assistantMessageId ? { ...item, sources: mergeSources(item.sources, event.sources) } : item
+          )));
           return;
         }
 
@@ -165,4 +173,10 @@ export function useChatStream() {
     resetSession,
     loadSession
   };
+}
+
+function mergeSources(current: ChatSource[] | undefined, incoming: ChatSource[]): ChatSource[] {
+  const values = new Map((current ?? []).map((source) => [source.sourceId, source]));
+  incoming.forEach((source) => values.set(source.sourceId, source));
+  return [...values.values()];
 }

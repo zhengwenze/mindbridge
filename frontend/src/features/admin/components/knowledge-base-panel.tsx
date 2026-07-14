@@ -11,16 +11,13 @@ import {
   Popconfirm,
   Select,
   Space,
-  Switch,
   Table,
   Tag,
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState } from "react";
-
 import { toApiError } from "@/lib/api/api-error";
-
 import {
   useKnowledgeActions,
   useKnowledgeBase,
@@ -72,7 +69,7 @@ export function KnowledgeBasePanel() {
   const { message } = App.useApp();
   const [filters, setFilters] = useState<KnowledgeBaseFilters>({
     page: 1,
-    pageSize: 20,
+    pageSize: 10,
   });
   const [editing, setEditing] = useState<KnowledgeBase | null>(null);
   const [creating, setCreating] = useState(false);
@@ -140,10 +137,10 @@ export function KnowledgeBasePanel() {
 
   const columns: ColumnsType<KnowledgeBase> = [
     {
-      title: "知识库名称",
+      title: "名称",
       dataIndex: "name",
       key: "name",
-      width: 190,
+      width: 200,
       render: (name, row) => (
         <Button
           type="link"
@@ -158,13 +155,14 @@ export function KnowledgeBasePanel() {
       title: "描述",
       dataIndex: "description",
       key: "description",
+      width: 200,
       ellipsis: true,
     },
-    { title: "文档", dataIndex: "documentCount", key: "documents", width: 78 },
+    { title: "文档", dataIndex: "documentCount", key: "documents", width: 60 },
     {
-      title: "片段 / 向量",
+      title: "片段",
       key: "chunks",
-      width: 120,
+      width: 60,
       render: (_, row) =>
         `${row.chunkCount}${row.vectorCount === undefined ? "" : ` / ${row.vectorCount}`}`,
     },
@@ -172,7 +170,7 @@ export function KnowledgeBasePanel() {
       title: "状态",
       dataIndex: "status",
       key: "status",
-      width: 100,
+      width: 60,
       render: (status: KnowledgeBaseStatus) => (
         <Tag color={statusColors[status]}>{statusLabels[status]}</Tag>
       ),
@@ -181,14 +179,14 @@ export function KnowledgeBasePanel() {
       title: "创建时间",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 170,
+      width: 160,
       render: (value: string) => new Date(value).toLocaleString(),
     },
     {
       title: "更新时间",
       dataIndex: "updatedAt",
       key: "updatedAt",
-      width: 170,
+      width: 160,
       render: (value: string) => new Date(value).toLocaleString(),
     },
     {
@@ -243,9 +241,15 @@ export function KnowledgeBasePanel() {
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-end gap-3">
+      <div
+        className="grid w-full min-w-0 items-end gap-2"
+        style={{
+          gridTemplateColumns:
+            "minmax(0, 1fr) 128px 128px 112px auto auto auto",
+        }}
+      >
         <Input.Search
-          className="w-56"
+          className="w-full min-w-0"
           placeholder="按名称搜索"
           allowClear
           onSearch={(name) =>
@@ -256,20 +260,8 @@ export function KnowledgeBasePanel() {
             }))
           }
         />
-        <Select
-          className="w-32"
-          placeholder="全部状态"
-          allowClear
-          options={statuses.map((status) => ({
-            value: status,
-            label: statusLabels[status],
-          }))}
-          onChange={(status) =>
-            setFilters((current) => ({ ...current, status, page: 1 }))
-          }
-        />
         <Input
-          className="w-40"
+          className="w-36 shrink-0"
           type="date"
           aria-label="创建开始日期"
           onChange={(event) =>
@@ -281,7 +273,7 @@ export function KnowledgeBasePanel() {
           }
         />
         <Input
-          className="w-40"
+          className="w-36 shrink-0"
           type="date"
           aria-label="创建结束日期"
           onChange={(event) =>
@@ -292,18 +284,26 @@ export function KnowledgeBasePanel() {
             }))
           }
         />
-        <Switch
-          checked={Boolean(filters.includeDeleted)}
-          onChange={(includeDeleted) =>
-            setFilters((current) => ({ ...current, includeDeleted, page: 1 }))
+        <Select
+          className="w-28 shrink-0"
+          placeholder="全部状态"
+          allowClear
+          options={statuses.map((status) => ({
+            value: status,
+            label: statusLabels[status],
+          }))}
+          onChange={(status) =>
+            setFilters((current) => ({ ...current, status, page: 1 }))
           }
-          checkedChildren="含已删除"
-          unCheckedChildren="隐藏已删除"
         />
-        <Button onClick={() => setFilters({ page: 1, pageSize: 20 })}>
+        <Button
+          className="shrink-0 px-3"
+          onClick={() => setFilters({ page: 1, pageSize: 20 })}
+        >
           重置筛选
         </Button>
         <Button
+          className="shrink-0 px-3"
           onClick={() => listQuery.refetch()}
           loading={listQuery.isFetching}
         >
@@ -311,12 +311,13 @@ export function KnowledgeBasePanel() {
         </Button>
         <Button
           type="primary"
+          className="shrink-0 px-3"
           onClick={() => {
             setCreating(true);
             form.resetFields();
           }}
         >
-          新建知识库
+          新建
         </Button>
       </div>
       {listQuery.error ? (

@@ -3,10 +3,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, Computed, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, CHAR, Computed, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+
+EMPTY_CONTENT_HASH = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 
 def now() -> datetime:
@@ -98,8 +102,18 @@ class KnowledgeDocument(Base):
     file_type: Mapped[str] = mapped_column(String(32), default="text")
     file_size: Mapped[int] = mapped_column(Integer, default=0)
     storage_path: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    mime_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    parsed_content: Mapped[str] = mapped_column(LONGTEXT, default="")
+    content_hash: Mapped[str] = mapped_column(CHAR(64), default=EMPTY_CONTENT_HASH)
+    parser_name: Mapped[str] = mapped_column(String(64), default="legacy_chunks")
+    parser_version: Mapped[str] = mapped_column(String(32), default="1")
+    splitter_type: Mapped[str] = mapped_column(String(64), default="recursive_character")
+    chunk_size: Mapped[int] = mapped_column(Integer, default=512)
+    chunk_overlap: Mapped[int] = mapped_column(Integer, default=64)
+    revision: Mapped[int] = mapped_column(Integer, default=1)
     index_status: Mapped[str] = mapped_column(String(32), default="indexing", index=True)
     error_message: Mapped[str] = mapped_column(Text, default="")
+    indexed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)

@@ -12,7 +12,15 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-NEW_TABLES = {"knowledge_bases", "knowledge_documents", "knowledge_base_operation_logs"}
+# These knowledge-domain tables belong to later historical revisions. Keep
+# them out of the dynamic legacy metadata pass so a fresh database does not
+# create foreign keys to knowledge_bases before revision 0002 creates it.
+NEW_TABLES = {
+    "knowledge_bases",
+    "knowledge_documents",
+    "knowledge_base_operation_logs",
+    "knowledge_base_references",
+}
 
 
 def upgrade() -> None:

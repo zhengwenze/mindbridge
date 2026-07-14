@@ -6,7 +6,7 @@
 - Basic Auth 登录，支持学生和管理员角色隔离。
 - LangGraph 多 Agent 工作流：Memory、Supervisor、Knowledge、RiskGuardian、Companion、Counselor，未安装 LangGraph 时自动回退到自研有限循环 runtime。
 - 动态路由 RAG：先判断 `CHAT / CONSULT / RISK`，普通问题不查知识库，咨询和风险场景才进入检索增强。
-- Chroma 向量 RAG 知识库：支持 Markdown、txt、PDF 文件上传，自动切块，使用 `text-embedding-3-small` 写入向量库，并与 BM25 关键词召回融合后进入本地 reranker；向量不可用时保留本地 BM25 + 词面检索兜底。
+- Chroma 向量 RAG 知识库：支持 TXT、Markdown、PDF、DOCX 结构化解析、逐文档字符拆分、Chunk 预览与文档管理，使用本地 Ollama embedding 写入独立 collection，并与 BM25 关键词召回融合后进入本地 reranker。
 - 心理风险评估：高风险词典优先、LLM JSON 评估、关键词兜底。
 - 后台报告：记录情绪标签、情绪分数、风险等级、置信度和摘要，但学生端不展示后台评估结果。
 - 数据闭环：咨询/风险消息完整写入 MySQL，短期上下文写入 Redis，高风险消息写入 Excel 台账并通过邮件发送预警。
@@ -27,9 +27,9 @@ Web 框架：FastAPI
 配置管理：pydantic-settings，.env
 AI 接入：Ollama，本地微调 GGUF 模型，OpenAI-compatible API，Mock Provider
 Agent 编排：LangGraph bounded agent loop，自研 runtime 兜底
-RAG：本地知识库切块、OpenAI Embeddings、Chroma 向量库、BM25、分数融合、本地 reranker、上下文扩展
+RAG：结构化文档解析、Ollama Embeddings、Chroma 向量库、BM25、分数融合、本地 reranker、上下文扩展
 流式输出：Server-Sent Events
-文档解析：pypdf
+文档解析：pypdf、python-docx
 Excel 台账：openpyxl
 邮件预警：SMTP / smtplib
 前端：Next.js / React / Ant Design，仅在 Mac 宿主机运行开发服务器并使用 HMR
@@ -37,7 +37,7 @@ Excel 台账：openpyxl
 工具协议：MCP
 ```
 
-说明：本项目提供 LangGraph runtime，入口在 `app/agents/langgraph_runtime.py`；同时保留 `app/agents/runtime.py` 作为无框架兜底。RAG 默认使用 Chroma 本地持久化向量库做语义召回，同时用 BM25 做关键词召回，再融合并本地 rerank；未安装 Chroma、未配置 `OPENAI_API_KEY` 或向量服务异常时，会自动回退到本地 BM25 + `hybrid_score` reranker，避免演示环境中断。
+说明：本项目提供 LangGraph runtime，入口在 `app/agents/langgraph_runtime.py`；同时保留 `app/agents/runtime.py` 作为无框架兜底。RAG 默认使用 Chroma 本地持久化向量库做语义召回，同时用 BM25 做关键词召回，再融合并本地 rerank；Chroma 或 Ollama embedding 服务异常且未强制要求向量时，会自动回退到本地 BM25 + `hybrid_score` reranker，避免演示环境中断。
 
 ## 目录结构
 
@@ -291,13 +291,15 @@ OPENAI_MODEL=gpt-4o-mini
 
 应用启动时会同步 `app/knowledge/*.md` 内置默认知识库到数据库。当前默认文档覆盖校园心理支持总则、风险等级策略、焦虑恐慌、情绪低落、睡眠作息、学业压力、考试季、人际关系、新生适应、咨询转介和隐私边界等主题；如果默认 md 内容发生变化，重启后对应来源会按当前切块规则刷新入库。
 
-知识库默认优先使用 Chroma 持久化向量库，embedding 由 OpenAI `text-embedding-3-small` 提供。查询时会同时取向量候选和 BM25 候选，按配置权重融合后进入本地 reranker。没有 `OPENAI_API_KEY`、缺少 `chromadb` 或向量调用失败时，会回退到本地 BM25 + `hybrid_score` reranker：
+知识库默认优先使用 Chroma 持久化向量库，embedding 由 Ollama 的 `EMBEDDING_MODEL` 提供。查询时会同时取向量候选和 BM25 候选，按配置权重融合后进入本地 reranker。Chroma 或 embedding 服务不可用且未强制要求向量时，会回退到本地 BM25 + `hybrid_score` reranker：
 
 ```env
-OPENAI_API_KEY=你的_API_Key
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_MODEL=qwen3-embedding:0.6b
 KNOWLEDGE_VECTOR_ENABLED=true
 KNOWLEDGE_VECTOR_REQUIRED=false
+KNOWLEDGE_CHUNK_SIZE=512
+KNOWLEDGE_CHUNK_OVERLAP=64
+KNOWLEDGE_SPLIT_PREVIEW_MAX_CHUNKS=200
 KNOWLEDGE_CANDIDATE_K=16
 KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
 KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
@@ -320,7 +322,19 @@ curl -u admin:admin123 -X POST http://127.0.0.1:8000/api/admin/knowledge/backup
 
 当 `KNOWLEDGE_VECTOR_REQUIRED=false` 时，如果 Chroma 或 embedding 服务不可用，系统会降级到本地 BM25 + 词面 rerank；设为 `true` 则启动或检索失败时直接暴露错误。
 
-管理员可在 `http://localhost:3000/admin/docs` 选择具体知识库，拖拽文件或选择整个文件夹上传。首版支持 TXT、Markdown、PDF 和 DOCX，单文件默认上限为 50 MB；文件夹的相对路径会保留，同一知识库内重复路径会返回冲突而不会覆盖原文档。上传字节完成后，页面会继续显示“解析入库中”，直到分片和索引处理完成。
+### 文档上传与管理
+
+管理员可在 `http://localhost:3000/admin/docs` 的两个页签中完成上传和管理：
+
+- “上传文档”保留拖拽、多文件、文件夹、双并发、逐文件进度和失败重试，并允许为本次上传设置 Chunk 大小和重叠大小，单位统一为“字符”。
+- “文档管理”支持按知识库、名称、状态和上传日期筛选，支持服务端分页/排序、单删和最多 100 个文档的全成全败批量删除。
+- 每个文档保存独立的拆分配置。可在 Drawer 中无副作用预览 Chunk，再明确“应用配置并重新索引”。
+- TXT/Markdown 保留标题、列表和换行；DOCX 转换标题、列表与 Markdown 表格；PDF 按页保留边界。扫描型 PDF 当前不提供 OCR，无法提取文本时会明确失败。
+- 原文件保存在 `data/knowledge-files/{knowledge_base_id}/`；文档列表的 Chunk 数来自 MySQL 聚合，不逐行访问 Chroma。
+
+默认拆分参数只用于未显式传参的新上传，历史文档和已上传文档继续使用各自保存的生效配置。
+
+完整的数据模型、API 契约、索引替换时序、失败补偿与测试矩阵见[知识库文档管理第一阶段设计](docs/knowledge/document-management-phase-1.md)。
 
 ## 工具队列、限流与死信
 
@@ -425,25 +439,26 @@ custom
 AI_PROVIDER=openai \
 OPENAI_API_KEY=你的_API_Key \
 OPENAI_MODEL=gpt-4o-mini \
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small \
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-知识库向量检索也使用同一个 `OPENAI_API_KEY` 调用 embeddings API。相关配置：
+知识库向量检索调用本机或 Docker host 上的 Ollama embeddings API。相关配置：
 
 ```env
 KNOWLEDGE_VECTOR_ENABLED=true
 KNOWLEDGE_VECTOR_REQUIRED=false
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_MODEL=qwen3-embedding:0.6b
 KNOWLEDGE_CANDIDATE_K=16
 KNOWLEDGE_HYBRID_VECTOR_WEIGHT=0.65
 KNOWLEDGE_HYBRID_BM25_WEIGHT=0.35
 KNOWLEDGE_RERANK_ENABLED=true
 CHROMA_PERSIST_DIR=data/chroma
-CHROMA_COLLECTION_NAME=mindbridge_knowledge
+KNOWLEDGE_CHUNK_SIZE=512
+KNOWLEDGE_CHUNK_OVERLAP=64
+KNOWLEDGE_SPLIT_PREVIEW_MAX_CHUNKS=200
 ```
 
-当 `KNOWLEDGE_VECTOR_REQUIRED=false` 时，缺少 API key 或 Chroma 不可用不会阻断聊天，系统会回退到本地 BM25 + `hybrid_score` reranker。若交付验收要求必须走 Chroma 向量检索，可设置 `KNOWLEDGE_VECTOR_REQUIRED=true`。
+当 `KNOWLEDGE_VECTOR_REQUIRED=false` 时，Chroma 或 Ollama embedding 不可用不会阻断聊天，系统会回退到本地 BM25 + `hybrid_score` reranker。若交付验收要求必须走 Chroma 向量检索，可设置 `KNOWLEDGE_VECTOR_REQUIRED=true`。
 
 ## 调用示例
 

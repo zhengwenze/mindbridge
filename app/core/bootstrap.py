@@ -6,7 +6,8 @@ from app.core.config import get_settings
 from app.core.database import Base, engine
 from app.core.security import hash_password
 from app.models.entities import KnowledgeBase, UserAccount
-from app.services.knowledge import BASE_KNOWLEDGE_NAME, KnowledgeBaseService, KnowledgeDocumentService
+from app.services.document_management import KnowledgeDocumentService
+from app.services.knowledge import BASE_KNOWLEDGE_NAME, KnowledgeBaseService
 
 
 def create_schema() -> None:

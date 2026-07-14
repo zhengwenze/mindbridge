@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,7 @@ from app.models.entities import KnowledgeChunk
 
 PRIMARY_RETRIEVAL_LABEL = "Chroma vector + BM25 hybrid + local reranker"
 FALLBACK_RETRIEVAL_LABEL = "local BM25 + hybrid_score reranker"
+_VECTOR_OPERATION_BATCH_SIZE = 1000
 
 
 class VectorStoreUnavailable(RuntimeError):
@@ -27,6 +29,16 @@ class VectorSearchHit:
     source_index: int
     content: str
     score: float
+
+
+@dataclass(frozen=True)
+class VectorRecord:
+    """A complete Chroma record that can be restored during compensation."""
+
+    chunk_id: int
+    document: str
+    metadata: dict[str, object]
+    embedding: list[float]
 
 
 class EmbeddingService:
@@ -136,6 +148,74 @@ class ChromaVectorStore:
         if self.collection_exists(collection_name):
             self._collection(collection_name).delete(where={"document_id": int(document_id)})
 
+    def get_records(self, collection_name: str, chunk_ids: Iterable[int]) -> list[VectorRecord]:
+        """Read complete vector records by database chunk ID without creating a collection."""
+
+        self._require_available()
+        normalized_ids = self._normalize_chunk_ids(chunk_ids)
+        if not normalized_ids or not self.collection_exists(collection_name):
+            return []
+
+        collection = self._collection(collection_name)
+        records: list[VectorRecord] = []
+        for batch in _batches(normalized_ids, _VECTOR_OPERATION_BATCH_SIZE):
+            result = collection.get(
+                ids=[self._id(chunk_id) for chunk_id in batch],
+                include=["documents", "metadatas", "embeddings"],
+            )
+            result_ids = result.get("ids") or []
+            documents = result.get("documents") or []
+            metadatas = result.get("metadatas") or []
+            embeddings = result.get("embeddings")
+            for index, vector_id in enumerate(result_ids):
+                metadata = dict(metadatas[index] or {}) if index < len(metadatas) else {}
+                chunk_id = _int_or_none(metadata.get("chunk_id")) or self._chunk_id(str(vector_id))
+                embedding = embeddings[index] if embeddings is not None and index < len(embeddings) else None
+                if chunk_id is None or embedding is None:
+                    raise VectorStoreUnavailable("Chroma 返回的向量记录不完整，无法创建补偿快照")
+                records.append(
+                    VectorRecord(
+                        chunk_id=chunk_id,
+                        document=str(documents[index] or "") if index < len(documents) else "",
+                        metadata=metadata,
+                        embedding=[float(value) for value in embedding],
+                    )
+                )
+        return records
+
+    def delete_ids(self, collection_name: str, chunk_ids: Iterable[int]) -> None:
+        """Delete only the requested database chunk IDs; missing collections are a no-op."""
+
+        self._require_available()
+        normalized_ids = self._normalize_chunk_ids(chunk_ids)
+        if not normalized_ids or not self.collection_exists(collection_name):
+            return
+        collection = self._collection(collection_name)
+        for batch in _batches(normalized_ids, _VECTOR_OPERATION_BATCH_SIZE):
+            collection.delete(ids=[self._id(chunk_id) for chunk_id in batch])
+
+    def restore_records(self, collection_name: str, records: Iterable[VectorRecord]) -> int:
+        """Restore exact documents, metadata and embeddings into an existing collection."""
+
+        self._require_available()
+        unique_records = list({record.chunk_id: record for record in records}.values())
+        if not unique_records:
+            return 0
+        if not self.collection_exists(collection_name):
+            raise VectorStoreUnavailable(f"Chroma collection 不存在，无法恢复向量: {collection_name}")
+
+        collection = self._collection(collection_name)
+        restored = 0
+        for batch in _batches(unique_records, _VECTOR_OPERATION_BATCH_SIZE):
+            collection.upsert(
+                ids=[self._id(record.chunk_id) for record in batch],
+                documents=[record.document for record in batch],
+                metadatas=[record.metadata or {"chunk_id": record.chunk_id} for record in batch],
+                embeddings=[record.embedding for record in batch],
+            )
+            restored += len(batch)
+        return restored
+
     def sync_chunks(self, collection_name: str, chunks: list[KnowledgeChunk], embeddings: list[list[float]]) -> int:
         """Update first and prune only after all desired vectors are present."""
         self._require_available()
@@ -201,10 +281,12 @@ class ChromaVectorStore:
         return self.embedding_service.embed(texts)
 
     def _collection(self, collection_name: str):
-        return self.client.get_or_create_collection(
+        # Collection creation is an explicit knowledge-base lifecycle action.
+        # Data operations must never recreate a collection that was deleted or
+        # whose MySQL ownership record is stale.
+        return self.client.get_collection(
             name=collection_name,
             embedding_function=None,
-            metadata={"hnsw:space": "cosine", "embedding_model": self.embedding_model_name},
         )
 
     def _require_available(self) -> None:
@@ -219,12 +301,35 @@ class ChromaVectorStore:
     def _id(chunk_id: int) -> str:
         return f"knowledge-chunk-{chunk_id}"
 
+    @classmethod
+    def _chunk_id(cls, vector_id: str) -> int | None:
+        prefix = "knowledge-chunk-"
+        return _int_or_none(vector_id[len(prefix) :]) if vector_id.startswith(prefix) else None
+
+    @staticmethod
+    def _normalize_chunk_ids(chunk_ids: Iterable[int]) -> list[int]:
+        normalized: list[int] = []
+        seen: set[int] = set()
+        for value in chunk_ids:
+            chunk_id = int(value)
+            if chunk_id <= 0:
+                raise ValueError("Chunk ID must be a positive integer")
+            if chunk_id not in seen:
+                normalized.append(chunk_id)
+                seen.add(chunk_id)
+        return normalized
+
 
 def _int_or_none(value: object) -> int | None:
     try:
         return int(value) if value is not None else None
     except (TypeError, ValueError):
         return None
+
+
+def _batches[T](values: list[T], size: int) -> Iterable[list[T]]:
+    for offset in range(0, len(values), size):
+        yield values[offset : offset + size]
 
 
 # Compatibility name for imports outside this module. It no longer owns a

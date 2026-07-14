@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     knowledge_candidate_k: int = 16
     knowledge_chunk_size: int = 512
     knowledge_chunk_overlap: int = 64
+    knowledge_split_preview_max_chunks: int = 200
     knowledge_upload_max_bytes: int = 50 * 1024 * 1024
     knowledge_upload_read_chunk_bytes: int = 1024 * 1024
     knowledge_docx_max_uncompressed_bytes: int = 200 * 1024 * 1024

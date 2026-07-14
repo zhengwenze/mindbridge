@@ -112,4 +112,96 @@ export interface KnowledgeDocumentUploadResult {
   fileSize: number;
   chunks: number;
   indexStatus: string;
+  parserName?: string;
+  splitterType?: DocumentSplitterType;
+  chunkSize?: number;
+  chunkOverlap?: number;
+  contentHash?: string;
+  warnings?: string[];
+}
+
+export type DocumentSplitterType = "recursive_character";
+export type DocumentSortOrder = "asc" | "desc";
+export type DocumentSortField =
+  | "created_at"
+  | "updated_at"
+  | "file_name"
+  | "file_size"
+  | "index_status"
+  | "indexed_at"
+  | "chunk_count";
+
+export interface DocumentSplitConfig {
+  chunkSize: number;
+  chunkOverlap: number;
+  splitterType: DocumentSplitterType;
+}
+
+export type KnowledgeDocumentUploadOptions = DocumentSplitConfig;
+
+export interface KnowledgeDocument {
+  id: number;
+  knowledgeBaseId: number;
+  fileName: string;
+  relativePath: string;
+  fileType: string;
+  mimeType?: string | null;
+  fileSize: number;
+  indexStatus: string;
+  errorMessage?: string | null;
+  chunkCount: number;
+  chunkSize: number;
+  chunkOverlap: number;
+  splitterType: DocumentSplitterType;
+  createdAt: string;
+  updatedAt: string;
+  indexedAt?: string | null;
+}
+
+export interface KnowledgeDocumentFilters {
+  name?: string;
+  status?: string;
+  createdFrom?: string;
+  createdTo?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: DocumentSortField;
+  sortOrder?: DocumentSortOrder;
+}
+
+export interface KnowledgeDocumentListResponse {
+  items: KnowledgeDocument[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface DocumentSplitPreviewItem {
+  index: number;
+  content: string;
+  charCount: number;
+}
+
+export interface DocumentSplitPreviewResponse {
+  totalChunks: number;
+  items: DocumentSplitPreviewItem[];
+  truncated: boolean;
+}
+
+export interface KnowledgeDocumentReindexResult {
+  documentId?: number;
+  id?: number;
+  revision: number;
+  chunks?: number;
+  chunkCount?: number;
+  chunkSize: number;
+  chunkOverlap: number;
+  splitterType: DocumentSplitterType;
+  indexStatus: string;
+  indexedAt?: string | null;
+}
+
+export interface BatchDeleteDocumentsResult {
+  deletedCount?: number;
+  documentIds?: number[];
 }

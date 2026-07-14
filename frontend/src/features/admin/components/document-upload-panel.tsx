@@ -13,6 +13,7 @@ import {
   Button,
   Card,
   Empty,
+  InputNumber,
   Progress,
   Select,
   Space,
@@ -21,18 +22,27 @@ import {
   Upload,
 } from "antd";
 import type { UploadFile } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import { toApiError } from "@/lib/api/api-error";
 
 import { uploadKnowledgeDocument } from "../api/admin-api";
-import { useKnowledgeBases } from "../hooks/use-knowledge-actions";
-import type { KnowledgeDocumentUploadResult } from "../types/admin-types";
+import { knowledgeQueryKeys, useKnowledgeBases } from "../hooks/use-knowledge-actions";
+import type {
+  DocumentSplitConfig,
+  KnowledgeDocumentUploadResult,
+} from "../types/admin-types";
 
 const { Dragger } = Upload;
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
 const ACCEPTED_EXTENSIONS = new Set(["txt", "md", "markdown", "pdf", "docx"]);
 const UPLOAD_ACCEPT = ".txt,.md,.markdown,.pdf,.docx";
+const DEFAULT_SPLIT_CONFIG: DocumentSplitConfig = {
+  chunkSize: 512,
+  chunkOverlap: 64,
+  splitterType: "recursive_character",
+};
 
 type UploadStatus = "queued" | "uploading" | "processing" | "success" | "error";
 
@@ -73,10 +83,12 @@ function statusTag(status: UploadStatus) {
 
 export function DocumentUploadPanel() {
   const { message } = App.useApp();
+  const queryClient = useQueryClient();
   const [knowledgeBaseId, setKnowledgeBaseId] = useState<number | null>(null);
   const [knowledgeSearch, setKnowledgeSearch] = useState("");
   const [queue, setQueue] = useState<QueuedDocument[]>([]);
   const [running, setRunning] = useState(false);
+  const [splitConfig, setSplitConfig] = useState<DocumentSplitConfig>(DEFAULT_SPLIT_CONFIG);
   const basesQuery = useKnowledgeBases({
     name: knowledgeSearch || undefined,
     status: "active",
@@ -92,6 +104,14 @@ export function DocumentUploadPanel() {
     }),
     [queue],
   );
+  const splitConfigError =
+    splitConfig.chunkSize < 100 || splitConfig.chunkSize > 4000
+      ? "Chunk 大小必须为 100～4000 个字符"
+      : splitConfig.chunkOverlap < 0 || splitConfig.chunkOverlap > 1000
+        ? "重叠大小必须为 0～1000 个字符"
+        : splitConfig.chunkOverlap >= splitConfig.chunkSize
+          ? "重叠大小必须小于 Chunk 大小"
+          : null;
 
   function updateItem(id: string, patch: Partial<QueuedDocument>) {
     setQueue((current) =>
@@ -124,7 +144,11 @@ export function DocumentUploadPanel() {
     return false;
   }
 
-  async function uploadOne(item: QueuedDocument, targetId: number) {
+  async function uploadOne(
+    item: QueuedDocument,
+    targetId: number,
+    uploadSplitConfig: DocumentSplitConfig,
+  ) {
     updateItem(item.id, { status: "uploading", progress: 0, error: undefined });
     try {
       const result = await uploadKnowledgeDocument(
@@ -136,8 +160,11 @@ export function DocumentUploadPanel() {
             progress,
             status: progress >= 100 ? "processing" : "uploading",
           }),
+        uploadSplitConfig,
       );
       updateItem(item.id, { status: "success", progress: 100, result });
+      void queryClient.invalidateQueries({ queryKey: knowledgeQueryKeys.documents(targetId) });
+      void queryClient.invalidateQueries({ queryKey: knowledgeQueryKeys.bases });
     } catch (error) {
       updateItem(item.id, {
         status: "error",
@@ -151,19 +178,24 @@ export function DocumentUploadPanel() {
       message.warning("请先选择目标知识库");
       return;
     }
+    if (splitConfigError) {
+      message.warning(splitConfigError);
+      return;
+    }
     const pending = queue.filter((item) => item.status === "queued");
     if (pending.length === 0) {
       message.warning("请先添加待上传文档");
       return;
     }
     const targetId = knowledgeBaseId;
+    const uploadSplitConfig = { ...splitConfig };
     setRunning(true);
     let cursor = 0;
     async function worker() {
       while (cursor < pending.length) {
         const item = pending[cursor];
         cursor += 1;
-        await uploadOne(item, targetId);
+        await uploadOne(item, targetId, uploadSplitConfig);
       }
     }
     try {
@@ -196,6 +228,41 @@ export function DocumentUploadPanel() {
           />
           <Typography.Text type="secondary">
             本次队列中的所有文档都会上传到同一个知识库；上传期间不能切换。
+          </Typography.Text>
+          <div className="grid gap-3 sm:grid-cols-2 lg:max-w-xl">
+            <div className="grid gap-1">
+              <Typography.Text>Chunk 大小（字符）</Typography.Text>
+              <InputNumber
+                className="w-full"
+                min={100}
+                max={4000}
+                step={50}
+                value={splitConfig.chunkSize}
+                disabled={running}
+                onChange={(value) =>
+                  typeof value === "number" &&
+                  setSplitConfig((current) => ({ ...current, chunkSize: value }))
+                }
+              />
+            </div>
+            <div className="grid gap-1">
+              <Typography.Text>重叠大小（字符）</Typography.Text>
+              <InputNumber
+                className="w-full"
+                min={0}
+                max={1000}
+                step={10}
+                value={splitConfig.chunkOverlap}
+                disabled={running}
+                onChange={(value) =>
+                  typeof value === "number" &&
+                  setSplitConfig((current) => ({ ...current, chunkOverlap: value }))
+                }
+              />
+            </div>
+          </div>
+          <Typography.Text type={splitConfigError ? "danger" : "secondary"}>
+            {splitConfigError ?? "使用递归字符拆分；配置会分别保存到本次上传的每个文档。"}
           </Typography.Text>
         </div>
       </Card>
@@ -261,6 +328,9 @@ export function DocumentUploadPanel() {
                     <Typography.Text type="secondary" className="text-xs">
                       {(item.file.size / 1024 / 1024).toFixed(2)} MB
                       {item.result ? ` · ${item.result.chunks} 个片段` : ""}
+                      {item.result?.chunkSize !== undefined
+                        ? ` · ${item.result.chunkSize}/${item.result.chunkOverlap ?? 0} 字符`
+                        : ""}
                     </Typography.Text>
                     {item.status === "uploading" || item.status === "processing" ? (
                       <Progress
@@ -271,6 +341,15 @@ export function DocumentUploadPanel() {
                       />
                     ) : null}
                     {item.error ? <Alert className="mt-2" type="error" showIcon title={item.error} /> : null}
+                    {item.result?.warnings?.length ? (
+                      <Alert
+                        className="mt-2"
+                        type="warning"
+                        showIcon
+                        title="解析完成，但有提示"
+                        description={item.result.warnings.join("；")}
+                      />
+                    ) : null}
                   </div>
                   <Space>
                     {item.status === "error" ? (

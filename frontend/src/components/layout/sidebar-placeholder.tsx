@@ -10,11 +10,11 @@ import {
   FolderOpenOutlined,
   HistoryOutlined,
   SafetyOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { Menu, Typography } from "antd";
 import type { MenuProps } from "antd";
 import { usePathname, useRouter } from "next/navigation";
-
 import { useUiStore } from "@/stores/use-ui-store";
 
 interface SidebarPlaceholderProps {
@@ -69,6 +69,21 @@ const adminItems: MenuProps["items"] = [
     key: "/admin/docs",
     icon: <FolderOpenOutlined />,
     label: "文档管理",
+  },
+  {
+    key: "/admin/users",
+    icon: <UserOutlined />,
+    label: "用户管理",
+  },
+  {
+    key: "/admin/logs",
+    icon: <FileTextOutlined />,
+    label: "日志查询",
+  },
+  {
+    key: "/admin/analysis",
+    icon: <DashboardOutlined />,
+    label: "数据分析",
   },
 ];
 

@@ -24,6 +24,29 @@ class StudentRegisterRequest(BaseModel):
         return value.strip()
 
 
+class AdminUserCreateRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=32, pattern=r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
+    password: str = Field(min_length=6, max_length=64)
+    displayName: Optional[str] = Field(default=None, max_length=64)
+    role: str = Field(default="ROLE_USER", pattern=r"^ROLE_(USER|ADMIN)$")
+
+    @field_validator("username", "displayName", mode="before")
+    @classmethod
+    def strip_admin_user_text(cls, value: str | None) -> str | None:
+        return value.strip() if isinstance(value, str) else value
+
+
+class AdminUserUpdateRequest(BaseModel):
+    displayName: Optional[str] = Field(default=None, max_length=64)
+    password: Optional[str] = Field(default=None, min_length=6, max_length=64)
+    role: Optional[str] = Field(default=None, pattern=r"^ROLE_(USER|ADMIN)$")
+
+    @field_validator("displayName", mode="before")
+    @classmethod
+    def strip_admin_user_update_text(cls, value: str | None) -> str | None:
+        return value.strip() if isinstance(value, str) else value
+
+
 class ChatStreamEvent(BaseModel):
     sessionId: Optional[str] = None
     content: Optional[str] = None

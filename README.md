@@ -18,8 +18,8 @@
 ## 技术栈
 
 ```text
-语言：Python
-后端Web框架：FastAPI
+编程语言：TypeScript + Python
+Web框架：Next.js + FastAPI
 服务运行：Uvicorn / ASGI
 数据库：MySQL，SQLAlchemy ORM，PyMySQL 驱动，Alembic 迁移
 短期记忆：Redis

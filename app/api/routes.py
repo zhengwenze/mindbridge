@@ -10,9 +10,23 @@ from app.agents.factory import agent_framework_status
 from app.agents.runtime import AgentRuntimeService
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.core.security import current_user, hash_password, require_admin, require_student
+from app.core.security import (
+    current_user,
+    hash_password,
+    require_admin,
+    require_student,
+)
 from app.models.entities import KnowledgeChunk, KnowledgeDocument, UserAccount
-from app.schemas.dtos import ChatRequest, KnowledgeBaseCreateRequest, KnowledgeBaseUpdateRequest, StudentDocumentPreviewResponse, StudentRegisterRequest, authority
+from app.schemas.dtos import (
+    ChatRequest,
+    AdminUserCreateRequest,
+    AdminUserUpdateRequest,
+    KnowledgeBaseCreateRequest,
+    KnowledgeBaseUpdateRequest,
+    StudentDocumentPreviewResponse,
+    StudentRegisterRequest,
+    authority,
+)
 from app.schemas.knowledge import DocumentBatchDeleteRequest, DocumentSplitRequest
 from app.services.chat import ChatService
 from app.services.document_management import KnowledgeDocumentService, receive_upload
@@ -33,15 +47,30 @@ def profile_response(user: UserAccount):
     }
 
 
+def admin_user_response(user: UserAccount):
+    return {
+        "id": user.id,
+        "username": user.username,
+        "displayName": user.display_name,
+        "role": "ROLE_ADMIN" if "ROLE_ADMIN" in user.roles else "ROLE_USER",
+        "createdAt": user.created_at,
+    }
+
+
 @router.get("/actuator/health")
 def health():
     return {"status": "UP"}
 
 
 @router.post("/api/register/student", status_code=201)
-def register_student(request: StudentRegisterRequest, db: Annotated[Session, Depends(get_db)]):
+def register_student(
+    request: StudentRegisterRequest, db: Annotated[Session, Depends(get_db)]
+):
     username = request.username.strip()
-    if db.query(UserAccount).filter(UserAccount.username == username).first() is not None:
+    if (
+        db.query(UserAccount).filter(UserAccount.username == username).first()
+        is not None
+    ):
         raise HTTPException(409, "用户名已被注册")
 
     display_name = (request.displayName or username).strip() or username
@@ -69,38 +98,56 @@ def profile(user: Annotated[UserAccount, Depends(current_user)]):
 
 
 @router.get("/api/student/sessions")
-def student_sessions(user: Annotated[UserAccount, Depends(require_student)], db: Annotated[Session, Depends(get_db)]):
+def student_sessions(
+    user: Annotated[UserAccount, Depends(require_student)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).student_sessions(user.id)
 
 
 @router.get("/api/student/sessions/{session_id}")
-def student_conversation(session_id: str, user: Annotated[UserAccount, Depends(require_student)], db: Annotated[Session, Depends(get_db)]):
+def student_conversation(
+    session_id: str,
+    user: Annotated[UserAccount, Depends(require_student)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
         return ReportService(db).student_conversation(user.id, session_id)
     except ValueError as exc:
         raise HTTPException(404, "Session not found") from exc
 
 
-@router.get("/api/student/documents/{document_id}", response_model=StudentDocumentPreviewResponse)
+@router.get(
+    "/api/student/documents/{document_id}",
+    response_model=StudentDocumentPreviewResponse,
+)
 def student_document_preview(
     document_id: int,
     user: Annotated[UserAccount, Depends(require_student)],
     db: Annotated[Session, Depends(get_db)],
     chunk_id: int | None = Query(default=None, ge=1),
 ):
-    document = db.query(KnowledgeDocument).filter(
-        KnowledgeDocument.id == document_id,
-        KnowledgeDocument.deleted_at.is_(None),
-        KnowledgeDocument.index_status == "active",
-    ).first()
+    document = (
+        db.query(KnowledgeDocument)
+        .filter(
+            KnowledgeDocument.id == document_id,
+            KnowledgeDocument.deleted_at.is_(None),
+            KnowledgeDocument.index_status == "active",
+        )
+        .first()
+    )
     if document is None:
         raise HTTPException(404, "文档不存在或暂不可用")
     highlight = None
     if chunk_id is not None:
-        chunk = db.query(KnowledgeChunk).filter(
-            KnowledgeChunk.id == chunk_id,
-            KnowledgeChunk.document_id == document.id,
-        ).first()
+        chunk = (
+            db.query(KnowledgeChunk)
+            .filter(
+                KnowledgeChunk.id == chunk_id,
+                KnowledgeChunk.document_id == document.id,
+            )
+            .first()
+        )
         if chunk is not None:
             highlight = chunk.content
     return StudentDocumentPreviewResponse(
@@ -137,7 +184,11 @@ async def chat_stream(
 def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
     settings = get_settings()
     provider = settings.ai_provider.lower()
-    model = settings.ollama_model if provider == "ollama" else settings.openai_model if provider == "openai" else "mock"
+    model = (
+        settings.ollama_model
+        if provider == "ollama"
+        else settings.openai_model if provider == "openai" else "mock"
+    )
     framework = agent_framework_status(settings)
     return {
         "provider": provider,
@@ -146,11 +197,31 @@ def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
         "agentFramework": framework,
         "finetunedModel": finetuned_model_status(settings),
         "agents": [
-            {"name": "CoordinatorAgent", "status": "READY", "description": "维护任务板、预算、安全门槛、冲突仲裁和最终采纳"},
-            {"name": "UnderstandingAgent", "status": "READY", "description": "独立理解用户输入，发布 intent artifact"},
-            {"name": "SafetyAgent", "status": "READY", "description": "独立风险评估、SAFETY_OVERRIDE 和候选回复安全审查"},
-            {"name": "ContextAgent", "status": "READY", "description": "独立记忆视图、RAG 检索和 skill 上下文聚合"},
-            {"name": "ResponseAgent", "status": "READY", "description": "根据黑板 artifact 发布候选回复方案"},
+            {
+                "name": "CoordinatorAgent",
+                "status": "READY",
+                "description": "维护任务板、预算、安全门槛、冲突仲裁和最终采纳",
+            },
+            {
+                "name": "UnderstandingAgent",
+                "status": "READY",
+                "description": "独立理解用户输入，发布 intent artifact",
+            },
+            {
+                "name": "SafetyAgent",
+                "status": "READY",
+                "description": "独立风险评估、SAFETY_OVERRIDE 和候选回复安全审查",
+            },
+            {
+                "name": "ContextAgent",
+                "status": "READY",
+                "description": "独立记忆视图、RAG 检索和 skill 上下文聚合",
+            },
+            {
+                "name": "ResponseAgent",
+                "status": "READY",
+                "description": "根据黑板 artifact 发布候选回复方案",
+            },
         ],
         "skills": MindBridgeSkillLibrary.status_items(),
         "runtimeHarness": {
@@ -159,9 +230,21 @@ def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
             "description": "统一管理单轮 Agent run 的输入脱敏、上下文注入、风险报告、工具计划和 trace 输出",
         },
         "loop": {
-            "type": "event-driven-multi-agent" if framework["active"] == "event_driven_multi_agent" else "bounded-agent-loop",
+            "type": (
+                "event-driven-multi-agent"
+                if framework["active"] == "event_driven_multi_agent"
+                else "bounded-agent-loop"
+            ),
             "maxSteps": AgentRuntimeService.max_steps,
-            "scheduler": "claim-based-actor-runtime" if framework["active"] == "event_driven_multi_agent" else "langgraph-controller" if framework["active"] == "langgraph" else "custom-runtime",
+            "scheduler": (
+                "claim-based-actor-runtime"
+                if framework["active"] == "event_driven_multi_agent"
+                else (
+                    "langgraph-controller"
+                    if framework["active"] == "langgraph"
+                    else "custom-runtime"
+                )
+            ),
         },
         "collaboration": {
             "scheduler": "claim-based",
@@ -179,61 +262,199 @@ def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
 
 
 @router.get("/api/reports/me")
-def my_reports(user: Annotated[UserAccount, Depends(current_user)], db: Annotated[Session, Depends(get_db)]):
+def my_reports(
+    user: Annotated[UserAccount, Depends(current_user)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).latest_reports(user.id)
 
 
 @router.get("/api/admin/reports")
-def admin_reports(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_reports(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).latest_reports()
 
 
 @router.get("/api/admin/excel-records")
-def admin_excel(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_excel(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).excel_records()
 
 
 @router.get("/api/admin/alerts")
-def admin_alerts(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_alerts(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).alert_records()
 
 
 @router.get("/api/admin/cases")
-def admin_cases(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_cases(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).risk_cases()
 
 
 @router.get("/api/admin/cases/{case_id}/notes")
-def admin_case_notes(case_id: int, _: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_case_notes(
+    case_id: int,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).case_notes(case_id)
 
 
 @router.get("/api/admin/tool-jobs")
-def admin_tool_jobs(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_tool_jobs(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).tool_jobs()
 
 
 @router.get("/api/admin/dead-letters")
-def admin_dead_letters(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_dead_letters(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).dead_letters()
 
 
 @router.get("/api/admin/agent-traces")
-def admin_agent_traces(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_agent_traces(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).agent_run_traces()
 
 
 @router.get("/api/admin/tool-audits")
-def admin_tool_audits(_: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_tool_audits(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return ReportService(db).tool_audits()
 
 
 @router.get("/api/admin/conversations/{session_id}")
-def admin_conversation(session_id: str, _: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def admin_conversation(
+    session_id: str,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
         return ReportService(db).conversation(session_id)
     except ValueError as exc:
         raise HTTPException(404, str(exc)) from exc
+
+
+@router.get("/api/admin/users")
+def list_admin_users(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    username: str | None = None,
+    role: str | None = Query(default=None, pattern=r"^ROLE_(USER|ADMIN)$"),
+    created_from: datetime | None = None,
+    created_to: datetime | None = None,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+):
+    query = db.query(UserAccount)
+    if username:
+        query = query.filter(UserAccount.username.like(f"%{username.strip()}%"))
+    if role:
+        query = query.filter(UserAccount.roles_csv.like(f"%{role}%"))
+    if created_from:
+        query = query.filter(UserAccount.created_at >= created_from)
+    if created_to:
+        query = query.filter(UserAccount.created_at <= created_to)
+    total = query.count()
+    items = (
+        query.order_by(UserAccount.created_at.desc(), UserAccount.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    return {
+        "items": [admin_user_response(user) for user in items],
+        "total": total,
+        "page": page,
+        "pageSize": page_size,
+    }
+
+
+@router.post("/api/admin/users", status_code=201)
+def create_admin_user(
+    request: AdminUserCreateRequest,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    username = request.username.strip()
+    if db.query(UserAccount).filter(UserAccount.username == username).first() is not None:
+        raise HTTPException(409, "用户名已存在")
+    user = UserAccount(
+        username=username,
+        display_name=(request.displayName or username).strip() or username,
+        password_hash=hash_password(request.password),
+    )
+    user.roles = {request.role}
+    db.add(user)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(409, "用户名已存在") from exc
+    db.refresh(user)
+    return admin_user_response(user)
+
+
+@router.patch("/api/admin/users/{user_id}")
+def update_admin_user(
+    user_id: int,
+    request: AdminUserUpdateRequest,
+    actor: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    user = db.query(UserAccount).filter(UserAccount.id == user_id).first()
+    if user is None:
+        raise HTTPException(404, "用户不存在")
+    if request.displayName is not None:
+        user.display_name = request.displayName.strip() or user.username
+    if request.password:
+        user.password_hash = hash_password(request.password)
+    if request.role:
+        if user.id == actor.id and request.role != "ROLE_ADMIN":
+            raise HTTPException(400, "不能移除当前管理员的管理员角色")
+        user.roles = {request.role}
+    db.commit()
+    db.refresh(user)
+    return admin_user_response(user)
+
+
+@router.delete("/api/admin/users/{user_id}")
+def delete_admin_user(
+    user_id: int,
+    actor: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    if user_id == actor.id:
+        raise HTTPException(400, "不能删除当前登录管理员")
+    user = db.query(UserAccount).filter(UserAccount.id == user_id).first()
+    if user is None:
+        raise HTTPException(404, "用户不存在")
+    db.delete(user)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(409, "该用户存在关联业务数据，无法删除") from exc
+    return {"deleted": True, "id": user_id}
 
 
 def knowledge_error(exc: KnowledgeBaseError) -> HTTPException:
@@ -241,9 +462,15 @@ def knowledge_error(exc: KnowledgeBaseError) -> HTTPException:
 
 
 @router.post("/api/admin/knowledge-bases", status_code=201)
-def create_knowledge_base(request: KnowledgeBaseCreateRequest, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def create_knowledge_base(
+    request: KnowledgeBaseCreateRequest,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
-        base = KnowledgeBaseService(db, get_settings()).create(request.name, request.description, user)
+        base = KnowledgeBaseService(db, get_settings()).create(
+            request.name, request.description, user
+        )
         return KnowledgeBaseService(db, get_settings()).detail(base.id)
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc
@@ -261,28 +488,58 @@ def list_knowledge_bases(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
 ):
-    return KnowledgeBaseService(db, get_settings()).list(name=name, status=status, created_from=created_from, created_to=created_to, include_deleted=include_deleted, page=page, page_size=page_size)
+    return KnowledgeBaseService(db, get_settings()).list(
+        name=name,
+        status=status,
+        created_from=created_from,
+        created_to=created_to,
+        include_deleted=include_deleted,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get("/api/admin/knowledge-bases/{knowledge_base_id}")
-def knowledge_base_detail(knowledge_base_id: int, _: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)], include_deleted: bool = False):
+def knowledge_base_detail(
+    knowledge_base_id: int,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    include_deleted: bool = False,
+):
     try:
-        return KnowledgeBaseService(db, get_settings()).detail(knowledge_base_id, include_deleted)
+        return KnowledgeBaseService(db, get_settings()).detail(
+            knowledge_base_id, include_deleted
+        )
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc
 
 
 @router.patch("/api/admin/knowledge-bases/{knowledge_base_id}")
-def update_knowledge_base(knowledge_base_id: int, request: KnowledgeBaseUpdateRequest, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def update_knowledge_base(
+    knowledge_base_id: int,
+    request: KnowledgeBaseUpdateRequest,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
-        base = KnowledgeBaseService(db, get_settings()).update(knowledge_base_id, name=request.name, description=request.description, status=request.status, actor=user)
+        base = KnowledgeBaseService(db, get_settings()).update(
+            knowledge_base_id,
+            name=request.name,
+            description=request.description,
+            status=request.status,
+            actor=user,
+        )
         return KnowledgeBaseService(db, get_settings()).detail(base.id)
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc
 
 
 @router.delete("/api/admin/knowledge-bases/{knowledge_base_id}")
-def delete_knowledge_base(knowledge_base_id: int, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def delete_knowledge_base(
+    knowledge_base_id: int,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
         return KnowledgeBaseService(db, get_settings()).delete(knowledge_base_id, user)
     except KnowledgeBaseError as exc:
@@ -290,14 +547,20 @@ def delete_knowledge_base(knowledge_base_id: int, user: Annotated[UserAccount, D
 
 
 @router.get("/api/admin/knowledge-bases/{knowledge_base_id}/status")
-def knowledge_base_status(knowledge_base_id: int, _: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def knowledge_base_status(
+    knowledge_base_id: int,
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
         return KnowledgeBaseService(db, get_settings()).status(knowledge_base_id)
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents", status_code=201)
+@router.post(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents", status_code=201
+)
 async def ingest_knowledge_document(
     knowledge_base_id: int,
     user: Annotated[UserAccount, Depends(require_admin)],
@@ -437,8 +700,16 @@ def delete_knowledge_document(
 
 
 @router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild")
-def rebuild_knowledge_base(knowledge_base_id: int, user: Annotated[UserAccount, Depends(require_admin)], db: Annotated[Session, Depends(get_db)]):
+def rebuild_knowledge_base(
+    knowledge_base_id: int,
+    user: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
-        return {"indexedChunks": KnowledgeDocumentService(db, get_settings()).rebuild(knowledge_base_id, user)}
+        return {
+            "indexedChunks": KnowledgeDocumentService(db, get_settings()).rebuild(
+                knowledge_base_id, user
+            )
+        }
     except KnowledgeBaseError as exc:
         raise knowledge_error(exc) from exc

@@ -17,8 +17,39 @@ import type {
   KnowledgeDocumentUploadOptions,
   KnowledgeDocumentUploadResult,
   RiskCase,
-  RiskReport
+  RiskReport,
+  AdminUser,
+  AdminUserCreatePayload,
+  AdminUserFilters,
+  AdminUserListResponse,
+  AdminUserUpdatePayload,
 } from "../types/admin-types";
+
+export async function fetchAdminUsers(filters: AdminUserFilters): Promise<AdminUserListResponse> {
+  const params = new URLSearchParams();
+  if (filters.username) params.set("username", filters.username);
+  if (filters.role) params.set("role", filters.role);
+  if (filters.createdFrom) params.set("created_from", filters.createdFrom);
+  if (filters.createdTo) params.set("created_to", `${filters.createdTo}T23:59:59.999`);
+  params.set("page", String(filters.page ?? 1));
+  params.set("page_size", String(filters.pageSize ?? 20));
+  const response = await apiClient.get<AdminUserListResponse>(`/api/admin/users?${params.toString()}`);
+  return response.data;
+}
+
+export async function createAdminUser(payload: AdminUserCreatePayload): Promise<AdminUser> {
+  const response = await apiClient.post<AdminUser>("/api/admin/users", payload);
+  return response.data;
+}
+
+export async function updateAdminUser(id: number, payload: AdminUserUpdatePayload): Promise<AdminUser> {
+  const response = await apiClient.patch<AdminUser>(`/api/admin/users/${id}`, payload);
+  return response.data;
+}
+
+export async function deleteAdminUser(id: number): Promise<void> {
+  await apiClient.delete(`/api/admin/users/${id}`);
+}
 
 export async function fetchAdminReports(): Promise<RiskReport[]> {
   const response = await apiClient.get<RiskReport[]>("/api/admin/reports");

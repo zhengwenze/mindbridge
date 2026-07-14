@@ -14,6 +14,7 @@ import { ConversationArchivePanel } from "./conversation-archive-panel";
 import { KnowledgeBasePanel } from "./knowledge-base-panel";
 import { RiskCasesPanel } from "./risk-cases-panel";
 import { RiskReportsPanel } from "./risk-reports-panel";
+import { UserManagementPanel } from "./user-management-panel";
 
 function AdminDataError({ errors }: { errors: unknown[] }) {
   const firstError = errors.find(Boolean);
@@ -164,6 +165,14 @@ export function AdminKnowledgePage() {
   return (
     <PageContainer title="知识库" description="维护心理支持知识库，为 MindBridge 的回答和风险判断提供依据。">
       <KnowledgeBasePanel />
+    </PageContainer>
+  );
+}
+
+export function AdminUsersPage() {
+  return (
+    <PageContainer title="用户管理" description="维护管理员和普通用户账号，支持创建、编辑和删除用户。">
+      <UserManagementPanel />
     </PageContainer>
   );
 }

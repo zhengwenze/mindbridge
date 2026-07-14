@@ -54,6 +54,45 @@ export interface ConversationArchive {
   messages?: ConversationMessage[];
 }
 
+export type AdminUserRole = "ROLE_USER" | "ROLE_ADMIN";
+
+export interface AdminUser {
+  id: number;
+  username: string;
+  displayName: string;
+  role: AdminUserRole;
+  createdAt: string;
+}
+
+export interface AdminUserFilters {
+  username?: string;
+  role?: AdminUserRole;
+  createdFrom?: string;
+  createdTo?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminUserListResponse {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface AdminUserCreatePayload {
+  username: string;
+  password: string;
+  displayName?: string;
+  role: AdminUserRole;
+}
+
+export interface AdminUserUpdatePayload {
+  displayName?: string;
+  password?: string;
+  role?: AdminUserRole;
+}
+
 export type KnowledgeBaseStatus = "active" | "disabled" | "indexing" | "error" | "DELETING" | "DELETE_FAILED";
 
 export interface KnowledgeBaseReferenceDetail {

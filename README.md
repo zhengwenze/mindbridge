@@ -1,8 +1,8 @@
-# MindBridge
+# MindBridge 知心桥——高校心理健康智能体
 
 ## 核心能力
 
-- 学生端 SSE 流式聊天，前端可展示打字机式输出。
+- 基于 SSE 实现AI生成内容流式输出。
 - Basic Auth 登录，支持学生和管理员角色隔离。
 - LangGraph 多 Agent 工作流：Memory、Supervisor、Knowledge、RiskGuardian、Companion、Counselor，未安装 LangGraph 时自动回退到自研有限循环 runtime。
 - 动态路由 RAG：先判断 `CHAT / CONSULT / RISK`，普通问题不查知识库，咨询和风险场景才进入检索增强。
@@ -10,31 +10,37 @@
 - 心理风险评估：高风险词典优先、LLM JSON 评估、关键词兜底。
 - 后台报告：记录情绪标签、情绪分数、风险等级、置信度和摘要，但学生端不展示后台评估结果。
 - 数据闭环：咨询/风险消息完整写入 MySQL，短期上下文写入 Redis，高风险消息写入 Excel 台账并通过邮件发送预警。
-- 本地微调模型接入：支持通过 Ollama 加载 `mindbridge-qwen2.5-7b-ft-q4_k_m.gguf`。
-- 本地模型接入（没微调）：通过 Ollama 加载 qwen2.5:7b 模型。
-- OpenAI-compatible API 接入：支持云端模型。
-- MCP 工具服务：暴露 Excel 报告写入和风险通知工具，后端高风险后处理通过 MCP client 调用这些工具。
+- 本地微调模型接入：通过 Ollama 加载 `mindbridge-qwen2.5-7b-ft-q4_k_m.gguf`。
+- 本地普通模型接入：通过 Ollama 加载 qwen2.5:7b 模型。
+- MCP 工具：暴露 Excel 报告写入和风险通知工具，后端高风险后处理通过 MCP client 调用工具。
 - RAG 评测：Recall@K、Precision@K、MRR、NDCG@K、HitRate。
 
 ## 技术栈
 
 ```text
 语言：Python
-Web 框架：FastAPI
+后端Web框架：FastAPI
 服务运行：Uvicorn / ASGI
-数据库：MySQL，SQLAlchemy ORM，PyMySQL 驱动
+数据库：MySQL，SQLAlchemy ORM，PyMySQL 驱动，Alembic 迁移
 短期记忆：Redis
-配置管理：pydantic-settings，.env
-AI 接入：Ollama，本地微调 GGUF 模型，OpenAI-compatible API，Mock Provider
-Agent 编排：LangGraph bounded agent loop，自研 runtime 兜底
-RAG：结构化文档解析、Ollama Embeddings、Chroma 向量库、BM25、分数融合、本地 reranker、上下文扩展
-流式输出：Server-Sent Events
-文档解析：pypdf、python-docx
+配置管理：pydantic-settings，.env，LRU Cache 缓存
+AI 接入：本地 qwen2.5:7b 模型,本地微调 GGUF 模型
+Agent：LangGraph bounded agent loop，自研 runtime 兜底,langchain-core
+RAG：结构化文档解析、Ollama Embeddings、Chroma、BM25、分数融合、本地 reranker、上下文扩展
+流式输出：SSE,asyncio 异步支持
+文档解析：pypdf、python-docx、langchain-text-splitters
 Excel 台账：openpyxl
 邮件预警：SMTP / smtplib
-前端：Next.js / React / Ant Design，仅在 Mac 宿主机运行开发服务器并使用 HMR
-认证：Basic Auth
+前端：Next.js / React / Ant Design / TypeScript
+认证：Basic Auth，hashlib/hmac 密码验证
 工具协议：MCP
+前端：Next.js / React / Ant Design / TypeScript
+前端状态管理：Zustand
+前端数据缓存：TanStack React Query
+前端 HTTP：Axios（普通请求）+ fetch（SSE 流式）
+类型检查：TypeScript
+代码检查：ESLint
+容器化：Docker / Docker Compose
 ```
 
 说明：本项目提供 LangGraph runtime，入口在 `app/agents/langgraph_runtime.py`；同时保留 `app/agents/runtime.py` 作为无框架兜底。RAG 默认使用 Chroma 本地持久化向量库做语义召回，同时用 BM25 做关键词召回，再融合并本地 rerank；Chroma 或 Ollama embedding 服务异常且未强制要求向量时，会自动回退到本地 BM25 + `hybrid_score` reranker，避免演示环境中断。
@@ -189,11 +195,11 @@ npm run dev
 
 Docker 服务：
 
-| 服务    | 镜像           | 宿主机端口 | 说明 |
-| ------- | -------------- | ---------- | ---- |
-| `mysql` | MySQL 8.0      | `13306`    | 数据库，使用 `mysql-data` 持久化 |
+| 服务    | 镜像           | 宿主机端口 | 说明                                   |
+| ------- | -------------- | ---------- | -------------------------------------- |
+| `mysql` | MySQL 8.0      | `13306`    | 数据库，使用 `mysql-data` 持久化       |
 | `redis` | Redis 7.2      | `16379`    | 短期记忆缓存，使用 `redis-data` 持久化 |
-| `app`   | MindBridge API | `8000`     | FastAPI、Agent、Chroma 与业务链路 |
+| `app`   | MindBridge API | `8000`     | FastAPI、Agent、Chroma 与业务链路      |
 
 Chroma 当前以内嵌持久化客户端运行在 `app` 服务中，数据保存到宿主机 `data/chroma/`，没有独立 Compose service。
 

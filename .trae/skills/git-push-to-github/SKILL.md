@@ -79,5 +79,3 @@ description: "Safely commits intended local changes and pushes them to a GitHub 
 - 修改远程地址、本地身份、代理、SSH 或系统网络配置前必须取得用户确认。
 
 ---
-
-**Skill Version**: 1.1

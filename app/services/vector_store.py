@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import shutil
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -54,6 +55,8 @@ class EmbeddingService:
     def embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
+        if self.settings.ai_provider.lower() == "mock":
+            return [self._mock_embedding(text) for text in texts]
         response = httpx.post(
             f"{self.settings.ollama_base_url}/api/embed",
             json={"model": self.model_name, "input": [text if text.strip() else " " for text in texts]},
@@ -64,6 +67,12 @@ class EmbeddingService:
         if len(embeddings) != len(texts) or any(not embedding for embedding in embeddings):
             raise VectorStoreUnavailable("Embedding service returned an invalid vector response")
         return [[float(value) for value in embedding] for embedding in embeddings]
+
+    @staticmethod
+    def _mock_embedding(text: str) -> list[float]:
+        """Return a deterministic local vector for tests without an Ollama dependency."""
+        digest = hashlib.sha256((text if text.strip() else " ").encode("utf-8")).digest()
+        return [(value - 127.5) / 127.5 for value in digest]
 
 
 class ChromaVectorStore:

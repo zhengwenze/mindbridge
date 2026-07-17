@@ -17,6 +17,7 @@ COPY app ./app
 COPY migrations ./migrations
 COPY alembic.ini ./alembic.ini
 COPY tests ./tests
+COPY .github ./.github
 COPY skills ./skills
 COPY models/mindbridge-qwen2.5-7b-ft/Modelfile ./models/mindbridge-qwen2.5-7b-ft/Modelfile
 COPY scripts ./scripts

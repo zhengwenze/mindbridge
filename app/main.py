@@ -10,9 +10,31 @@ from app.core.config import get_settings
 from app.core.database import SessionLocal
 from app.services.tool_queue import get_tool_queue_worker
 
+OPENAPI_TAGS = [
+    {"name": "System", "description": "服务健康检查与运行状态。"},
+    {"name": "Authentication", "description": "学生注册与当前用户身份信息。"},
+    {"name": "Student", "description": "学生会话、文档预览与个人报告。"},
+    {"name": "Chat", "description": "AI 对话与 Server-Sent Events 流式响应。"},
+    {"name": "Administration", "description": "管理员审计、风险处置与用户管理。"},
+    {"name": "Knowledge Bases", "description": "知识库、文档、切分与索引管理。"},
+]
+
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="MindBridge Python", version="0.1.0")
+    app = FastAPI(
+        title="MindBridge API",
+        summary="MindBridge 心理支持平台后端接口",
+        description=(
+            "MindBridge 的学生对话、风险报告、后台管理和知识库接口。"
+            "除健康检查与学生注册外，接口使用 HTTP Basic 认证；"
+            "可在 Swagger UI 右上角通过 Authorize 输入账号和密码。"
+        ),
+        version="0.1.0",
+        openapi_tags=OPENAPI_TAGS,
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+    )
 
     app.add_middleware(
         CORSMiddleware,

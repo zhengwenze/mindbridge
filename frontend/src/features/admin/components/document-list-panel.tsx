@@ -280,9 +280,15 @@ export function DocumentListPanel() {
 
       <Card title="文档列表" variant="outlined">
         <div className="grid gap-4">
-          <div className="flex flex-wrap items-end gap-3">
+          <div
+            className="grid w-full min-w-0 items-end gap-2"
+            style={{
+              gridTemplateColumns:
+                "minmax(0, 1fr) 128px 128px 112px auto auto auto",
+            }}
+          >
             <Input.Search
-              className="w-56"
+              className="w-full min-w-0"
               placeholder="按文档名称搜索"
               allowClear
               value={searchName}
@@ -290,17 +296,7 @@ export function DocumentListPanel() {
               onChange={(event) => setSearchName(event.target.value)}
               onSearch={(name) => setFilters((current) => ({ ...current, name: name || undefined, page: 1 }))}
             />
-            <Select
-              className="w-32"
-              placeholder="全部状态"
-              allowClear
-              disabled={knowledgeBaseId === null}
-              value={filters.status}
-              options={documentStatuses}
-              onChange={(status) => setFilters((current) => ({ ...current, status, page: 1 }))}
-            />
             <Input
-              className="w-40"
               type="date"
               aria-label="上传开始日期"
               disabled={knowledgeBaseId === null}
@@ -312,7 +308,6 @@ export function DocumentListPanel() {
               }))}
             />
             <Input
-              className="w-40"
               type="date"
               aria-label="上传结束日期"
               disabled={knowledgeBaseId === null}
@@ -323,7 +318,16 @@ export function DocumentListPanel() {
                 page: 1,
               }))}
             />
+            <Select
+              placeholder="全部状态"
+              allowClear
+              disabled={knowledgeBaseId === null}
+              value={filters.status}
+              options={documentStatuses}
+              onChange={(status) => setFilters((current) => ({ ...current, status, page: 1 }))}
+            />
             <Button
+              className="shrink-0 px-3"
               disabled={knowledgeBaseId === null}
               onClick={() => {
                 setFilters(DEFAULT_FILTERS);
@@ -333,6 +337,7 @@ export function DocumentListPanel() {
               重置筛选
             </Button>
             <Button
+              className="shrink-0 px-3"
               disabled={knowledgeBaseId === null}
               loading={documentsQuery.isFetching}
               onClick={() => documentsQuery.refetch()}
@@ -340,6 +345,7 @@ export function DocumentListPanel() {
               刷新
             </Button>
             <Button
+              className="shrink-0 px-3"
               danger
               disabled={!selectedRowKeys.length || actions.batchDeleteMutation.isPending}
               loading={actions.batchDeleteMutation.isPending}

@@ -70,7 +70,7 @@ export function StudentChatPanel({ chat, title, compact = false }: StudentChatPa
   }
 
   return (
-    <Card variant="outlined" className="flex min-h-0 w-full overflow-hidden [&_.ant-card-body]:flex [&_.ant-card-body]:w-full [&_.ant-card-body]:flex-col">
+    <Card variant="outlined" className="flex min-h-0 w-full overflow-hidden [&_.ant-card-body]:flex [&_.ant-card-body]:w-full [&_.ant-card-body]:flex-col [&_.ant-card-body]:!p-4">
       <div className="flex min-h-0 flex-1 flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">

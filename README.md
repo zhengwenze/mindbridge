@@ -224,26 +224,28 @@ curl http://localhost:8000/actuator/health
 
 - 前端：http://localhost:3000
 - 后端：http://localhost:8000
-- FastAPI 文档：http://localhost:8000/docs
+- Swagger UI（在线调试）：http://localhost:8000/docs
+- ReDoc（阅读型接口文档）：http://localhost:8000/redoc
+- OpenAPI 规范（JSON）：http://localhost:8000/openapi.json
+
+Swagger UI 会从 FastAPI 路由和 Pydantic 请求/响应模型自动生成并随代码更新。
+除健康检查和学生注册外，接口使用 HTTP Basic 认证；点击页面右上角
+`Authorize` 后输入账号密码，即可直接在线调用受保护接口。
 
 浏览器通过 `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` 直接访问后端，不使用 Docker 内部服务名。修改 `frontend/` 下的页面、组件或样式后，宿主机 Next.js HMR 会自动生效，不需要重启任何 Docker 服务。前端开发构建缓存只存在于宿主机 `frontend/.next/`。
 
 **默认账号：**
 
-| 角色   | 用户名    | 密码         |
-| ------ | --------- | ------------ |
-| 学生   | `student` | `student123` |
-| 管理员 | `admin`   | `admin123`   |
+| 角色   | 用户名  | 密码     |
+| ------ | ------- | -------- |
+| 学生   | `stu0`  | `000000` |
+| 管理员 | `admin` | `000000` |
 
-### 停止服务
+### 停止服务（不会清空数据）
 
 ```bash
 docker compose down
 ```
-
-如需清除数据：
-
-不要执行 `docker compose down -v`，除非明确准备删除 MySQL、Redis 等全部开发数据卷。日常停止只使用 `docker compose down`。
 
 ### 数据持久化
 
@@ -251,7 +253,7 @@ docker compose down
 - **Redis**：数据存储在 Docker volume `redis-data` 中
 - **Chroma 向量库**：存储在项目目录 `data/chroma/` 下
 - **Excel 台账**：存储在项目目录 `data/mindbridge-risk-ledger.xlsx`
-- **Ollama 模型**：使用电脑本机的 Ollama 模型目录，不会重复下载
+- **Ollama 模型**：使用电脑本机的 Ollama 模型目录
 
 ### 环境变量配置
 

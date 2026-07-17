@@ -57,12 +57,12 @@ def admin_user_response(user: UserAccount):
     }
 
 
-@router.get("/actuator/health")
+@router.get("/actuator/health", tags=["System"], summary="服务健康检查")
 def health():
     return {"status": "UP"}
 
 
-@router.post("/api/register/student", status_code=201)
+@router.post("/api/register/student", status_code=201, tags=["Authentication"], summary="注册学生账号")
 def register_student(
     request: StudentRegisterRequest, db: Annotated[Session, Depends(get_db)]
 ):
@@ -92,12 +92,12 @@ def register_student(
     return profile_response(user)
 
 
-@router.get("/api/profile")
+@router.get("/api/profile", tags=["Authentication"], summary="获取当前用户信息")
 def profile(user: Annotated[UserAccount, Depends(current_user)]):
     return profile_response(user)
 
 
-@router.get("/api/student/sessions")
+@router.get("/api/student/sessions", tags=["Student"], summary="查询学生会话列表")
 def student_sessions(
     user: Annotated[UserAccount, Depends(require_student)],
     db: Annotated[Session, Depends(get_db)],
@@ -105,7 +105,7 @@ def student_sessions(
     return ReportService(db).student_sessions(user.id)
 
 
-@router.get("/api/student/sessions/{session_id}")
+@router.get("/api/student/sessions/{session_id}", tags=["Student"], summary="查询学生会话详情")
 def student_conversation(
     session_id: str,
     user: Annotated[UserAccount, Depends(require_student)],
@@ -120,6 +120,8 @@ def student_conversation(
 @router.get(
     "/api/student/documents/{document_id}",
     response_model=StudentDocumentPreviewResponse,
+    tags=["Student"],
+    summary="预览学生可访问的知识文档",
 )
 def student_document_preview(
     document_id: int,
@@ -160,7 +162,7 @@ def student_document_preview(
     )
 
 
-@router.post("/api/chat/stream")
+@router.post("/api/chat/stream", tags=["Chat"], summary="发起 SSE 流式对话")
 async def chat_stream(
     request: ChatRequest,
     user: Annotated[UserAccount, Depends(current_user)],
@@ -180,7 +182,7 @@ async def chat_stream(
     )
 
 
-@router.get("/api/agent/status")
+@router.get("/api/agent/status", tags=["System"], summary="查询 Agent 运行状态")
 def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
     settings = get_settings()
     provider = settings.ai_provider.lower()
@@ -261,7 +263,7 @@ def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
     }
 
 
-@router.get("/api/reports/me")
+@router.get("/api/reports/me", tags=["Student"], summary="查询当前学生报告")
 def my_reports(
     user: Annotated[UserAccount, Depends(current_user)],
     db: Annotated[Session, Depends(get_db)],
@@ -269,7 +271,7 @@ def my_reports(
     return ReportService(db).latest_reports(user.id)
 
 
-@router.get("/api/admin/reports")
+@router.get("/api/admin/reports", tags=["Administration"], summary="查询风险报告")
 def admin_reports(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -277,7 +279,7 @@ def admin_reports(
     return ReportService(db).latest_reports()
 
 
-@router.get("/api/admin/excel-records")
+@router.get("/api/admin/excel-records", tags=["Administration"], summary="查询 Excel 导出记录")
 def admin_excel(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -285,7 +287,7 @@ def admin_excel(
     return ReportService(db).excel_records()
 
 
-@router.get("/api/admin/alerts")
+@router.get("/api/admin/alerts", tags=["Administration"], summary="查询告警记录")
 def admin_alerts(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -293,7 +295,7 @@ def admin_alerts(
     return ReportService(db).alert_records()
 
 
-@router.get("/api/admin/cases")
+@router.get("/api/admin/cases", tags=["Administration"], summary="查询风险案例")
 def admin_cases(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -301,7 +303,7 @@ def admin_cases(
     return ReportService(db).risk_cases()
 
 
-@router.get("/api/admin/cases/{case_id}/notes")
+@router.get("/api/admin/cases/{case_id}/notes", tags=["Administration"], summary="查询案例跟进记录")
 def admin_case_notes(
     case_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -310,7 +312,7 @@ def admin_case_notes(
     return ReportService(db).case_notes(case_id)
 
 
-@router.get("/api/admin/tool-jobs")
+@router.get("/api/admin/tool-jobs", tags=["Administration"], summary="查询工具任务")
 def admin_tool_jobs(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -318,7 +320,7 @@ def admin_tool_jobs(
     return ReportService(db).tool_jobs()
 
 
-@router.get("/api/admin/dead-letters")
+@router.get("/api/admin/dead-letters", tags=["Administration"], summary="查询失败任务")
 def admin_dead_letters(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -326,7 +328,7 @@ def admin_dead_letters(
     return ReportService(db).dead_letters()
 
 
-@router.get("/api/admin/agent-traces")
+@router.get("/api/admin/agent-traces", tags=["Administration"], summary="查询 Agent 运行轨迹")
 def admin_agent_traces(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -334,7 +336,7 @@ def admin_agent_traces(
     return ReportService(db).agent_run_traces()
 
 
-@router.get("/api/admin/tool-audits")
+@router.get("/api/admin/tool-audits", tags=["Administration"], summary="查询工具审计记录")
 def admin_tool_audits(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -342,7 +344,7 @@ def admin_tool_audits(
     return ReportService(db).tool_audits()
 
 
-@router.get("/api/admin/conversations/{session_id}")
+@router.get("/api/admin/conversations/{session_id}", tags=["Administration"], summary="查询后台会话详情")
 def admin_conversation(
     session_id: str,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -354,7 +356,7 @@ def admin_conversation(
         raise HTTPException(404, str(exc)) from exc
 
 
-@router.get("/api/admin/users")
+@router.get("/api/admin/users", tags=["Administration"], summary="分页查询用户")
 def list_admin_users(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -389,7 +391,7 @@ def list_admin_users(
     }
 
 
-@router.post("/api/admin/users", status_code=201)
+@router.post("/api/admin/users", status_code=201, tags=["Administration"], summary="创建用户")
 def create_admin_user(
     request: AdminUserCreateRequest,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -414,7 +416,7 @@ def create_admin_user(
     return admin_user_response(user)
 
 
-@router.patch("/api/admin/users/{user_id}")
+@router.patch("/api/admin/users/{user_id}", tags=["Administration"], summary="更新用户")
 def update_admin_user(
     user_id: int,
     request: AdminUserUpdateRequest,
@@ -437,7 +439,7 @@ def update_admin_user(
     return admin_user_response(user)
 
 
-@router.delete("/api/admin/users/{user_id}")
+@router.delete("/api/admin/users/{user_id}", tags=["Administration"], summary="删除用户")
 def delete_admin_user(
     user_id: int,
     actor: Annotated[UserAccount, Depends(require_admin)],
@@ -461,7 +463,7 @@ def knowledge_error(exc: KnowledgeBaseError) -> HTTPException:
     return HTTPException(exc.status_code, exc.detail or str(exc))
 
 
-@router.post("/api/admin/knowledge-bases", status_code=201)
+@router.post("/api/admin/knowledge-bases", status_code=201, tags=["Knowledge Bases"], summary="创建知识库")
 def create_knowledge_base(
     request: KnowledgeBaseCreateRequest,
     user: Annotated[UserAccount, Depends(require_admin)],
@@ -476,7 +478,7 @@ def create_knowledge_base(
         raise knowledge_error(exc) from exc
 
 
-@router.get("/api/admin/knowledge-bases")
+@router.get("/api/admin/knowledge-bases", tags=["Knowledge Bases"], summary="分页查询知识库")
 def list_knowledge_bases(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -499,7 +501,7 @@ def list_knowledge_bases(
     )
 
 
-@router.get("/api/admin/knowledge-bases/{knowledge_base_id}")
+@router.get("/api/admin/knowledge-bases/{knowledge_base_id}", tags=["Knowledge Bases"], summary="查询知识库详情")
 def knowledge_base_detail(
     knowledge_base_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -514,7 +516,7 @@ def knowledge_base_detail(
         raise knowledge_error(exc) from exc
 
 
-@router.patch("/api/admin/knowledge-bases/{knowledge_base_id}")
+@router.patch("/api/admin/knowledge-bases/{knowledge_base_id}", tags=["Knowledge Bases"], summary="更新知识库")
 def update_knowledge_base(
     knowledge_base_id: int,
     request: KnowledgeBaseUpdateRequest,
@@ -534,7 +536,7 @@ def update_knowledge_base(
         raise knowledge_error(exc) from exc
 
 
-@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}")
+@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}", tags=["Knowledge Bases"], summary="删除知识库")
 def delete_knowledge_base(
     knowledge_base_id: int,
     user: Annotated[UserAccount, Depends(require_admin)],
@@ -546,7 +548,7 @@ def delete_knowledge_base(
         raise knowledge_error(exc) from exc
 
 
-@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/status")
+@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/status", tags=["Knowledge Bases"], summary="查询知识库索引状态")
 def knowledge_base_status(
     knowledge_base_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -559,7 +561,10 @@ def knowledge_base_status(
 
 
 @router.post(
-    "/api/admin/knowledge-bases/{knowledge_base_id}/documents", status_code=201
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents",
+    status_code=201,
+    tags=["Knowledge Bases"],
+    summary="上传并索引知识文档",
 )
 async def ingest_knowledge_document(
     knowledge_base_id: int,
@@ -594,7 +599,7 @@ async def ingest_knowledge_document(
             temp_path.unlink(missing_ok=True)
 
 
-@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/documents")
+@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/documents", tags=["Knowledge Bases"], summary="分页查询知识文档")
 def list_knowledge_documents(
     knowledge_base_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -624,7 +629,7 @@ def list_knowledge_documents(
         raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents/batch-delete")
+@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents/batch-delete", tags=["Knowledge Bases"], summary="批量删除知识文档")
 def batch_delete_knowledge_documents(
     knowledge_base_id: int,
     request: DocumentBatchDeleteRequest,
@@ -640,7 +645,9 @@ def batch_delete_knowledge_documents(
 
 
 @router.post(
-    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}/split-preview"
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}/split-preview",
+    tags=["Knowledge Bases"],
+    summary="预览文档切分结果",
 )
 def preview_knowledge_document_split(
     knowledge_base_id: int,
@@ -662,7 +669,9 @@ def preview_knowledge_document_split(
 
 
 @router.post(
-    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}/reindex"
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}/reindex",
+    tags=["Knowledge Bases"],
+    summary="重新切分并索引文档",
 )
 def reindex_knowledge_document(
     knowledge_base_id: int,
@@ -684,7 +693,7 @@ def reindex_knowledge_document(
         raise knowledge_error(exc) from exc
 
 
-@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}")
+@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}", tags=["Knowledge Bases"], summary="删除知识文档")
 def delete_knowledge_document(
     knowledge_base_id: int,
     document_id: int,
@@ -699,7 +708,7 @@ def delete_knowledge_document(
         raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild")
+@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild", tags=["Knowledge Bases"], summary="重建知识库索引")
 def rebuild_knowledge_base(
     knowledge_base_id: int,
     user: Annotated[UserAccount, Depends(require_admin)],

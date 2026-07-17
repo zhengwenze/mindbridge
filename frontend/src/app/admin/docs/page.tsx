@@ -3,10 +3,7 @@ import { DocumentManagementWorkspace } from "@/features/admin/components/documen
 
 export default function AdminDocumentsRoute() {
   return (
-    <PageContainer
-      title="文档管理"
-      description="上传、筛选和维护知识库文档，预览字符拆分结果并按文档重新索引。"
-    >
+    <PageContainer title="文档管理" hideHeader>
       <DocumentManagementWorkspace />
     </PageContainer>
   );

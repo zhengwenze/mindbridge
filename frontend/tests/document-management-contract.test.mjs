@@ -67,3 +67,16 @@ test("document management exposes server filters, deletion and split lifecycle",
   assert.match(hooks, /invalidateQueries\(\{ queryKey: knowledgeQueryKeys\.documents/);
   assert.match(hooks, /invalidateQueries\(\{ queryKey: knowledgeQueryKeys\.bases/);
 });
+
+test("document filters stay on one bounded toolbar row", async () => {
+  const list = await source(
+    "src/features/admin/components/document-list-panel.tsx",
+  );
+
+  assert.match(list, /className="grid w-full min-w-0 items-end gap-2"/);
+  assert.match(
+    list,
+    /"minmax\(0, 1fr\) 128px 128px 112px auto auto auto"/,
+  );
+  assert.doesNotMatch(list, /className="flex flex-wrap items-end gap-3"/);
+});

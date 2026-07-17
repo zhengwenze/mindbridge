@@ -1,0 +1,4 @@
+interface:
+  display_name: "单行筛选栏布局优化"
+  short_description: "将松散或换行的后台筛选组件重构为页面宽度内的单行布局"
+  default_prompt: "使用 $optimize-filter-toolbar-layout 优化管理后台筛选栏，使所有控件在页面宽度内水平排列并完成验证。"

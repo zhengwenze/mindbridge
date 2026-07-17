@@ -56,7 +56,7 @@ function HistoryWorkspace() {
   }
 
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-64px)] w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:px-8">
+    <main className="flex min-h-[calc(100vh-64px)] w-full flex-col gap-4 p-4 lg:flex-row">
       <Card title="历史会话" variant="outlined" className="w-full shrink-0 lg:w-80" styles={{ body: { padding: 0 } }}>
         {loading ? <div className="space-y-4 p-4"><Skeleton active /><Skeleton active /></div> : error ? <Alert message={error} type="error" showIcon className="m-4" /> : sessions.length === 0 ? (
           <Empty description="暂时没有历史会话" className="p-6"><Button type="primary" onClick={() => router.push("/student")}>开始新的心理咨询</Button></Empty>

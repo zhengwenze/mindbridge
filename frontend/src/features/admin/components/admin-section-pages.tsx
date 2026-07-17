@@ -38,10 +38,7 @@ export function AdminOverviewPage() {
   ].some(Boolean);
 
   return (
-    <PageContainer
-      title="管理概览"
-      description="集中查看风险运营数据，快速进入个案、报告和预警处理。"
-    >
+    <PageContainer title="管理概览" hideHeader>
       <div className="grid gap-5">
         <AdminDataError
           errors={[
@@ -91,7 +88,7 @@ export function AdminOverviewPage() {
 export function AdminCasesPage() {
   const dashboard = useAdminDashboard();
   return (
-    <PageContainer title="风险个案" description="按风险等级和更新时间审阅已有个案，单页最多展示 5 条记录。">
+    <PageContainer title="风险个案" hideHeader>
       <RiskCasesPanel
         cases={dashboard.cases}
         loading={dashboard.casesQuery.isLoading}
@@ -114,7 +111,7 @@ export function AdminReportsPage() {
   }
 
   return (
-    <PageContainer title="风险报告" description="查看心理风险与咨询报告，并回溯对应会话档案。">
+    <PageContainer title="风险报告" hideHeader>
       <div className="grid gap-5 xl:grid-cols-[minmax(420px,0.95fr)_minmax(0,1.05fr)]">
         <RiskReportsPanel
           reports={dashboard.reports}
@@ -136,7 +133,7 @@ export function AdminReportsPage() {
 export function AdminLedgerPage() {
   const dashboard = useAdminDashboard();
   return (
-    <PageContainer title="Excel 台账" description="查看风险报告写入 Excel 台账的记录和处理结果。">
+    <PageContainer title="Excel 台账" hideHeader>
       <AdminRecordTable
         kind="excel"
         records={dashboard.excelRecords}
@@ -150,7 +147,7 @@ export function AdminLedgerPage() {
 export function AdminAlertsPage() {
   const dashboard = useAdminDashboard();
   return (
-    <PageContainer title="预警记录" description="查看高风险场景触发的通知渠道、接收方和发送状态。">
+    <PageContainer title="预警记录" hideHeader>
       <AdminRecordTable
         kind="alerts"
         records={dashboard.alerts}
@@ -163,7 +160,7 @@ export function AdminAlertsPage() {
 
 export function AdminKnowledgePage() {
   return (
-    <PageContainer title="知识库" description="维护心理支持知识库，为 MindBridge 的回答和风险判断提供依据。">
+    <PageContainer title="知识库" hideHeader>
       <KnowledgeBasePanel />
     </PageContainer>
   );
@@ -171,7 +168,7 @@ export function AdminKnowledgePage() {
 
 export function AdminUsersPage() {
   return (
-    <PageContainer title="用户管理" description="维护管理员和普通用户账号，支持创建、编辑和删除用户。">
+    <PageContainer title="用户管理" hideHeader>
       <UserManagementPanel />
     </PageContainer>
   );
@@ -179,7 +176,7 @@ export function AdminUsersPage() {
 
 export function AdminSystemStatusPage() {
   return (
-    <PageContainer title="系统状态" description="知识库索引状态已迁移到每个知识库的文档管理面板。">
+    <PageContainer title="系统状态" hideHeader>
       <Card title="知识索引状态" variant="outlined">
         <Typography.Paragraph type="secondary" className="!mb-0">
           请在“知识库”页面打开具体知识库的“管理文档”，查看 collection、向量数量并重建该知识库的索引。
@@ -191,7 +188,7 @@ export function AdminSystemStatusPage() {
 
 export function AdminEmptyPage() {
   return (
-    <PageContainer title="管理后台" description="该功能正在准备中。">
+    <PageContainer title="管理后台" hideHeader>
       <Card variant="outlined">
         <Empty description="暂无可用内容" />
       </Card>

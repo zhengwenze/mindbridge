@@ -31,8 +31,9 @@
 
 已建立：
 
+- `DESIGN.md`（项目级设计系统，前端视觉与交互的唯一事实来源）
 - `docs/frontend/architecture.md`
-- `docs/frontend/design-system.md`
+- `docs/frontend/design-system.md`（兼容入口，指向根目录 `DESIGN.md`）
 - `docs/frontend/coding-rules.md`
 - `docs/frontend/development-workflow.md`
 

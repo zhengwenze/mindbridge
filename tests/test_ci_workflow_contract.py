@@ -3,6 +3,7 @@ import unittest
 
 
 WORKFLOW = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "test.yml"
+ENTRYPOINT = Path(__file__).resolve().parents[1] / "scripts" / "entrypoint.sh"
 
 
 class CiWorkflowContractTest(unittest.TestCase):
@@ -32,8 +33,10 @@ class CiWorkflowContractTest(unittest.TestCase):
 
     def test_ci_uses_mock_ai_with_vectors_and_without_ollama(self):
         self.assertIn("AI_PROVIDER: mock", self.workflow)
-        self.assertIn('DOCKER_OLLAMA_BASE_URL: ""', self.workflow)
         self.assertIn('KNOWLEDGE_VECTOR_ENABLED: "true"', self.workflow)
+        entrypoint = ENTRYPOINT.read_text(encoding="utf-8")
+        self.assertIn('if [ "${AI_PROVIDER,,}" != "mock" ]', entrypoint)
+        self.assertIn("AI_PROVIDER=mock, skipping Ollama readiness checks.", entrypoint)
 
 
 if __name__ == "__main__":

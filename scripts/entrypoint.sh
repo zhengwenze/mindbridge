@@ -81,7 +81,7 @@ if [ -n "$REDIS_URL" ]; then
     wait_for_service "$redis_host" "${redis_port:-6379}" "Redis" 60
 fi
 
-if [ -n "$OLLAMA_BASE_URL" ]; then
+if [ "${AI_PROVIDER,,}" != "mock" ] && [ -n "$OLLAMA_BASE_URL" ]; then
     ollama_host=$(echo "$OLLAMA_BASE_URL" | sed -n 's/http:\/\/\([^:]*\):.*/\1/p')
     ollama_port=$(echo "$OLLAMA_BASE_URL" | sed -n 's/http:\/\/[^:]*:\([0-9]*\).*/\1/p')
     wait_for_service "$ollama_host" "${ollama_port:-11434}" "Ollama" 120
@@ -92,6 +92,8 @@ if [ -n "$OLLAMA_BASE_URL" ]; then
     else
         echo "OLLAMA_AUTO_PULL=false, skipping Ollama model pulls."
     fi
+elif [ "${AI_PROVIDER,,}" = "mock" ]; then
+    echo "AI_PROVIDER=mock, skipping Ollama readiness checks."
 fi
 
 echo "All services are ready. Starting MindBridge..."

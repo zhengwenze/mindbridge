@@ -62,7 +62,12 @@ def health():
     return {"status": "UP"}
 
 
-@router.post("/api/register/student", status_code=201, tags=["Authentication"], summary="注册学生账号")
+@router.post(
+    "/api/register/student",
+    status_code=201,
+    tags=["Authentication"],
+    summary="注册学生账号",
+)
 def register_student(
     request: StudentRegisterRequest, db: Annotated[Session, Depends(get_db)]
 ):
@@ -105,7 +110,9 @@ def student_sessions(
     return ReportService(db).student_sessions(user.id)
 
 
-@router.get("/api/student/sessions/{session_id}", tags=["Student"], summary="查询学生会话详情")
+@router.get(
+    "/api/student/sessions/{session_id}", tags=["Student"], summary="查询学生会话详情"
+)
 def student_conversation(
     session_id: str,
     user: Annotated[UserAccount, Depends(require_student)],
@@ -279,7 +286,9 @@ def admin_reports(
     return ReportService(db).latest_reports()
 
 
-@router.get("/api/admin/excel-records", tags=["Administration"], summary="查询 Excel 导出记录")
+@router.get(
+    "/api/admin/excel-records", tags=["Administration"], summary="查询 Excel 导出记录"
+)
 def admin_excel(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -303,7 +312,11 @@ def admin_cases(
     return ReportService(db).risk_cases()
 
 
-@router.get("/api/admin/cases/{case_id}/notes", tags=["Administration"], summary="查询案例跟进记录")
+@router.get(
+    "/api/admin/cases/{case_id}/notes",
+    tags=["Administration"],
+    summary="查询案例跟进记录",
+)
 def admin_case_notes(
     case_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -328,7 +341,9 @@ def admin_dead_letters(
     return ReportService(db).dead_letters()
 
 
-@router.get("/api/admin/agent-traces", tags=["Administration"], summary="查询 Agent 运行轨迹")
+@router.get(
+    "/api/admin/agent-traces", tags=["Administration"], summary="查询 Agent 运行轨迹"
+)
 def admin_agent_traces(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -336,7 +351,9 @@ def admin_agent_traces(
     return ReportService(db).agent_run_traces()
 
 
-@router.get("/api/admin/tool-audits", tags=["Administration"], summary="查询工具审计记录")
+@router.get(
+    "/api/admin/tool-audits", tags=["Administration"], summary="查询工具审计记录"
+)
 def admin_tool_audits(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -344,7 +361,11 @@ def admin_tool_audits(
     return ReportService(db).tool_audits()
 
 
-@router.get("/api/admin/conversations/{session_id}", tags=["Administration"], summary="查询后台会话详情")
+@router.get(
+    "/api/admin/conversations/{session_id}",
+    tags=["Administration"],
+    summary="查询后台会话详情",
+)
 def admin_conversation(
     session_id: str,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -391,14 +412,19 @@ def list_admin_users(
     }
 
 
-@router.post("/api/admin/users", status_code=201, tags=["Administration"], summary="创建用户")
+@router.post(
+    "/api/admin/users", status_code=201, tags=["Administration"], summary="创建用户"
+)
 def create_admin_user(
     request: AdminUserCreateRequest,
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
 ):
     username = request.username.strip()
-    if db.query(UserAccount).filter(UserAccount.username == username).first() is not None:
+    if (
+        db.query(UserAccount).filter(UserAccount.username == username).first()
+        is not None
+    ):
         raise HTTPException(409, "用户名已存在")
     user = UserAccount(
         username=username,
@@ -439,7 +465,9 @@ def update_admin_user(
     return admin_user_response(user)
 
 
-@router.delete("/api/admin/users/{user_id}", tags=["Administration"], summary="删除用户")
+@router.delete(
+    "/api/admin/users/{user_id}", tags=["Administration"], summary="删除用户"
+)
 def delete_admin_user(
     user_id: int,
     actor: Annotated[UserAccount, Depends(require_admin)],
@@ -463,7 +491,12 @@ def knowledge_error(exc: KnowledgeBaseError) -> HTTPException:
     return HTTPException(exc.status_code, exc.detail or str(exc))
 
 
-@router.post("/api/admin/knowledge-bases", status_code=201, tags=["Knowledge Bases"], summary="创建知识库")
+@router.post(
+    "/api/admin/knowledge-bases",
+    status_code=201,
+    tags=["Knowledge Bases"],
+    summary="创建知识库",
+)
 def create_knowledge_base(
     request: KnowledgeBaseCreateRequest,
     user: Annotated[UserAccount, Depends(require_admin)],
@@ -478,7 +511,9 @@ def create_knowledge_base(
         raise knowledge_error(exc) from exc
 
 
-@router.get("/api/admin/knowledge-bases", tags=["Knowledge Bases"], summary="分页查询知识库")
+@router.get(
+    "/api/admin/knowledge-bases", tags=["Knowledge Bases"], summary="分页查询知识库"
+)
 def list_knowledge_bases(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
@@ -501,7 +536,11 @@ def list_knowledge_bases(
     )
 
 
-@router.get("/api/admin/knowledge-bases/{knowledge_base_id}", tags=["Knowledge Bases"], summary="查询知识库详情")
+@router.get(
+    "/api/admin/knowledge-bases/{knowledge_base_id}",
+    tags=["Knowledge Bases"],
+    summary="查询知识库详情",
+)
 def knowledge_base_detail(
     knowledge_base_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -516,7 +555,11 @@ def knowledge_base_detail(
         raise knowledge_error(exc) from exc
 
 
-@router.patch("/api/admin/knowledge-bases/{knowledge_base_id}", tags=["Knowledge Bases"], summary="更新知识库")
+@router.patch(
+    "/api/admin/knowledge-bases/{knowledge_base_id}",
+    tags=["Knowledge Bases"],
+    summary="更新知识库",
+)
 def update_knowledge_base(
     knowledge_base_id: int,
     request: KnowledgeBaseUpdateRequest,
@@ -536,7 +579,11 @@ def update_knowledge_base(
         raise knowledge_error(exc) from exc
 
 
-@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}", tags=["Knowledge Bases"], summary="删除知识库")
+@router.delete(
+    "/api/admin/knowledge-bases/{knowledge_base_id}",
+    tags=["Knowledge Bases"],
+    summary="删除知识库",
+)
 def delete_knowledge_base(
     knowledge_base_id: int,
     user: Annotated[UserAccount, Depends(require_admin)],
@@ -548,7 +595,11 @@ def delete_knowledge_base(
         raise knowledge_error(exc) from exc
 
 
-@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/status", tags=["Knowledge Bases"], summary="查询知识库索引状态")
+@router.get(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/status",
+    tags=["Knowledge Bases"],
+    summary="查询知识库索引状态",
+)
 def knowledge_base_status(
     knowledge_base_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -599,7 +650,11 @@ async def ingest_knowledge_document(
             temp_path.unlink(missing_ok=True)
 
 
-@router.get("/api/admin/knowledge-bases/{knowledge_base_id}/documents", tags=["Knowledge Bases"], summary="分页查询知识文档")
+@router.get(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents",
+    tags=["Knowledge Bases"],
+    summary="分页查询知识文档",
+)
 def list_knowledge_documents(
     knowledge_base_id: int,
     _: Annotated[UserAccount, Depends(require_admin)],
@@ -629,7 +684,11 @@ def list_knowledge_documents(
         raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/documents/batch-delete", tags=["Knowledge Bases"], summary="批量删除知识文档")
+@router.post(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/batch-delete",
+    tags=["Knowledge Bases"],
+    summary="批量删除知识文档",
+)
 def batch_delete_knowledge_documents(
     knowledge_base_id: int,
     request: DocumentBatchDeleteRequest,
@@ -693,7 +752,11 @@ def reindex_knowledge_document(
         raise knowledge_error(exc) from exc
 
 
-@router.delete("/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}", tags=["Knowledge Bases"], summary="删除知识文档")
+@router.delete(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/documents/{document_id}",
+    tags=["Knowledge Bases"],
+    summary="删除知识文档",
+)
 def delete_knowledge_document(
     knowledge_base_id: int,
     document_id: int,
@@ -708,7 +771,11 @@ def delete_knowledge_document(
         raise knowledge_error(exc) from exc
 
 
-@router.post("/api/admin/knowledge-bases/{knowledge_base_id}/rebuild", tags=["Knowledge Bases"], summary="重建知识库索引")
+@router.post(
+    "/api/admin/knowledge-bases/{knowledge_base_id}/rebuild",
+    tags=["Knowledge Bases"],
+    summary="重建知识库索引",
+)
 def rebuild_knowledge_base(
     knowledge_base_id: int,
     user: Annotated[UserAccount, Depends(require_admin)],

@@ -23,7 +23,7 @@ OPENAPI_TAGS = [
 def create_app() -> FastAPI:
     app = FastAPI(
         title="MindBridge API",
-        summary="MindBridge 心理支持平台后端接口",
+        summary="MindBridge 后端接口",
         description=(
             "MindBridge 的学生对话、风险报告、后台管理和知识库接口。"
             "除健康检查与学生注册外，接口使用 HTTP Basic 认证；"
@@ -71,9 +71,6 @@ def create_app() -> FastAPI:
 
     app.include_router(router)
     static_dir = Path(__file__).resolve().parent / "static"
-    # The student frontend is developed and served independently. The legacy
-    # bundled frontend is optional, so its removal must not prevent the API
-    # application (including authentication) from starting.
     if static_dir.is_dir():
         app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
     return app

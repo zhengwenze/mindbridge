@@ -2,11 +2,12 @@
 
 ## 核心能力
 
-- 基于 SSE 实现AI生成内容流式输出。
+- 基于 SSE 实现 AI 生成内容流式输出。
 - Basic Auth 登录，支持学生和管理员角色隔离。
-- LangGraph 多 Agent 工作流：Memory、Supervisor、Knowledge、RiskGuardian、Companion、Counselor，未安装 LangGraph 时自动回退到自研有限循环 runtime。
+- 基于 LangGraph 实现多智能体工作流：Memory、Supervisor、Knowledge、RiskGuardian、Companion、Counselor。
+- 自研有限循环 runtime：未安装 LangGraph 时自动回退，支持多智能体循环执行。
 - 动态路由 RAG：先判断 `CHAT / CONSULT / RISK`，普通问题不查知识库，咨询和风险场景才进入检索增强。
-- Chroma 向量 RAG 知识库：支持 TXT、Markdown、PDF、DOCX 结构化解析、逐文档字符拆分、Chunk 预览与文档管理，使用本地 Ollama embedding 写入独立 collection，并与 BM25 关键词召回融合后进入本地 reranker。
+- Chroma 向量知识库：支持 TXT、Markdown、PDF、DOCX 结构化解析、逐文档字符拆分、Chunk 预览与文档管理，使用本地 Ollama embedding 写入独立 collection，并与 BM25 关键词召回融合后进入本地 reranker。
 - 心理风险评估：高风险词典优先、LLM JSON 评估、关键词兜底。
 - 后台报告：记录情绪标签、情绪分数、风险等级、置信度和摘要，但学生端不展示后台评估结果。
 - 数据闭环：咨询/风险消息完整写入 MySQL，短期上下文写入 Redis，高风险消息写入 Excel 台账并通过邮件发送预警。
@@ -49,28 +50,34 @@ Excel 台账：openpyxl
 
 ```text
 app/
-├── agents/          # LangGraph 多 Agent 编排和自研 runtime 兜底
-├── api/             # FastAPI 路由
-├── core/            # 配置、数据库、安全、启动初始化
-├── knowledge/       # 内置校园心理知识库
-├── mcp_tools/       # MCP 工具服务
-├── models/          # SQLAlchemy 实体
-├── rag_eval/        # RAG 评测脚本和数据集
-├── schemas/         # Pydantic DTO
-├── services/        # AI、聊天、知识库、评估、报告、工具服务
-└── static/          # 原生前端页面
-
-models/mindbridge-qwen2.5-7b-ft/
-├── Modelfile        # Ollama 模型定义
-└── README.md        # GGUF 模型放置说明
-
-scripts/
-├── dev-backend.sh
-├── dev-frontend.sh
-├── run-dev.sh
-├── start-ollama.sh
-├── create-finetuned-model.sh
-└── package-release.sh
+├── main.py                  # FastAPI 应用入口
+├── api/
+│   └── routes.py            # HTTP / SSE 接口路由
+├── agents/                  # 多智能体、LangGraph 与事件驱动运行时
+│   ├── coordinator.py       # Agent 协调与任务编排
+│   ├── langgraph_runtime.py # LangGraph runtime
+│   ├── runtime.py           # 无 LangGraph 时的兜底 runtime
+│   └── ...
+├── core/                    # 配置、启动初始化、数据库、安全和枚举
+├── harness/
+│   └── runner.py            # Agent harness 运行器
+├── knowledge/               # 内置校园心理知识库 Markdown 文档
+├── mcp_tools/
+│   └── server.py            # MCP 工具服务
+├── models/
+│   └── entities.py          # SQLAlchemy 数据实体
+├── rag_eval/                # RAG 评测运行器和评测数据集
+├── schemas/                 # API DTO 与知识库数据模型
+└── services/                # 业务服务层
+    ├── ai.py                # LLM 调用与生成
+    ├── chat.py              # 对话处理
+    ├── knowledge.py         # 知识库检索
+    ├── document_*.py        # 文档解析、切分、索引、存储与审计
+    ├── assessment.py        # 心理风险评估
+    ├── memory.py            # 会话记忆
+    ├── report.py            # 后台报告
+    ├── vector_store.py      # Chroma 向量存储
+    └── tools.py             # 工具调用与治理
 ```
 
 ## Agent loop

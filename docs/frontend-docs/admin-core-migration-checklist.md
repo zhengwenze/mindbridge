@@ -1,5 +1,7 @@
 # MindBridge 新版前端管理员核心功能迁移清单
 
+> 状态（2026-07-21）：迁移已完成，保留为历史核对清单。现役前端结构以 [`architecture.md`](architecture.md)、[`coding-rules.md`](coding-rules.md) 和 `frontend/src/` 为准。
+
 ## 已阅读范围
 
 旧版前端参考文件：

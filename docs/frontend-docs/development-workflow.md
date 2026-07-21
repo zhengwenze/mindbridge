@@ -31,11 +31,11 @@
 
 已建立：
 
-- `DESIGN.md`（项目级设计系统，前端视觉与交互的唯一事实来源）
-- `docs/frontend/architecture.md`
-- `docs/frontend/design-system.md`（兼容入口，指向根目录 `DESIGN.md`）
-- `docs/frontend/coding-rules.md`
-- `docs/frontend/development-workflow.md`
+- `frontend/DESIGN.md`（前端视觉与交互的唯一事实来源）
+- `docs/frontend-docs/architecture.md`
+- `docs/frontend-docs/design-system.md`（兼容入口，指向 `frontend/DESIGN.md`）
+- `docs/frontend-docs/coding-rules.md`
+- `docs/frontend-docs/development-workflow.md`
 
 后续任何前端开发都必须先阅读这些文档。
 

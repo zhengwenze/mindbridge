@@ -5,7 +5,7 @@ import { AppProviders } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MindBridge Frontend",
+  title: "MindBridge 知心桥",
   description: "MindBridge frontend workspace"
 };
 

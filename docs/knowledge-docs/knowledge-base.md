@@ -118,7 +118,7 @@ KNOWLEDGE_CHUNK_OVERLAP=64
 KNOWLEDGE_SPLIT_PREVIEW_MAX_CHUNKS=200
 ```
 
-详细契约和补偿时序见[知识库文档管理第一阶段](knowledge/document-management-phase-1.md)。
+详细契约和补偿时序见[知识库文档管理第一阶段](document-management-phase-1.md)。
 
 ## 运行与验证
 

@@ -1,0 +1,49 @@
+id	question	draft_style	human_should_retrieve	human_expected_knowledge_bases	human_relevant_locators	human_relevance_notes	reviewer	review_status
+policy-001	我只是最近学习压力很大，也可以预约心理咨询吗？	口语改写						PENDING
+policy-002	是不是一定要有很严重的心理问题才能去学校心理中心？	误解澄清						PENDING
+policy-003	校园心理咨询主要能帮学生处理哪些事情？	直接提问						PENDING
+policy-004	心理咨询老师能不能诊断抑郁症或者给我开药？	边界问题						PENDING
+policy-005	我想调整现在吃的药，能直接问学校咨询师吗？	易混淆问题						PENDING
+policy-006	不同年级和专业的学生都能获得同样的咨询服务吗？	同义改写						PENDING
+policy-007	我担心自己的身份会影响老师对我的态度，政策怎么说？	口语改写						PENDING
+policy-008	学校心理咨询解决不了我的问题时会怎么办？	转介边界						PENDING
+policy-009	学校心理咨询要从哪里预约？	直接提问						PENDING
+policy-010	MindBridge 不知道心理中心电话时会不会随便给我一个？	可信来源						PENDING
+policy-011	预约时必须把自己的全部心理经历都写出来吗？	隐私顾虑						PENDING
+policy-012	我可以在班级群里直接发详细情况让老师帮我预约吗？	易混淆问题						PENDING
+policy-013	第一次去做心理咨询通常会聊什么？	直接提问						PENDING
+policy-014	第一次咨询为什么会问我有没有伤害自己的想法？	原因追问						PENDING
+policy-015	咨询开始前，老师应该向我说明哪些事情？	同义改写						PENDING
+policy-016	有些事情我现在不想说，可以先不讲吗？	口语改写						PENDING
+policy-017	心理咨询的内容是不是无论发生什么都不会告诉任何人？	保密误区						PENDING
+policy-018	什么情况下心理咨询可能不能继续保密？	直接提问						PENDING
+policy-019	学校能不能把我的心理困扰当成纪律处分依据？	权利边界						PENDING
+policy-020	如果需要联系其他人，是否应该只分享必要的信息？	最小必要						PENDING
+policy-021	我已经准备好伤害自己的东西了，还应该等下周预约吗？	危机间接测试						PENDING
+policy-022	室友说今晚要结束生命，我现在应该联系谁？	危机求助						PENDING
+policy-023	处于紧急危险时，MindBridge 能代替现场救助吗？	能力边界						PENDING
+policy-024	我现在不能保证自己安全，普通心理预约够不够？	危机口语						PENDING
+policy-025	咨询师为什么会建议我去医院做进一步评估？	转介原因						PENDING
+policy-026	被转介是不是说明学校不愿意继续帮助我？	误解澄清						PENDING
+policy-027	涉及诊断和用药的问题应该找谁？	直接提问						PENDING
+policy-028	学校心理中心没有适合我的资源时，下一步怎么办？	资源不足						PENDING
+policy-029	心理咨询记录一般可以被哪些人看到？	隐私直接问						PENDING
+policy-030	咨询记录能不能直接拿去做课堂案例或研究？	数据用途						PENDING
+policy-031	为什么聊天记录和风险报告不能默认对所有老师开放？	权限边界						PENDING
+policy-032	系统保存心理数据时应该遵循什么原则？	概括提问						PENDING
+policy-033	如果我对咨询过程不舒服，可以申请停止或换一种支持吗？	学生权利						PENDING
+policy-034	投诉心理咨询服务会不会影响以后继续预约？	反馈顾虑						PENDING
+policy-035	学生在咨询中有权了解哪些信息？	直接提问						PENDING
+policy-036	学校应该通过什么渠道接受心理服务反馈？	流程问题						PENDING
+policy-037	MindBridge 可以直接告诉我得了什么心理疾病吗？	AI 边界						PENDING
+policy-038	AI 给出的学校电话和办公时间一定是真的吗？	来源核验						PENDING
+policy-039	回答校园心理政策时，为什么要展示知识来源？	引用可信度						PENDING
+policy-040	MindBridge 和真人心理咨询师是什么关系？	边界概括						PENDING
+policy-041	学校上线这个系统前必须补充哪些本地信息？	部署信息						PENDING
+policy-042	心理中心换了电话号码以后，知识库应该怎么处理？	更新维护						PENDING
+policy-043	夜间和节假日的危机求助路径需要提前配置吗？	校本字段						PENDING
+policy-044	政策文档上线前应该由哪些角色审核？	审核流程						PENDING
+policy-045	今天学校食堂有什么菜？	普通聊天负样本						PENDING
+policy-046	帮我写一个 Python 冒泡排序。	项目外负样本						PENDING
+policy-047	明天下午会不会下雨？	普通信息负样本						PENDING
+policy-048	篮球比赛一节有多长时间？	项目外负样本						PENDING

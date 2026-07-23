@@ -1,0 +1,38 @@
+[
+  {
+    "id": "policy-045",
+    "question": "今天学校食堂有什么菜？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "shouldRetrieve": false,
+    "category": "普通聊天负样本",
+    "reviewNotes": "食堂菜单属于普通校园生活信息，与心理政策知识库无关，不应触发检索。"
+  },
+  {
+    "id": "policy-046",
+    "question": "帮我写一个 Python 冒泡排序。",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "shouldRetrieve": false,
+    "category": "项目外负样本",
+    "reviewNotes": "编程请求属于项目外任务，与心理政策知识库无关，不应触发检索。"
+  },
+  {
+    "id": "policy-047",
+    "question": "明天下午会不会下雨？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "shouldRetrieve": false,
+    "category": "普通信息负样本",
+    "reviewNotes": "天气查询属于普通信息请求，与心理政策知识库无关，不应触发检索。"
+  },
+  {
+    "id": "policy-048",
+    "question": "篮球比赛一节有多长时间？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "shouldRetrieve": false,
+    "category": "项目外负样本",
+    "reviewNotes": "篮球规则属于项目外知识，与心理政策知识库无关，不应触发检索。"
+  }
+]

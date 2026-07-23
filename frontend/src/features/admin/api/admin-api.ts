@@ -23,6 +23,8 @@ import type {
   AdminUserFilters,
   AdminUserListResponse,
   AdminUserUpdatePayload,
+  AgentRuntimeConfig,
+  AgentRuntimeUpdatePayload,
 } from "../types/admin-types";
 
 export async function fetchAdminUsers(filters: AdminUserFilters): Promise<AdminUserListResponse> {
@@ -49,6 +51,21 @@ export async function updateAdminUser(id: number, payload: AdminUserUpdatePayloa
 
 export async function deleteAdminUser(id: number): Promise<void> {
   await apiClient.delete(`/api/admin/users/${id}`);
+}
+
+export async function fetchAgentRuntimeConfig(): Promise<AgentRuntimeConfig> {
+  const response = await apiClient.get<AgentRuntimeConfig>("/api/admin/agent-runtime");
+  return response.data;
+}
+
+export async function updateAgentRuntimeConfig(
+  payload: AgentRuntimeUpdatePayload,
+): Promise<AgentRuntimeConfig> {
+  const response = await apiClient.patch<AgentRuntimeConfig>(
+    "/api/admin/agent-runtime",
+    payload,
+  );
+  return response.data;
 }
 
 export async function fetchAdminReports(): Promise<RiskReport[]> {

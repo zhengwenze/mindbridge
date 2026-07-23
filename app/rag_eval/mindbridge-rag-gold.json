@@ -1,0 +1,574 @@
+[
+  {
+    "id": "policy-001",
+    "question": "我只是最近学习压力很大，也可以预约心理咨询吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SCOPE-001"
+      }
+    ]
+  },
+  {
+    "id": "policy-002",
+    "question": "是不是一定要有很严重的心理问题才能去学校心理中心？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SCOPE-001"
+      }
+    ]
+  },
+  {
+    "id": "policy-003",
+    "question": "校园心理咨询主要能帮学生处理哪些事情？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SCOPE-001"
+      }
+    ]
+  },
+  {
+    "id": "policy-004",
+    "question": "心理咨询老师能不能诊断抑郁症或者给我开药？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SCOPE-001"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-005",
+    "question": "我想调整现在吃的药，能直接问学校咨询师吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SCOPE-001"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-006",
+    "question": "不同年级和专业的学生都能获得同样的咨询服务吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-ELIGIBILITY-002"
+      }
+    ]
+  },
+  {
+    "id": "policy-007",
+    "question": "我担心自己的身份会影响老师对我的态度，政策怎么说？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-ELIGIBILITY-002"
+      }
+    ]
+  },
+  {
+    "id": "policy-008",
+    "question": "学校心理咨询解决不了我的问题时会怎么办？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-ELIGIBILITY-002"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-009",
+    "question": "学校心理咨询要从哪里预约？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-APPOINTMENT-003"
+      }
+    ]
+  },
+  {
+    "id": "policy-010",
+    "question": "MindBridge 不知道心理中心电话时会不会随便给我一个？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-APPOINTMENT-003"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-AI-BOUNDARY-010"
+      }
+    ]
+  },
+  {
+    "id": "policy-011",
+    "question": "预约时必须把自己的全部心理经历都写出来吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-APPOINTMENT-003"
+      }
+    ]
+  },
+  {
+    "id": "policy-012",
+    "question": "我可以在班级群里直接发详细情况让老师帮我预约吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-APPOINTMENT-003"
+      }
+    ]
+  },
+  {
+    "id": "policy-013",
+    "question": "第一次去做心理咨询通常会聊什么？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-FIRST-SESSION-004"
+      }
+    ]
+  },
+  {
+    "id": "policy-014",
+    "question": "第一次咨询为什么会问我有没有伤害自己的想法？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-FIRST-SESSION-004"
+      }
+    ]
+  },
+  {
+    "id": "policy-015",
+    "question": "咨询开始前，老师应该向我说明哪些事情？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-FIRST-SESSION-004"
+      }
+    ]
+  },
+  {
+    "id": "policy-016",
+    "question": "有些事情我现在不想说，可以先不讲吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-FIRST-SESSION-004"
+      }
+    ]
+  },
+  {
+    "id": "policy-017",
+    "question": "心理咨询的内容是不是无论发生什么都不会告诉任何人？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CONFIDENTIALITY-005"
+      }
+    ]
+  },
+  {
+    "id": "policy-018",
+    "question": "什么情况下心理咨询可能不能继续保密？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CONFIDENTIALITY-005"
+      }
+    ]
+  },
+  {
+    "id": "policy-019",
+    "question": "学校能不能把我的心理困扰当成纪律处分依据？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CONFIDENTIALITY-005"
+      }
+    ]
+  },
+  {
+    "id": "policy-020",
+    "question": "如果需要联系其他人，是否应该只分享必要的信息？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CONFIDENTIALITY-005"
+      }
+    ]
+  },
+  {
+    "id": "policy-021",
+    "question": "我已经准备好伤害自己的东西了，还应该等下周预约吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CRISIS-006"
+      }
+    ]
+  },
+  {
+    "id": "policy-022",
+    "question": "室友说今晚要结束生命，我现在应该联系谁？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CRISIS-006"
+      }
+    ]
+  },
+  {
+    "id": "policy-023",
+    "question": "处于紧急危险时，MindBridge 能代替现场救助吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CRISIS-006"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-AI-BOUNDARY-010"
+      }
+    ]
+  },
+  {
+    "id": "policy-024",
+    "question": "我现在不能保证自己安全，普通心理预约够不够？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CRISIS-006"
+      }
+    ]
+  },
+  {
+    "id": "policy-025",
+    "question": "咨询师为什么会建议我去医院做进一步评估？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-026",
+    "question": "被转介是不是说明学校不愿意继续帮助我？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-027",
+    "question": "涉及诊断和用药的问题应该找谁？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SCOPE-001"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-028",
+    "question": "学校心理中心没有适合我的资源时，下一步怎么办？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-REFERRAL-007"
+      }
+    ]
+  },
+  {
+    "id": "policy-029",
+    "question": "心理咨询记录一般可以被哪些人看到？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CONFIDENTIALITY-005"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RECORDS-008"
+      }
+    ]
+  },
+  {
+    "id": "policy-030",
+    "question": "咨询记录能不能直接拿去做课堂案例或研究？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RECORDS-008"
+      }
+    ]
+  },
+  {
+    "id": "policy-031",
+    "question": "为什么聊天记录和风险报告不能默认对所有老师开放？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RECORDS-008"
+      }
+    ]
+  },
+  {
+    "id": "policy-032",
+    "question": "系统保存心理数据时应该遵循什么原则？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-CONFIDENTIALITY-005"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RECORDS-008"
+      }
+    ]
+  },
+  {
+    "id": "policy-033",
+    "question": "如果我对咨询过程不舒服，可以申请停止或换一种支持吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-FIRST-SESSION-004"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RIGHTS-009"
+      }
+    ]
+  },
+  {
+    "id": "policy-034",
+    "question": "投诉心理咨询服务会不会影响以后继续预约？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RIGHTS-009"
+      }
+    ]
+  },
+  {
+    "id": "policy-035",
+    "question": "学生在咨询中有权了解哪些信息？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-ELIGIBILITY-002"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RIGHTS-009"
+      }
+    ]
+  },
+  {
+    "id": "policy-036",
+    "question": "学校应该通过什么渠道接受心理服务反馈？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-RIGHTS-009"
+      }
+    ]
+  },
+  {
+    "id": "policy-037",
+    "question": "MindBridge 可以直接告诉我得了什么心理疾病吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-AI-BOUNDARY-010"
+      }
+    ]
+  },
+  {
+    "id": "policy-038",
+    "question": "AI 给出的学校电话和办公时间一定是真的吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-APPOINTMENT-003"
+      },
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-AI-BOUNDARY-010"
+      }
+    ]
+  },
+  {
+    "id": "policy-039",
+    "question": "回答校园心理政策时，为什么要展示知识来源？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-AI-BOUNDARY-010"
+      }
+    ]
+  },
+  {
+    "id": "policy-040",
+    "question": "MindBridge 和真人心理咨询师是什么关系？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-AI-BOUNDARY-010"
+      }
+    ]
+  },
+  {
+    "id": "policy-041",
+    "question": "学校上线这个系统前必须补充哪些本地信息？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-LOCAL-FIELDS-011"
+      }
+    ]
+  },
+  {
+    "id": "policy-042",
+    "question": "心理中心换了电话号码以后，知识库应该怎么处理？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-LOCAL-FIELDS-011"
+      }
+    ]
+  },
+  {
+    "id": "policy-043",
+    "question": "夜间和节假日的危机求助路径需要提前配置吗？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-LOCAL-FIELDS-011"
+      }
+    ]
+  },
+  {
+    "id": "policy-044",
+    "question": "政策文档上线前应该由哪些角色审核？",
+    "annotationStatus": "APPROVED",
+    "reviewer": "郑文泽",
+    "relevantItems": [
+      {
+        "source": "policies/campus-counseling-policy-general-guide.md",
+        "locator": "POLICY-SOURCES-012"
+      }
+    ]
+  }
+]

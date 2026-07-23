@@ -20,13 +20,13 @@ def seed_data(db: Session) -> None:
         admin = UserAccount(
             username="admin",
             display_name="Counselor Admin",
-            password_hash=hash_password("admin123"),
+            password_hash=hash_password("000000"),
         )
         admin.roles = {"ROLE_ADMIN", "ROLE_USER"}
         student = UserAccount(
-            username="student",
+            username="stu0",
             display_name="Demo Student",
-            password_hash=hash_password("student123"),
+            password_hash=hash_password("000000"),
         )
         student.roles = {"ROLE_USER"}
         db.add_all([admin, student])

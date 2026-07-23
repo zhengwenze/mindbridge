@@ -21,8 +21,8 @@ from tests.test_student_registration import basic_auth, request_json
 
 
 BASE_URL = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
-ADMIN = basic_auth("admin", "admin123")
-STUDENT = basic_auth("student", "student123")
+ADMIN = basic_auth("admin", "000000")
+STUDENT = basic_auth("stu0", "000000")
 
 
 def request_multipart(

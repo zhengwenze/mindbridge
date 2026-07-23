@@ -70,10 +70,22 @@ docker compose exec -T app env \
     --dataset /app/app/rag_eval/mindbridge-rag-gold.json \
     --output /app/data/evaluation/mindbridge-rag-gold-report.json \
     --top-k 4 \
+    --knowledge-base 校园心理咨询政策库 \
     --require-hybrid
 ```
 
-运行器会拒绝空 reviewer、未 `APPROVED`、没有相关项或主实验未强制向量的样本。BM25-only 降级实验应另存报告，不能替代主指标。
+运行器会拒绝空 reviewer、未 `APPROVED`、没有相关项或主实验未强制向量的样本。本政策数据集显式限定“校园心理咨询政策库”，用于测量路由已经选对知识库后的检索排序；普通聊天和项目外负样本另行测量路由误检索率。BM25-only 降级实验应另存报告，不能替代主指标。
+
+负样本路由评测命令：
+
+```bash
+docker compose exec -T app \
+  python -m app.rag_eval.negative_runner \
+    --dataset /app/app/rag_eval/mindbridge-rag-negative.json \
+    --output /app/data/evaluation/mindbridge-rag-negative-routing-report.json
+```
+
+该报告使用当前意图分类链路验证负样本是否被判为 `CHAT`。`CHAT` 不进入 `KnowledgeAgent`；若被判为 `CONSULT` 或 `RISK`，则计为一次误检索。
 
 ## 5. 数据集规模
 

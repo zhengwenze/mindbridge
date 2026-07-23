@@ -244,3 +244,27 @@ export interface BatchDeleteDocumentsResult {
   deletedCount?: number;
   documentIds?: number[];
 }
+
+export type AgentRuntimeFramework =
+  | "event_driven_multi_agent"
+  | "langgraph"
+  | "custom";
+
+export interface AgentRuntimeOption {
+  value: AgentRuntimeFramework;
+  label: string;
+  available: boolean;
+  description: string;
+}
+
+export interface AgentRuntimeConfig {
+  currentFramework: AgentRuntimeFramework;
+  activeFramework: AgentRuntimeFramework;
+  defaultFramework: "langgraph";
+  persistence: "process";
+  options: AgentRuntimeOption[];
+}
+
+export interface AgentRuntimeUpdatePayload {
+  framework: AgentRuntimeFramework;
+}

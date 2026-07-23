@@ -246,8 +246,8 @@
 
 ## 验收清单
 
-- `student/student123` 登录后进入 `/student`。
-- `admin/admin123` 登录后进入 `/admin`。
+- `stu0/000000` 登录后进入 `/student`。
+- `admin/000000` 登录后进入 `/admin`。
 - 学生账号访问 `/admin` 会进入 `/forbidden`。
 - 管理员账号访问 `/student` 会进入 `/forbidden`。
 - Header 能展示服务健康状态。

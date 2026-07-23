@@ -86,7 +86,7 @@ DATABASE_URL='mysql+pymysql://mindbridge:mindbridge@127.0.0.1:13306/mindbridge?c
 上传接口使用 `multipart/form-data`：
 
 ```bash
-curl -u admin:admin123 \
+curl -u admin:000000 \
   -F 'file=@./guide.pdf' \
   -F 'relative_path=制度/guide.pdf' \
   -F 'chunk_size=512' \

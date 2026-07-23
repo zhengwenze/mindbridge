@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 from tests.test_student_registration import basic_auth, request_json
 
 
-ADMIN = basic_auth("admin", "admin123")
+ADMIN = basic_auth("admin", "000000")
 
 
 class KnowledgeBaseDockerTests(unittest.TestCase):

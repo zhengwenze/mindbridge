@@ -1,14 +1,53 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import ConfigDict, Field, field_validator
+
+
+def _serialize_utc_datetime(value: datetime) -> str:
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    else:
+        value = value.astimezone(UTC)
+    return value.isoformat().replace("+00:00", "Z")
+
+
+class BaseModel(PydanticBaseModel):
+    model_config = ConfigDict(json_encoders={datetime: _serialize_utc_datetime})
 
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1)
     sessionId: Optional[str] = None
+
+
+AgentFrameworkName = Literal[
+    "event_driven_multi_agent",
+    "langgraph",
+    "custom",
+]
+
+
+class AgentRuntimeUpdateRequest(BaseModel):
+    framework: AgentFrameworkName
+
+
+class AgentRuntimeOptionResponse(BaseModel):
+    value: AgentFrameworkName
+    label: str
+    available: bool
+    description: str
+
+
+class AgentRuntimeConfigResponse(BaseModel):
+    currentFramework: AgentFrameworkName
+    activeFramework: AgentFrameworkName
+    defaultFramework: Literal["langgraph"]
+    persistence: Literal["process"]
+    options: list[AgentRuntimeOptionResponse]
 
 
 class StudentRegisterRequest(BaseModel):

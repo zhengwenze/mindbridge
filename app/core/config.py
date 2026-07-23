@@ -1,11 +1,25 @@
 from functools import lru_cache
 from pathlib import Path
+from threading import RLock
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+DEFAULT_AGENT_FRAMEWORK = "langgraph"
+SUPPORTED_AGENT_FRAMEWORKS = (
+    "event_driven_multi_agent",
+    "langgraph",
+    "custom",
+)
+_AGENT_FRAMEWORK_ALIASES = {
+    "actors": "event_driven_multi_agent",
+    "multi_agent": "event_driven_multi_agent",
+}
+_agent_framework_lock = RLock()
+
+
 class Settings(BaseSettings):
-    agent_framework: str = "event_driven_multi_agent"
+    agent_framework: str = DEFAULT_AGENT_FRAMEWORK
     agent_max_rounds: int = 8
     agent_max_claims_per_round: int = 4
     agent_max_claims_per_agent: int = 3
@@ -108,3 +122,25 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+def normalize_agent_framework(value: str) -> str:
+    normalized = str(value or "").strip().lower()
+    return _AGENT_FRAMEWORK_ALIASES.get(normalized, normalized)
+
+
+def get_agent_framework(settings: Settings) -> str:
+    """Return one canonical framework value from the process-local settings."""
+    with _agent_framework_lock:
+        framework = normalize_agent_framework(settings.agent_framework)
+        return framework if framework in SUPPORTED_AGENT_FRAMEWORKS else "custom"
+
+
+def set_agent_framework(settings: Settings, framework: str) -> str:
+    """Update the process-local framework selection atomically."""
+    normalized = normalize_agent_framework(framework)
+    if normalized not in SUPPORTED_AGENT_FRAMEWORKS:
+        raise ValueError(f"Unsupported agent framework: {framework}")
+    with _agent_framework_lock:
+        settings.agent_framework = normalized
+        return normalized

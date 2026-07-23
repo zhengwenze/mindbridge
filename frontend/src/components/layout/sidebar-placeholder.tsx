@@ -10,6 +10,7 @@ import {
   FolderOpenOutlined,
   HistoryOutlined,
   SafetyOutlined,
+  SwapOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { Menu, Typography } from "antd";
@@ -74,6 +75,11 @@ const adminItems: MenuProps["items"] = [
     key: "/admin/users",
     icon: <UserOutlined />,
     label: "用户管理",
+  },
+  {
+    key: "/admin/runtime",
+    icon: <SwapOutlined />,
+    label: "运行切换",
   },
   {
     key: "/admin/logs",

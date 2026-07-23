@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.agents.factory import agent_framework_status
 from app.agents.runtime import AgentRuntimeService
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings, set_agent_framework
 from app.core.database import get_db
 from app.core.security import (
     current_user,
@@ -18,9 +18,12 @@ from app.core.security import (
 )
 from app.models.entities import KnowledgeChunk, KnowledgeDocument, UserAccount
 from app.schemas.dtos import (
-    ChatRequest,
+    AgentRuntimeConfigResponse,
+    AgentRuntimeOptionResponse,
+    AgentRuntimeUpdateRequest,
     AdminUserCreateRequest,
     AdminUserUpdateRequest,
+    ChatRequest,
     KnowledgeBaseCreateRequest,
     KnowledgeBaseUpdateRequest,
     StudentDocumentPreviewResponse,
@@ -55,6 +58,37 @@ def admin_user_response(user: UserAccount):
         "role": "ROLE_ADMIN" if "ROLE_ADMIN" in user.roles else "ROLE_USER",
         "createdAt": user.created_at,
     }
+
+
+def agent_runtime_response(settings: Settings) -> AgentRuntimeConfigResponse:
+    framework = agent_framework_status(settings)
+    langgraph_available = framework["langgraphAvailable"]
+    return AgentRuntimeConfigResponse(
+        currentFramework=framework["requested"],
+        activeFramework=framework["active"],
+        defaultFramework="langgraph",
+        persistence="process",
+        options=[
+            AgentRuntimeOptionResponse(
+                value="event_driven_multi_agent",
+                label="事件驱动多智能体",
+                available=True,
+                description="通过共享黑板、任务认领和安全审查协作处理单轮对话。",
+            ),
+            AgentRuntimeOptionResponse(
+                value="langgraph",
+                label="LangGraph",
+                available=langgraph_available,
+                description="使用有界状态图按既定节点编排 Agent，也是系统默认方式。",
+            ),
+            AgentRuntimeOptionResponse(
+                value="custom",
+                label="Custom",
+                available=True,
+                description="使用基础自研循环运行 Agent，适合兼容或应急场景。",
+            ),
+        ],
+    )
 
 
 @router.get("/actuator/health", tags=["System"], summary="服务健康检查")
@@ -268,6 +302,36 @@ def agent_status(user: Annotated[UserAccount, Depends(current_user)]):
             },
         },
     }
+
+
+@router.get(
+    "/api/admin/agent-runtime",
+    response_model=AgentRuntimeConfigResponse,
+    tags=["Administration"],
+    summary="查询当前 Agent 主运行方式",
+)
+def admin_agent_runtime(
+    _: Annotated[UserAccount, Depends(require_admin)],
+):
+    return agent_runtime_response(get_settings())
+
+
+@router.patch(
+    "/api/admin/agent-runtime",
+    response_model=AgentRuntimeConfigResponse,
+    tags=["Administration"],
+    summary="切换当前 Agent 主运行方式",
+)
+def update_admin_agent_runtime(
+    request: AgentRuntimeUpdateRequest,
+    _: Annotated[UserAccount, Depends(require_admin)],
+):
+    settings = get_settings()
+    framework = agent_framework_status(settings)
+    if request.framework == "langgraph" and not framework["langgraphAvailable"]:
+        raise HTTPException(409, "LangGraph 依赖当前不可用，运行方式未切换。")
+    set_agent_framework(settings, request.framework)
+    return agent_runtime_response(settings)
 
 
 @router.get("/api/reports/me", tags=["Student"], summary="查询当前学生报告")

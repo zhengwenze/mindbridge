@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import argparse
 import json
 from datetime import UTC, datetime
@@ -34,12 +33,17 @@ def load_gold_dataset(path: Path) -> list[dict[str, Any]]:
         if not isinstance(relevant, list) or not relevant:
             raise ValueError(f"样本 {case_id} 没有人工相关项；负样本应在路由评测中处理")
         for item in relevant:
-            if not str(item.get("source", "")).strip() or not str(item.get("locator", "")).strip():
+            if (
+                not str(item.get("source", "")).strip()
+                or not str(item.get("locator", "")).strip()
+            ):
                 raise ValueError(f"样本 {case_id} 的相关项缺少 source 或 locator")
     return cases
 
 
-def evaluate_ranked_case(case: dict[str, Any], retrieved: list[RankedResult], top_k: int) -> dict[str, Any]:
+def evaluate_ranked_case(
+    case: dict[str, Any], retrieved: list[RankedResult], top_k: int
+) -> dict[str, Any]:
     qrels = {
         (str(item["source"]).casefold(), str(item["locator"]).casefold())
         for item in case["relevantItems"]
@@ -78,7 +82,8 @@ def evaluate_ranked_case(case: dict[str, Any], retrieved: list[RankedResult], to
         "relevantItems": case["relevantItems"],
         "retrieved": ranked_items,
         "coveredRelevantItems": [
-            {"source": source, "locator": locator} for source, locator in sorted(covered)
+            {"source": source, "locator": locator}
+            for source, locator in sorted(covered)
         ],
         "recallAtK": recall,
         "reciprocalRankAtK": reciprocal_rank,
@@ -100,12 +105,19 @@ def summarize(results: list[dict[str, Any]], top_k: int) -> dict[str, Any]:
     }
 
 
-def evaluate(dataset: Path, output: Path, top_k: int, require_hybrid: bool) -> dict[str, Any]:
+def evaluate(
+    dataset: Path,
+    output: Path,
+    top_k: int,
+    require_hybrid: bool,
+    knowledge_base_names: list[str] | None = None,
+) -> dict[str, Any]:
     # Keep database/vector dependencies out of module import so the metric
     # formulas remain unit-testable without a live MySQL environment.
     from app.core.bootstrap import create_schema, seed_data
     from app.core.config import get_settings
     from app.core.database import SessionLocal
+    from app.models.entities import KnowledgeBase
     from app.services.knowledge import KnowledgeService
 
     settings = get_settings()
@@ -122,9 +134,36 @@ def evaluate(dataset: Path, output: Path, top_k: int, require_hybrid: bool) -> d
             raise RuntimeError(
                 "主指标要求真实 Hybrid：请启用并强制向量检索，且确认 Chroma/Embedding 可用"
             )
+        selected_base_ids: list[int] | None = None
+        selected_base_names = [
+            name.strip() for name in (knowledge_base_names or []) if name.strip()
+        ]
+        if selected_base_names:
+            rows = (
+                db.query(KnowledgeBase)
+                .filter(
+                    KnowledgeBase.name.in_(selected_base_names),
+                    KnowledgeBase.deleted_at.is_(None),
+                    KnowledgeBase.status == "active",
+                )
+                .all()
+            )
+            by_name = {row.name: row for row in rows}
+            missing = [name for name in selected_base_names if name not in by_name]
+            if missing:
+                raise RuntimeError(f"指定知识库不存在或未启用: {', '.join(missing)}")
+            selected_base_ids = [int(by_name[name].id) for name in selected_base_names]
         cases = load_gold_dataset(dataset)
         results = [
-            evaluate_ranked_case(case, service.retrieve(case["question"], top_k), top_k)
+            evaluate_ranked_case(
+                case,
+                service.retrieve(
+                    case["question"],
+                    top_k,
+                    knowledge_base_ids=selected_base_ids,
+                ),
+                top_k,
+            )
             for case in cases
         ]
         report = {
@@ -139,12 +178,19 @@ def evaluate(dataset: Path, output: Path, top_k: int, require_hybrid: bool) -> d
                 "vectorWeight": settings.knowledge_hybrid_vector_weight,
                 "bm25Weight": settings.knowledge_hybrid_bm25_weight,
                 "rerankEnabled": settings.knowledge_rerank_enabled,
+                "knowledgeBaseSelection": (
+                    "explicit" if selected_base_ids is not None else "default_router"
+                ),
+                "knowledgeBases": selected_base_names,
+                "knowledgeBaseIds": selected_base_ids or [],
             },
             "metrics": summarize(results, top_k),
             "results": results,
         }
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        output.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         return report
     finally:
         db.close()
@@ -156,6 +202,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--top-k", type=int, default=4)
     parser.add_argument("--require-hybrid", action="store_true")
+    parser.add_argument(
+        "--knowledge-base",
+        action="append",
+        default=[],
+        help="显式限定检索知识库名称；可重复传入。省略时使用线上默认路由。",
+    )
     args = parser.parse_args()
     if args.top_k <= 0:
         parser.error("--top-k 必须大于 0")
@@ -169,5 +221,6 @@ if __name__ == "__main__":
         arguments.output,
         arguments.top_k,
         arguments.require_hybrid,
+        arguments.knowledge_base,
     )
     print(json.dumps(generated["metrics"], ensure_ascii=False, indent=2))

@@ -1,8 +1,6 @@
 from __future__ import annotations
-
 import uuid
 from collections import defaultdict
-
 from app.agents.autonomous import CoordinatorAgent
 from app.agents.events import (
     AgentEvent,
@@ -24,14 +22,25 @@ class EventDrivenCoordinator:
     chain; all worker execution comes from agents claiming open tasks.
     """
 
-    def __init__(self, registry: AgentRegistry, coordinator_agent: CoordinatorAgent, settings: Settings):
+    def __init__(
+        self,
+        registry: AgentRegistry,
+        coordinator_agent: CoordinatorAgent,
+        settings: Settings,
+    ):
         self.registry = registry
         self.coordinator_agent = coordinator_agent
         self.settings = settings
         self.max_rounds = int(getattr(settings, "agent_max_rounds", 8))
-        self.max_claims_per_round = int(getattr(settings, "agent_max_claims_per_round", 4))
-        self.max_claims_per_agent = int(getattr(settings, "agent_max_claims_per_agent", 3))
-        self.final_min_confidence = float(getattr(settings, "agent_final_acceptance_min_confidence", 0.6))
+        self.max_claims_per_round = int(
+            getattr(settings, "agent_max_claims_per_round", 4)
+        )
+        self.max_claims_per_agent = int(
+            getattr(settings, "agent_max_claims_per_agent", 3)
+        )
+        self.final_min_confidence = float(
+            getattr(settings, "agent_final_acceptance_min_confidence", 0.6)
+        )
 
     def run(self, board: CollaborationBlackboard) -> CollaborationBlackboard:
         board = self._ensure_root_task(board)
@@ -57,7 +66,9 @@ class EventDrivenCoordinator:
                     break
             for task, candidate in candidates:
                 current_task = board.tasks.get(task.id, task)
-                board = board.update_task(current_task.claim(candidate.agent.profile.name)).append_event(
+                board = board.update_task(
+                    current_task.claim(candidate.agent.profile.name)
+                ).append_event(
                     AgentEvent(
                         type=AgentEventType.TASK_CLAIMED,
                         actor=candidate.agent.profile.name,
@@ -67,7 +78,9 @@ class EventDrivenCoordinator:
                     )
                 )
                 result = candidate.agent.act(current_task, board)
-                board = board.apply_turn_result(current_task, candidate.agent.profile.name, result)
+                board = board.apply_turn_result(
+                    current_task, candidate.agent.profile.name, result
+                )
                 claim_counts[candidate.agent.profile.name] += 1
             board = self._derive_missing_work(board)
             board = self._try_accept_final(board)
@@ -81,15 +94,24 @@ class EventDrivenCoordinator:
             )
         )
 
-    def _ensure_root_task(self, board: CollaborationBlackboard) -> CollaborationBlackboard:
+    def _ensure_root_task(
+        self, board: CollaborationBlackboard
+    ) -> CollaborationBlackboard:
         if board.tasks:
             return board
         root = self.coordinator_agent.root_task(board)
         return board.add_task(root).append_event(
-            AgentEvent(type=AgentEventType.TASK_CREATED, actor=self.coordinator_agent.name, task_id=root.id, message=root.title)
+            AgentEvent(
+                type=AgentEventType.TASK_CREATED,
+                actor=self.coordinator_agent.name,
+                task_id=root.id,
+                message=root.title,
+            )
         )
 
-    def _derive_missing_work(self, board: CollaborationBlackboard, force_response: bool = False) -> CollaborationBlackboard:
+    def _derive_missing_work(
+        self, board: CollaborationBlackboard, force_response: bool = False
+    ) -> CollaborationBlackboard:
         board = self._ensure_task_for_missing_artifact(
             board,
             artifact_kind="intent",
@@ -105,26 +127,39 @@ class EventDrivenCoordinator:
             task_id="task:assess-safety",
             title="Assess safety risk",
             capability=AgentCapability.SAFETY,
-            priority=TaskPriority.CRITICAL if _hard_high_risk(board.user_input) else TaskPriority.HIGH,
+            priority=(
+                TaskPriority.CRITICAL
+                if _hard_high_risk(board.user_input)
+                else TaskPriority.HIGH
+            ),
             condition=board.user_input != "",
         )
         intent = _intent_value(board)
         risk = _risk_value(board)
-        needs_context = intent in {IntentType.CONSULT, IntentType.RISK} or risk in {RiskLevel.MEDIUM, RiskLevel.HIGH}
+        needs_context = intent in {IntentType.CONSULT, IntentType.RISK} or risk in {
+            RiskLevel.MEDIUM,
+            RiskLevel.HIGH,
+        }
         board = self._ensure_task_for_missing_artifact(
             board,
             artifact_kind="context",
             task_id="task:gather-context",
             title="Gather contextual evidence",
             capability=AgentCapability.CONTEXT,
-            priority=TaskPriority.CRITICAL if risk == RiskLevel.HIGH else TaskPriority.NORMAL,
+            priority=(
+                TaskPriority.CRITICAL if risk == RiskLevel.HIGH else TaskPriority.NORMAL
+            ),
             condition=needs_context,
         )
         has_response = board.latest_artifact("response_proposal") is not None
         can_request_response = force_response or (
             board.latest_artifact("intent") is not None
             and board.latest_artifact("risk") is not None
-            and (not needs_context or board.latest_artifact("context") is not None or risk == RiskLevel.HIGH)
+            and (
+                not needs_context
+                or board.latest_artifact("context") is not None
+                or risk == RiskLevel.HIGH
+            )
         )
         board = self._ensure_task_for_missing_artifact(
             board,
@@ -132,23 +167,34 @@ class EventDrivenCoordinator:
             task_id="task:propose-response",
             title="Propose candidate response",
             capability=AgentCapability.RESPONSE,
-            priority=TaskPriority.CRITICAL if risk == RiskLevel.HIGH else TaskPriority.HIGH,
+            priority=(
+                TaskPriority.CRITICAL if risk == RiskLevel.HIGH else TaskPriority.HIGH
+            ),
             condition=can_request_response and not has_response,
         )
         response = board.latest_artifact("response_proposal")
         review = board.latest_artifact("safety_review")
         critique = board.latest_artifact("critique")
-        if response and (review is None or review.metadata.get("responseArtifactId") != response.id):
+        if response and (
+            review is None or review.metadata.get("responseArtifactId") != response.id
+        ):
             board = self._ensure_task(
                 board,
                 AgentTask(
                     id=f"task:review-response:{response.id}",
                     title="Review candidate response safety",
                     description="Safety review is required before final acceptance.",
-                    priority=TaskPriority.CRITICAL if risk == RiskLevel.HIGH else TaskPriority.HIGH,
+                    priority=(
+                        TaskPriority.CRITICAL
+                        if risk == RiskLevel.HIGH
+                        else TaskPriority.HIGH
+                    ),
                     required_capabilities=frozenset({AgentCapability.SAFETY.value}),
                     created_by=self.coordinator_agent.name,
-                    metadata={"kind": "safety_review", "responseArtifactId": response.id},
+                    metadata={
+                        "kind": "safety_review",
+                        "responseArtifactId": response.id,
+                    },
                 ),
             )
         if critique and critique.payload.get("approved") is False:
@@ -157,11 +203,18 @@ class EventDrivenCoordinator:
                 AgentTask(
                     id=f"task:revise-response:{critique.id}",
                     title="Revise response after critique",
-                    description=str(critique.payload.get("reason", "Safety critique requested revision.")),
+                    description=str(
+                        critique.payload.get(
+                            "reason", "Safety critique requested revision."
+                        )
+                    ),
                     priority=TaskPriority.CRITICAL,
                     required_capabilities=frozenset({AgentCapability.RESPONSE.value}),
                     created_by=self.coordinator_agent.name,
-                    metadata={"kind": "response", "revisionOf": critique.payload.get("responseArtifactId", "")},
+                    metadata={
+                        "kind": "response",
+                        "revisionOf": critique.payload.get("responseArtifactId", ""),
+                    },
                 ),
             )
         return board
@@ -191,19 +244,31 @@ class EventDrivenCoordinator:
             ),
         )
 
-    def _ensure_task(self, board: CollaborationBlackboard, task: AgentTask) -> CollaborationBlackboard:
+    def _ensure_task(
+        self, board: CollaborationBlackboard, task: AgentTask
+    ) -> CollaborationBlackboard:
         if task.id in board.tasks:
             return board
         return board.add_task(task).append_event(
-            AgentEvent(type=AgentEventType.TASK_CREATED, actor=self.coordinator_agent.name, task_id=task.id, message=task.title)
+            AgentEvent(
+                type=AgentEventType.TASK_CREATED,
+                actor=self.coordinator_agent.name,
+                task_id=task.id,
+                message=task.title,
+            )
         )
 
-    def _claim_candidates(self, board: CollaborationBlackboard, claim_counts: dict[str, int]):
+    def _claim_candidates(
+        self, board: CollaborationBlackboard, claim_counts: dict[str, int]
+    ):
         selected = []
         task_candidates = []
         for task in board.open_tasks():
             for candidate in self.registry.candidate_decisions_for(task, board):
-                if claim_counts[candidate.agent.profile.name] >= self.max_claims_per_agent:
+                if (
+                    claim_counts[candidate.agent.profile.name]
+                    >= self.max_claims_per_agent
+                ):
                     continue
                 task_candidates.append((task, candidate))
         task_candidates.sort(
@@ -227,7 +292,9 @@ class EventDrivenCoordinator:
                 break
         return selected
 
-    def _try_accept_final(self, board: CollaborationBlackboard) -> CollaborationBlackboard:
+    def _try_accept_final(
+        self, board: CollaborationBlackboard
+    ) -> CollaborationBlackboard:
         if board.final_artifact_id:
             return board
         response = board.latest_artifact("response_proposal")
@@ -249,7 +316,9 @@ def _intent_value(board: CollaborationBlackboard) -> IntentType:
     artifact = board.latest_artifact("intent")
     if artifact:
         try:
-            return IntentType(str(artifact.payload.get("intent", IntentType.CHAT.value)).upper())
+            return IntentType(
+                str(artifact.payload.get("intent", IntentType.CHAT.value)).upper()
+            )
         except ValueError:
             return IntentType.CHAT
     if _hard_high_risk(board.user_input):
@@ -262,7 +331,9 @@ def _risk_value(board: CollaborationBlackboard) -> RiskLevel:
     highest = RiskLevel.LOW
     for artifact in board.artifacts_by_kind("risk"):
         try:
-            risk = RiskLevel(str(artifact.payload.get("risk", RiskLevel.LOW.value)).upper())
+            risk = RiskLevel(
+                str(artifact.payload.get("risk", RiskLevel.LOW.value)).upper()
+            )
         except ValueError:
             risk = RiskLevel.LOW
         if order[risk] > order[highest]:
@@ -272,6 +343,21 @@ def _risk_value(board: CollaborationBlackboard) -> RiskLevel:
     return highest
 
 
+# 高风险词库
 def _hard_high_risk(text: str) -> bool:
     lowered = (text or "").lower()
-    return any(word in lowered for word in ["自杀", "自残", "不想活", "结束生命", "伤害自己", "轻生", "suicide", "kill myself", "self harm"])
+    return any(
+        word in lowered
+        for word in [
+            "自杀",
+            "自残",
+            "跳楼",
+            "不想活",
+            "结束生命",
+            "伤害自己",
+            "轻生",
+            "suicide",
+            "kill myself",
+            "self harm",
+        ]
+    )

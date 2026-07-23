@@ -427,8 +427,8 @@ def run_rag_harness(context: HarnessContext) -> dict:
 
 def run_api_harness(context: HarnessContext) -> dict:
     base_url = os.environ.get("MINDBRIDGE_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
-    student_auth = basic_auth("student", "student123")
-    admin_auth = basic_auth("admin", "admin123")
+    student_auth = basic_auth("stu0", "000000")
+    admin_auth = basic_auth("admin", "000000")
     observed = {}
 
     health_status, health = http_json(base_url, "/actuator/health")

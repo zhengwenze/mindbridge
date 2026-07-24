@@ -1,9 +1,7 @@
 from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
 from app.api.routes import router
 from app.core.bootstrap import seed_data
 from app.core.config import get_settings

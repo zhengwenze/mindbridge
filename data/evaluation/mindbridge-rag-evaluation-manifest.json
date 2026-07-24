@@ -1,0 +1,95 @@
+{
+  "createdAt": "2026-07-23T14:48:16.020631+00:00",
+  "methodology": {
+    "annotation": "single-reviewer",
+    "reviewer": "郑文泽",
+    "positiveCases": 44,
+    "negativeCases": 4,
+    "primaryMetrics": [
+      "Recall@4",
+      "MRR@4",
+      "Hit Rate@4"
+    ],
+    "negativeMetric": "falseRetrievalRate"
+  },
+  "knowledgeBase": {
+    "id": 2,
+    "name": "校园心理咨询政策库",
+    "canonicalSource": "policies/campus-counseling-policy-general-guide.md",
+    "documentId": 88,
+    "contentHash": "0918cb750de0469cbe78d22da1b2c3df05457b5e11735ed16627545de9fe9fd6",
+    "mysqlChunks": 10,
+    "verifiedVectorRecords": 10
+  },
+  "configuration": {
+    "primary": {
+      "embeddingModel": "qwen3-embedding:0.6b",
+      "knowledgeVectorEnabled": true,
+      "knowledgeVectorRequired": true,
+      "vectorAvailable": true,
+      "candidateK": 16,
+      "vectorWeight": 0.65,
+      "bm25Weight": 0.35,
+      "rerankEnabled": true,
+      "knowledgeBaseSelection": "explicit",
+      "knowledgeBases": [
+        "校园心理咨询政策库"
+      ],
+      "knowledgeBaseIds": [
+        2
+      ]
+    },
+    "negativeRouting": {
+      "aiProvider": "ollama",
+      "model": "qwen2.5:7b",
+      "agentFramework": {
+        "requested": "langgraph",
+        "active": "langgraph",
+        "langgraphAvailable": true,
+        "fallback": false
+      },
+      "routingRule": "CHAT skips KnowledgeAgent; CONSULT/RISK retrieves"
+    }
+  },
+  "metrics": {
+    "primary": {
+      "totalCases": 44,
+      "topK": 4,
+      "recallAtK": 0.9772727272727273,
+      "mrrAtK": 0.9090909090909091,
+      "hitRateAtK": 0.9772727272727273
+    },
+    "negativeRouting": {
+      "totalCases": 4,
+      "falseRetrievalCount": 0,
+      "falseRetrievalRate": 0,
+      "routingAccuracy": 1
+    }
+  },
+  "files": {
+    "reviewWorkbook": {
+      "path": "/Users/zhengwenze/Desktop/codex/mindbridge/outputs/rag-annotation-20260723/MindBridge-RAG-单人审核候选标注.xlsx",
+      "sha256": "03539f6cc8a80ff441d2bec2865f7146d7d77fa9df96e66658a0e319a72149c0"
+    },
+    "gold": {
+      "path": "/Users/zhengwenze/Desktop/codex/mindbridge/app/rag_eval/mindbridge-rag-gold.json",
+      "sha256": "4eaef8626f49700e02abcd249773f95029a31329082cc0573ab2adcaee8b3618"
+    },
+    "negative": {
+      "path": "/Users/zhengwenze/Desktop/codex/mindbridge/app/rag_eval/mindbridge-rag-negative.json",
+      "sha256": "ed8eb71be99100325d1f57c6f0af81a415e9bcbae9346d2ee1898dee8a5739cb"
+    },
+    "goldReport": {
+      "path": "/Users/zhengwenze/Desktop/codex/mindbridge/data/evaluation/mindbridge-rag-gold-report.json",
+      "sha256": "9d283f86b5a6e31c38299005fb638a6c7ca675909c928ffcf01df982cab0a935"
+    },
+    "negativeReport": {
+      "path": "/Users/zhengwenze/Desktop/codex/mindbridge/data/evaluation/mindbridge-rag-negative-routing-report.json",
+      "sha256": "242b378ef59e68345ccb89b74a2c8658bf57c901dfe4175a35b80f76afe49172"
+    },
+    "policy": {
+      "path": "/Users/zhengwenze/Desktop/codex/mindbridge/docs/knowledge-docs/campus-counseling-policy-general-guide.md",
+      "sha256": "1056002e4f2159ee97cf58f9a591326b749936d02298c99da0bf779adee51725"
+    }
+  }
+}

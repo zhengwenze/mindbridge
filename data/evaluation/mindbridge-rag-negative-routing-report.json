@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-07-23T14:50:20.119638+00:00",
+  "dataset": "/app/app/rag_eval/mindbridge-rag-negative.json",
+  "configuration": {
+    "aiProvider": "ollama",
+    "model": "qwen2.5:7b",
+    "agentFramework": {
+      "requested": "langgraph",
+      "active": "langgraph",
+      "langgraphAvailable": true,
+      "fallback": false
+    },
+    "routingRule": "CHAT skips KnowledgeAgent; CONSULT/RISK retrieves"
+  },
+  "metrics": {
+    "totalCases": 4,
+    "falseRetrievalCount": 0,
+    "falseRetrievalRate": 0.0,
+    "routingAccuracy": 1.0
+  },
+  "results": [
+    {
+      "id": "policy-045",
+      "question": "今天学校食堂有什么菜？",
+      "expectedShouldRetrieve": false,
+      "predictedIntent": "CHAT",
+      "predictedShouldRetrieve": false,
+      "falseRetrieval": false
+    },
+    {
+      "id": "policy-046",
+      "question": "帮我写一个 Python 冒泡排序。",
+      "expectedShouldRetrieve": false,
+      "predictedIntent": "CHAT",
+      "predictedShouldRetrieve": false,
+      "falseRetrieval": false
+    },
+    {
+      "id": "policy-047",
+      "question": "明天下午会不会下雨？",
+      "expectedShouldRetrieve": false,
+      "predictedIntent": "CHAT",
+      "predictedShouldRetrieve": false,
+      "falseRetrieval": false
+    },
+    {
+      "id": "policy-048",
+      "question": "篮球比赛一节有多长时间？",
+      "expectedShouldRetrieve": false,
+      "predictedIntent": "CHAT",
+      "predictedShouldRetrieve": false,
+      "falseRetrieval": false
+    }
+  ]
+}

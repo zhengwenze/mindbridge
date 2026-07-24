@@ -1,0 +1,2601 @@
+{
+  "createdAt": "2026-07-23T14:48:16.020631+00:00",
+  "dataset": "/app/app/rag_eval/mindbridge-rag-gold.json",
+  "configuration": {
+    "embeddingModel": "qwen3-embedding:0.6b",
+    "knowledgeVectorEnabled": true,
+    "knowledgeVectorRequired": true,
+    "vectorAvailable": true,
+    "candidateK": 16,
+    "vectorWeight": 0.65,
+    "bm25Weight": 0.35,
+    "rerankEnabled": true,
+    "knowledgeBaseSelection": "explicit",
+    "knowledgeBases": [
+      "校园心理咨询政策库"
+    ],
+    "knowledgeBaseIds": [
+      2
+    ]
+  },
+  "metrics": {
+    "totalCases": 44,
+    "topK": 4,
+    "recallAtK": 0.9772727272727273,
+    "mrrAtK": 0.9090909090909091,
+    "hitRateAtK": 0.9772727272727273
+  },
+  "results": [
+    {
+      "id": "policy-001",
+      "question": "我只是最近学习压力很大，也可以预约心理咨询吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SCOPE-001"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9304878048780487,
+          "matchedLocators": [
+            "policy-scope-001"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7605449264243438,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7185098590367679,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7036561102426531,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-scope-001"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-002",
+      "question": "是不是一定要有很严重的心理问题才能去学校心理中心？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SCOPE-001"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9298452638219799,
+          "matchedLocators": [
+            "policy-scope-001"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8193509470184034,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8179725708379815,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7960051464440804,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-scope-001"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-003",
+      "question": "校园心理咨询主要能帮学生处理哪些事情？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SCOPE-001"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9093076933660762,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8978073190610918,
+          "matchedLocators": [
+            "policy-scope-001"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8179790899262311,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7735541528650371,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-scope-001"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 0.5,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 2
+    },
+    {
+      "id": "policy-004",
+      "question": "心理咨询老师能不能诊断抑郁症或者给我开药？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SCOPE-001"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8918025968762395,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8828974491894814,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8569271591738892,
+          "matchedLocators": [
+            "policy-scope-001"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7032711608777135,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-scope-001"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-005",
+      "question": "我想调整现在吃的药，能直接问学校咨询师吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SCOPE-001"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8884103527380887,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8726027806976355,
+          "matchedLocators": [
+            "policy-scope-001"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7879251298748373,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7866082711380198,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-scope-001"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 0.5,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 2
+    },
+    {
+      "id": "policy-006",
+      "question": "不同年级和专业的学生都能获得同样的咨询服务吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-ELIGIBILITY-002"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.927767785203146,
+          "matchedLocators": [
+            "policy-eligibility-002"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8070900751316772,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7633146999702412,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7503172670625007,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-eligibility-002"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-007",
+      "question": "我担心自己的身份会影响老师对我的态度，政策怎么说？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-ELIGIBILITY-002"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8633779176110512,
+          "matchedLocators": [
+            "policy-eligibility-002"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7350622434426506,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7098948393775509,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6839380517620327,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-eligibility-002"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-008",
+      "question": "学校心理咨询解决不了我的问题时会怎么办？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-ELIGIBILITY-002"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9306057078225041,
+          "matchedLocators": [
+            "policy-eligibility-002"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8465199294849924,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8012368219465266,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7659779305692709,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-eligibility-002"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-009",
+      "question": "学校心理咨询要从哪里预约？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-APPOINTMENT-003"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.933815142338166,
+          "matchedLocators": [
+            "policy-appointment-003"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9062165853741653,
+          "matchedLocators": [
+            "policy-appointment-003"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7769062751489931,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.771230279476162,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-appointment-003"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-010",
+      "question": "MindBridge 不知道心理中心电话时会不会随便给我一个？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-APPOINTMENT-003"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-AI-BOUNDARY-010"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9142857142857143,
+          "matchedLocators": [
+            "policy-ai-boundary-010"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7964856697043603,
+          "matchedLocators": [
+            "policy-appointment-003"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6833229730856193,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6324288604263318,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-ai-boundary-010"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-appointment-003"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-011",
+      "question": "预约时必须把自己的全部心理经历都写出来吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-APPOINTMENT-003"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9192307692307692,
+          "matchedLocators": [
+            "policy-appointment-003"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7799020149061756,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 3,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7685027629641534,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7262421673645854,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-appointment-003"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-012",
+      "question": "我可以在班级群里直接发详细情况让老师帮我预约吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-APPOINTMENT-003"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9011363636363636,
+          "matchedLocators": [
+            "policy-appointment-003"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7681065652506032,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7043005660952827,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6722297520116084,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-appointment-003"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-013",
+      "question": "第一次去做心理咨询通常会聊什么？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-FIRST-SESSION-004"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.896551724137931,
+          "matchedLocators": [
+            "policy-first-session-004"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7687122627099829,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7315941698491084,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6500835192310492,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-first-session-004"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-014",
+      "question": "第一次咨询为什么会问我有没有伤害自己的想法？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-FIRST-SESSION-004"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9099999999999999,
+          "matchedLocators": [
+            "policy-first-session-004"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6444168198448111,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.5683682027735933,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.5637846185457447,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-first-session-004"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-015",
+      "question": "咨询开始前，老师应该向我说明哪些事情？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-FIRST-SESSION-004"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9090909090909091,
+          "matchedLocators": [
+            "policy-first-session-004"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6778402737584447,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6395564495193231,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.5962282636818342,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-first-session-004"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-016",
+      "question": "有些事情我现在不想说，可以先不讲吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-FIRST-SESSION-004"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8734093651124426,
+          "matchedLocators": [
+            "policy-first-session-004"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8341008226627707,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8061264974265351,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7532869821953698,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-first-session-004"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-017",
+      "question": "心理咨询的内容是不是无论发生什么都不会告诉任何人？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CONFIDENTIALITY-005"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8494833138826225,
+          "matchedLocators": [
+            "policy-confidentiality-005"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 2,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8378787423153496,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 3,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8298894044909205,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8076119419708142,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-confidentiality-005"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-018",
+      "question": "什么情况下心理咨询可能不能继续保密？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CONFIDENTIALITY-005"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9390625,
+          "matchedLocators": [
+            "policy-confidentiality-005"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8222533725052551,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8120874753591683,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7979112995112104,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-confidentiality-005"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-019",
+      "question": "学校能不能把我的心理困扰当成纪律处分依据？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CONFIDENTIALITY-005"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9368421052631579,
+          "matchedLocators": [
+            "policy-confidentiality-005"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7444327428216782,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6958627391343892,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6800227923807178,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-confidentiality-005"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-020",
+      "question": "如果需要联系其他人，是否应该只分享必要的信息？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CONFIDENTIALITY-005"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9139253059889481,
+          "matchedLocators": [
+            "policy-confidentiality-005"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8859444763504495,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 423,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8114589347637254,
+          "matchedLocators": [],
+          "preview": "审核人员应重点确认：本校实际服务范围是否一致；保密例外是否符合本校制度和适用法律；所有联系方式是否真实有效；危机流程是否与校内职责分工一致；文档是否需要标注版本号、生效日期和责任部门。"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8096727947108034,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-confidentiality-005"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-021",
+      "question": "我已经准备好伤害自己的东西了，还应该等下周预约吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CRISIS-006"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9099999999999999,
+          "matchedLocators": [
+            "policy-crisis-006"
+          ],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7847168867617277,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7195456745939206,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7008997673889397,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-crisis-006"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-022",
+      "question": "室友说今晚要结束生命，我现在应该联系谁？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CRISIS-006"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8551880623134304,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8061633896746908,
+          "matchedLocators": [
+            "policy-crisis-006"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7639826804100602,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7553864020822467,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-crisis-006"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 0.5,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 2
+    },
+    {
+      "id": "policy-023",
+      "question": "处于紧急危险时，MindBridge 能代替现场救助吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CRISIS-006"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-AI-BOUNDARY-010"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9264401504528769,
+          "matchedLocators": [
+            "policy-crisis-006"
+          ],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7531015312957476,
+          "matchedLocators": [
+            "policy-ai-boundary-010"
+          ],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.656908724312181,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.5555744684161708,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-ai-boundary-010"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-crisis-006"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-024",
+      "question": "我现在不能保证自己安全，普通心理预约够不够？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CRISIS-006"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8823816518355605,
+          "matchedLocators": [
+            "policy-crisis-006"
+          ],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.867811705333332,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8088119544435982,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7542556993779819,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-crisis-006"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-025",
+      "question": "咨询师为什么会建议我去医院做进一步评估？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.88386720761229,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8444875016863091,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8123288341082148,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6934577465195421,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 0.5,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 2
+    },
+    {
+      "id": "policy-026",
+      "question": "被转介是不是说明学校不愿意继续帮助我？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8925074235715048,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7720977492731402,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7482901614942854,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7001863166384739,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 0.5,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 2
+    },
+    {
+      "id": "policy-027",
+      "question": "涉及诊断和用药的问题应该找谁？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SCOPE-001"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9216920026577005,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8168749550905486,
+          "matchedLocators": [
+            "policy-scope-001"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7002783778598975,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6658884702311458,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-scope-001"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-028",
+      "question": "学校心理中心没有适合我的资源时，下一步怎么办？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-REFERRAL-007"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8990376337811883,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8712363756570612,
+          "matchedLocators": [
+            "policy-referral-007"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7916086702296266,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7539272433395855,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-referral-007"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 0.5,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 2
+    },
+    {
+      "id": "policy-029",
+      "question": "心理咨询记录一般可以被哪些人看到？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CONFIDENTIALITY-005"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RECORDS-008"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.891967666261344,
+          "matchedLocators": [
+            "policy-confidentiality-005"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 2,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8785321225735612,
+          "matchedLocators": [
+            "policy-records-008"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8740112210393738,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8357839798649671,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-confidentiality-005"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-records-008"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-030",
+      "question": "咨询记录能不能直接拿去做课堂案例或研究？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RECORDS-008"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9083333333333333,
+          "matchedLocators": [
+            "policy-records-008"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8209551727242315,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7394024642889792,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6755287841598725,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-records-008"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-031",
+      "question": "为什么聊天记录和风险报告不能默认对所有老师开放？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RECORDS-008"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9266666666666666,
+          "matchedLocators": [
+            "policy-records-008"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 2,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6922449273794994,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 3,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6907175714880064,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.667211935405197,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-records-008"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-032",
+      "question": "系统保存心理数据时应该遵循什么原则？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-CONFIDENTIALITY-005"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RECORDS-008"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8679288643167536,
+          "matchedLocators": [
+            "policy-confidentiality-005"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 2,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8520997296486557,
+          "matchedLocators": [
+            "policy-records-008"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 3,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8233879597676049,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 4,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7693277055497333,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-confidentiality-005"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-records-008"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-033",
+      "question": "如果我对咨询过程不舒服，可以申请停止或换一种支持吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-FIRST-SESSION-004"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RIGHTS-009"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8589454375428539,
+          "matchedLocators": [
+            "policy-rights-009"
+          ],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.792296196586309,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7760773497730317,
+          "matchedLocators": [
+            "policy-first-session-004"
+          ],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7626886639224126,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-first-session-004"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-rights-009"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-034",
+      "question": "投诉心理咨询服务会不会影响以后继续预约？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RIGHTS-009"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9155400324919647,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8706185077506529,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8520049670800103,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8156473820898376,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [],
+      "recallAtK": 0.0,
+      "reciprocalRankAtK": 0.0,
+      "hitAtK": 0.0,
+      "firstRelevantRank": 0
+    },
+    {
+      "id": "policy-035",
+      "question": "学生在咨询中有权了解哪些信息？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-ELIGIBILITY-002"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RIGHTS-009"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9038545188971348,
+          "matchedLocators": [
+            "policy-eligibility-002"
+          ],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 2,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8637832261536221,
+          "matchedLocators": [
+            "policy-rights-009"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 3,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7898810312044421,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7672986615814107,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-eligibility-002"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-rights-009"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-036",
+      "question": "学校应该通过什么渠道接受心理服务反馈？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-RIGHTS-009"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8821415831520935,
+          "matchedLocators": [
+            "policy-rights-009"
+          ],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8249189442760849,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7950735540318059,
+          "matchedLocators": [],
+          "preview": "## MindBridge 的使用边界 [policy-id: POLICY-AI-BOUNDARY-010] MindBridge 是校园心理支持与信息导航工具，不是持证心理咨询师、医生、监护人或紧急救助机构。它不能作出医学诊断、开药、替代线下咨询，也不能保证学校资源随时可用。 当知识库没有经过核验的校本信息时，MindBridge 应明确说明信息不足，不得生成看似真实的电话、地址、收费标准、值班人员或预约时间。回答校园政策问题时应展示检索来源，并允许学生查看相关片段和文档"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6940292630476108,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-rights-009"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-037",
+      "question": "MindBridge 可以直接告诉我得了什么心理疾病吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-AI-BOUNDARY-010"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7895553302093697,
+          "matchedLocators": [
+            "policy-ai-boundary-010"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 416,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.780964525492583,
+          "matchedLocators": [],
+          "preview": "## 首次咨询与知情说明 [policy-id: POLICY-FIRST-SESSION-004] 首次咨询通常用于了解学生当前困扰、持续时间、对学习生活的影响、希望获得的帮助和当前安全状况。咨询人员应在服务开始前说明咨询性质、双方权利和责任、保密原则、保密例外、记录与数据使用方式，以及转介或结束服务的可能情形。 学生可以只谈自己愿意谈的内容，也可以询问咨询方法、提出暂停或表达不适。为了判断当前安全和选择合适支持方式，咨询人员可能会直接询问学生是否存在自伤、自杀、伤害他人或"
+        },
+        {
+          "rank": 3,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7163295200536647,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 4,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7045544871588344,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-ai-boundary-010"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-038",
+      "question": "AI 给出的学校电话和办公时间一定是真的吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-APPOINTMENT-003"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-AI-BOUNDARY-010"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9289759328251057,
+          "matchedLocators": [
+            "policy-ai-boundary-010"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8788299882107815,
+          "matchedLocators": [
+            "policy-appointment-003"
+          ],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7238179613058544,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 423,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6713655588635237,
+          "matchedLocators": [],
+          "preview": "审核人员应重点确认：本校实际服务范围是否一致；保密例外是否符合本校制度和适用法律；所有联系方式是否真实有效；危机流程是否与校内职责分工一致；文档是否需要标注版本号、生效日期和责任部门。"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-ai-boundary-010"
+        },
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-appointment-003"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-039",
+      "question": "回答校园心理政策时，为什么要展示知识来源？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-AI-BOUNDARY-010"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9471302162228767,
+          "matchedLocators": [
+            "policy-ai-boundary-010"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6768940017264311,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 3,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6765375030594674,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.644182343955515,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-ai-boundary-010"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-040",
+      "question": "MindBridge 和真人心理咨询师是什么关系？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-AI-BOUNDARY-010"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9423076923076923,
+          "matchedLocators": [
+            "policy-ai-boundary-010"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8759035431377024,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7264166557755745,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 4,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7211205973032538,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-ai-boundary-010"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-041",
+      "question": "学校上线这个系统前必须补充哪些本地信息？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-LOCAL-FIELDS-011"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9269166064749236,
+          "matchedLocators": [
+            "policy-local-fields-011"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7831422463278712,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.691568166136354,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 4,
+          "chunkId": 417,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6800207162204182,
+          "matchedLocators": [],
+          "preview": "## 保密原则 [policy-id: POLICY-CONFIDENTIALITY-005] 心理咨询原则上保护学生隐私。咨询内容、身份信息、咨询记录及其他可以识别学生的信息，应按照最小必要原则保存和使用，只允许承担相应职责的人员在授权范围内接触。相关人员不得把学生的心理困扰作为公开谈资、纪律羞辱或无关评价依据。 工作人员不应向学生承诺“任何情况下绝对保密”。在存在严重且紧迫的人身安全风险、需要依法履行职责，或为保护学生及他人安全必须启动危机处置时，学校可能在必要范围内联系"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-local-fields-011"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-042",
+      "question": "心理中心换了电话号码以后，知识库应该怎么处理？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-LOCAL-FIELDS-011"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9153846153846154,
+          "matchedLocators": [
+            "policy-local-fields-011"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7594636165319584,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 3,
+          "chunkId": 419,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6738182908793414,
+          "matchedLocators": [],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 4,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6660063402244826,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-local-fields-011"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-043",
+      "question": "夜间和节假日的危机求助路径需要提前配置吗？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-LOCAL-FIELDS-011"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.9265125780575645,
+          "matchedLocators": [
+            "policy-local-fields-011"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 418,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8333028193612623,
+          "matchedLocators": [],
+          "preview": "## 危机与紧急情况 [policy-id: POLICY-CRISIS-006] 如果学生正在实施或明确计划自伤、自杀或伤害他人，已经准备相关工具，无法保证当前安全，出现严重失控，或正处于现实威胁中，常规预约不能替代即时救助。应优先确认学生当前是否安全，鼓励其前往有人陪伴的安全地点，并立即联系身边可信任的人、辅导员、校园保卫、医疗急救或当地紧急服务。 MindBridge 只能提供支持、风险提醒和求助路径，不能替代现场救助、专业危机干预或医疗服务。学校部署时必须配置经过核验"
+        },
+        {
+          "rank": 3,
+          "chunkId": 415,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6578768476643033,
+          "matchedLocators": [],
+          "preview": "## 服务对象与平等原则 [policy-id: POLICY-ELIGIBILITY-002] 服务应尊重学生的人格尊严，不因性别、民族、专业、年级、家庭经济状况、残障状况或其他身份差异进行歧视。学生有权了解服务性质、咨询边界、记录方式、保密原则和可能的保密例外，并可以提出问题、表达顾虑或申请转介。 本指引不承诺所有问题都能由校园心理咨询解决。超出服务能力、需要医疗处置或需要其他专业支持的情况，应转介至相应机构。 ## 预约渠道与校本信息 [policy-id: POLIC"
+        },
+        {
+          "rank": 4,
+          "chunkId": 423,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6538003529066808,
+          "matchedLocators": [],
+          "preview": "审核人员应重点确认：本校实际服务范围是否一致；保密例外是否符合本校制度和适用法律；所有联系方式是否真实有效；危机流程是否与校内职责分工一致；文档是否需要标注版本号、生效日期和责任部门。"
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-local-fields-011"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    },
+    {
+      "id": "policy-044",
+      "question": "政策文档上线前应该由哪些角色审核？",
+      "relevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "POLICY-SOURCES-012"
+        }
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunkId": 420,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.8438301594701355,
+          "matchedLocators": [
+            "policy-sources-012"
+          ],
+          "preview": "## 咨询记录与数据保护 [policy-id: POLICY-RECORDS-008] 咨询记录应只记录服务和安全处置所需的信息，并按照学校正式的数据分类、访问控制、保存期限和销毁制度管理。用于教学、督导、质量改进或研究的数据，应按照适用规则进行授权、去标识化或匿名化处理，避免不必要地暴露学生身份。 MindBridge 的对话记录、检索来源、风险处置记录和后台报告属于不同用途的数据，不应因为技术上可以关联就默认向所有工作人员开放。系统应落实角色权限、访问审计和最小必要展示"
+        },
+        {
+          "rank": 2,
+          "chunkId": 414,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7311403436033413,
+          "matchedLocators": [],
+          "preview": "# 校园心理咨询服务通用指引（MindBridge 测试版） > 文档状态：用于 MindBridge 开发、检索与演示测试的通用指引，不是任何特定高校已经发布的正式规章。 > 部署要求：学校上线前必须由本校心理中心、学生工作部门和法务/数据保护负责人审核，并补充本校真实预约入口、开放时间、办公地点及紧急联系方式。 > 更新日期：2026-07-21。 ## 适用范围与服务性质 [policy-id: POLICY-SCOPE-001] 校园心理咨询面向在校学生提供心理健康教"
+        },
+        {
+          "rank": 3,
+          "chunkId": 423,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.7085153647804707,
+          "matchedLocators": [],
+          "preview": "审核人员应重点确认：本校实际服务范围是否一致；保密例外是否符合本校制度和适用法律；所有联系方式是否真实有效；危机流程是否与校内职责分工一致；文档是否需要标注版本号、生效日期和责任部门。"
+        },
+        {
+          "rank": 4,
+          "chunkId": 421,
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "score": 0.6502326955980413,
+          "matchedLocators": [
+            "policy-sources-012"
+          ],
+          "preview": "## 依据与审核说明 [policy-id: POLICY-SOURCES-012] 本测试版参考以下公开权威文件整理，未逐字复制，也不替代原文件或本校正式制度："
+        }
+      ],
+      "coveredRelevantItems": [
+        {
+          "source": "policies/campus-counseling-policy-general-guide.md",
+          "locator": "policy-sources-012"
+        }
+      ],
+      "recallAtK": 1.0,
+      "reciprocalRankAtK": 1.0,
+      "hitAtK": 1.0,
+      "firstRelevantRank": 1
+    }
+  ]
+}

@@ -49,7 +49,7 @@ const adminItems: MenuProps["items"] = [
   {
     key: "/admin/reports",
     icon: <FileTextOutlined />,
-    label: "风险报告",
+    label: "会话档案",
   },
   {
     key: "/admin/ledger",

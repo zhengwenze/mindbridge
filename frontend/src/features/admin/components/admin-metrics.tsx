@@ -30,7 +30,7 @@ const metricItems = [
 
 export function AdminMetrics({ metrics, loading }: AdminMetricsProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {metricItems.map((item) => {
         const Icon = item.icon;
         return (

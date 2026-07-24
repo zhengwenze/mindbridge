@@ -39,7 +39,7 @@ export function AdminOverviewPage() {
 
   return (
     <PageContainer title="管理概览" hideHeader>
-      <div className="grid gap-5">
+      <div className="grid gap-4">
         <AdminDataError
           errors={[
             dashboard.reportsQuery.error,
@@ -49,37 +49,13 @@ export function AdminOverviewPage() {
           ]}
         />
         <AdminMetrics metrics={dashboard.metrics} loading={loading} />
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(420px,0.95fr)]">
-          <RiskCasesPanel
-            cases={dashboard.cases}
-            loading={dashboard.casesQuery.isLoading}
-            error={dashboard.casesQuery.error}
-            title="待跟进风险个案"
-            description="按最近更新时间排列，点击左侧菜单可查看全部个案。"
-          />
-          <Card title="后台使用提示" variant="outlined" className="h-fit">
-            <div className="grid gap-4">
-              <div>
-                <Typography.Text strong>先看高风险，再看预警状态</Typography.Text>
-                <Typography.Paragraph type="secondary" className="!mb-0 !mt-1">
-                  高风险报告会自动进入风险个案；预警记录用于确认通知是否已成功送达。
-                </Typography.Paragraph>
-              </div>
-              <div>
-                <Typography.Text strong>报告支持会话回溯</Typography.Text>
-                <Typography.Paragraph type="secondary" className="!mb-0 !mt-1">
-                  在“风险报告”中选择报告，即可只读查看对应的历史会话档案。
-                </Typography.Paragraph>
-              </div>
-              <div>
-                <Typography.Text strong>数据范围</Typography.Text>
-                <Typography.Paragraph type="secondary" className="!mb-0 !mt-1">
-                  看板统计当前接口返回的最近 100 条记录，详情页提供分页浏览。
-                </Typography.Paragraph>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <RiskCasesPanel
+          cases={dashboard.cases}
+          loading={dashboard.casesQuery.isLoading}
+          error={dashboard.casesQuery.error}
+          title="待跟进风险个案"
+          description="按最近更新时间排列，点击左侧菜单可查看全部个案。"
+        />
       </div>
     </PageContainer>
   );

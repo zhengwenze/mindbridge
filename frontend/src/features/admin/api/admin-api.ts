@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/api-client";
 
 import type {
+  AdminOverviewData,
   AlertRecord,
   ConversationArchive,
   ExcelRecord,
@@ -16,7 +17,8 @@ import type {
   KnowledgeDocumentReindexResult,
   KnowledgeDocumentUploadOptions,
   KnowledgeDocumentUploadResult,
-  RiskCase,
+  RiskCaseFilters,
+  RiskCaseListResponse,
   RiskReport,
   AdminUser,
   AdminUserCreatePayload,
@@ -73,8 +75,20 @@ export async function fetchAdminReports(): Promise<RiskReport[]> {
   return response.data;
 }
 
-export async function fetchAdminCases(): Promise<RiskCase[]> {
-  const response = await apiClient.get<RiskCase[]>("/api/admin/cases");
+export async function fetchAdminOverview(days = 30): Promise<AdminOverviewData> {
+  const response = await apiClient.get<AdminOverviewData>("/api/admin/overview", {
+    params: { days }
+  });
+  return response.data;
+}
+
+export async function fetchAdminCases(filters: RiskCaseFilters): Promise<RiskCaseListResponse> {
+  const params = new URLSearchParams();
+  if (filters.riskLevel) params.set("risk_level", filters.riskLevel);
+  if (filters.status) params.set("status", filters.status);
+  params.set("page", String(filters.page));
+  params.set("page_size", String(filters.pageSize));
+  const response = await apiClient.get<RiskCaseListResponse>(`/api/admin/cases?${params.toString()}`);
   return response.data;
 }
 

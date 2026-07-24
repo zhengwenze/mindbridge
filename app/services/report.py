@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import re
+from datetime import UTC, datetime, time, timedelta, timezone
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.entities import AlertRecord, AgentRunTrace, CaseNote, ChatMessage, ChatSession, DeadLetterRecord, ExcelRecord, KnowledgeDocument, PsychologicalReport, RiskCase, ToolAuditRecord, ToolJob, UserAccount
-from app.schemas.dtos import AgentRunTraceResponse, CaseNoteResponse, ConversationMessageResponse, ConversationResponse, DeadLetterResponse, ReportResponse, RiskCaseResponse, StudentConversationMessageResponse, StudentConversationResponse, StudentSessionSummaryResponse, ToolAuditResponse, ToolJobResponse, ToolRecordResponse
+from app.schemas.dtos import AdminOverviewProcessingResponse, AdminOverviewResponse, AdminOverviewRiskDistributionItem, AdminOverviewSummaryResponse, AdminOverviewTrendPoint, AgentRunTraceResponse, CaseNoteResponse, ConversationMessageResponse, ConversationResponse, DeadLetterResponse, ReportResponse, RiskCaseListResponse, RiskCaseResponse, StudentConversationMessageResponse, StudentConversationResponse, StudentSessionSummaryResponse, ToolAuditResponse, ToolJobResponse, ToolRecordResponse
+
+
+CHINA_STANDARD_TIME = timezone(timedelta(hours=8))
 
 
 class ReportService:
@@ -40,9 +45,115 @@ class ReportService:
             for row in rows
         ]
 
-    def risk_cases(self) -> list[RiskCaseResponse]:
-        rows = self.db.query(RiskCase).order_by(RiskCase.updated_at.desc()).limit(100).all()
-        return [
+    def admin_overview(self, days: int) -> AdminOverviewResponse:
+        generated_at = datetime.utcnow()
+        generated_at_utc = generated_at.replace(tzinfo=UTC)
+        today = generated_at_utc.astimezone(CHINA_STANDARD_TIME).date()
+        start_date = today - timedelta(days=days - 1)
+        start_at = (
+            datetime.combine(start_date, time.min, tzinfo=CHINA_STANDARD_TIME)
+            .astimezone(UTC)
+            .replace(tzinfo=None)
+        )
+        end_at = (
+            datetime.combine(today + timedelta(days=1), time.min, tzinfo=CHINA_STANDARD_TIME)
+            .astimezone(UTC)
+            .replace(tzinfo=None)
+        )
+
+        total_reports = self.db.query(func.count(PsychologicalReport.id)).scalar() or 0
+        report_rows = (
+            self.db.query(PsychologicalReport.created_at, PsychologicalReport.risk_level)
+            .filter(PsychologicalReport.created_at >= start_at, PsychologicalReport.created_at < end_at)
+            .all()
+        )
+        risk_counts = {"HIGH": 0, "MEDIUM": 0, "LOW": 0}
+        trend_counts: dict[str, dict[str, int]] = {}
+        for created_at, risk_level in report_rows:
+            normalized = str(risk_level or "").upper()
+            if normalized in risk_counts:
+                risk_counts[normalized] += 1
+                created_at_utc = created_at.replace(tzinfo=UTC)
+                day_key = created_at_utc.astimezone(CHINA_STANDARD_TIME).date().isoformat()
+                values = trend_counts.setdefault(day_key, {"HIGH": 0, "MEDIUM": 0, "LOW": 0})
+                values[normalized] += 1
+
+        daily_trend: list[AdminOverviewTrendPoint] = []
+        for offset in range(days):
+            day = start_date + timedelta(days=offset)
+            values = trend_counts.get(day.isoformat(), {"HIGH": 0, "MEDIUM": 0, "LOW": 0})
+            daily_trend.append(
+                AdminOverviewTrendPoint(
+                    date=day.isoformat(),
+                    total=sum(values.values()),
+                    high=values["HIGH"],
+                    medium=values["MEDIUM"],
+                    low=values["LOW"],
+                )
+            )
+
+        period_reports = sum(risk_counts.values())
+        high_risk_reports = risk_counts["HIGH"]
+        high_risk_rate = round(high_risk_reports * 100 / period_reports, 1) if period_reports else 0.0
+        risk_distribution = [
+            AdminOverviewRiskDistributionItem(
+                riskLevel=risk_level,
+                count=risk_counts[risk_level],
+                percentage=round(risk_counts[risk_level] * 100 / period_reports, 1) if period_reports else 0.0,
+            )
+            for risk_level in ("HIGH", "MEDIUM", "LOW")
+        ]
+
+        excel_counts = self._period_status_counts(ExcelRecord, start_at, end_at)
+        alert_counts = self._period_status_counts(AlertRecord, start_at, end_at)
+        excel_total = sum(excel_counts.values())
+        alert_total = sum(alert_counts.values())
+        alert_success = alert_counts.get("SUCCESS", 0)
+
+        return AdminOverviewResponse(
+            periodDays=days,
+            generatedAt=generated_at,
+            summary=AdminOverviewSummaryResponse(
+                totalReports=int(total_reports),
+                periodReports=period_reports,
+                todayReports=daily_trend[-1].total,
+                periodHighRiskReports=high_risk_reports,
+                periodHighRiskRate=high_risk_rate,
+            ),
+            riskDistribution=risk_distribution,
+            dailyTrend=daily_trend,
+            processing=AdminOverviewProcessingResponse(
+                excelTotal=excel_total,
+                excelSuccess=excel_counts.get("SUCCESS", 0),
+                excelFailed=excel_counts.get("FAILED", 0),
+                alertTotal=alert_total,
+                alertSuccess=alert_success,
+                alertFailed=alert_counts.get("FAILED", 0),
+                alertSuccessRate=round(alert_success * 100 / alert_total, 1) if alert_total else 0.0,
+            ),
+        )
+
+    def risk_cases(
+        self,
+        *,
+        risk_level: str | None = None,
+        status: str | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> RiskCaseListResponse:
+        query = self.db.query(RiskCase)
+        if risk_level is not None:
+            query = query.filter(RiskCase.risk_level == risk_level)
+        if status is not None:
+            query = query.filter(RiskCase.status == status)
+        total = query.count()
+        rows = (
+            query.order_by(RiskCase.updated_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+            .all()
+        )
+        items = [
             RiskCaseResponse(
                 id=row.id,
                 reportId=row.report_id,
@@ -58,6 +169,16 @@ class ReportService:
             )
             for row in rows
         ]
+        return RiskCaseListResponse(items=items, total=total, page=page, pageSize=page_size)
+
+    def _period_status_counts(self, model, start_at: datetime, end_at: datetime) -> dict[str, int]:
+        rows = (
+            self.db.query(model.status, func.count(model.id))
+            .filter(model.created_at >= start_at, model.created_at < end_at)
+            .group_by(model.status)
+            .all()
+        )
+        return {str(status or "").upper(): int(count) for status, count in rows}
 
     def case_notes(self, case_id: int) -> list[CaseNoteResponse]:
         rows = self.db.query(CaseNote).filter(CaseNote.case_id == case_id).order_by(CaseNote.created_at.asc()).all()

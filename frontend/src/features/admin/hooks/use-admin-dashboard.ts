@@ -2,26 +2,51 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchAdminCases, fetchAdminReports, fetchAlerts, fetchExcelRecords } from "../api/admin-api";
+import {
+  fetchAdminCases,
+  fetchAdminOverview,
+  fetchAdminReports,
+  fetchAlerts,
+  fetchExcelRecords
+} from "../api/admin-api";
+import type { RiskCaseFilters } from "../types/admin-types";
 
 export const adminQueryKeys = {
+  overview: (days: number) => ["admin", "overview", days] as const,
   reports: ["admin", "reports"] as const,
-  cases: ["admin", "cases"] as const,
+  cases: (filters: RiskCaseFilters) => [
+    "admin",
+    "cases",
+    filters.riskLevel ?? "",
+    filters.status ?? "",
+    filters.page,
+    filters.pageSize
+  ] as const,
   excelRecords: ["admin", "excel-records"] as const,
   alerts: ["admin", "alerts"] as const,
   conversation: (sessionId: string) => ["admin", "conversation", sessionId] as const,
   knowledgeStatus: ["admin", "knowledge-status"] as const
 };
 
+export function useAdminOverview(days = 30) {
+  return useQuery({
+    queryKey: adminQueryKeys.overview(days),
+    queryFn: () => fetchAdminOverview(days)
+  });
+}
+
+export function useAdminCases(filters: RiskCaseFilters) {
+  return useQuery({
+    queryKey: adminQueryKeys.cases(filters),
+    queryFn: () => fetchAdminCases(filters),
+    placeholderData: (previous) => previous
+  });
+}
+
 export function useAdminDashboard() {
   const reportsQuery = useQuery({
     queryKey: adminQueryKeys.reports,
     queryFn: fetchAdminReports
-  });
-
-  const casesQuery = useQuery({
-    queryKey: adminQueryKeys.cases,
-    queryFn: fetchAdminCases
   });
 
   const excelRecordsQuery = useQuery({
@@ -35,25 +60,15 @@ export function useAdminDashboard() {
   });
 
   const reports = reportsQuery.data ?? [];
-  const cases = casesQuery.data ?? [];
   const excelRecords = excelRecordsQuery.data ?? [];
   const alerts = alertsQuery.data ?? [];
 
   return {
     reports,
-    cases,
     excelRecords,
     alerts,
     reportsQuery,
-    casesQuery,
     excelRecordsQuery,
-    alertsQuery,
-    metrics: {
-      reportCount: reports.length,
-      highRiskCount: reports.filter((item) => item.riskLevel === "HIGH").length,
-      caseCount: cases.length,
-      excelRecordCount: excelRecords.length,
-      alertCount: alerts.length
-    }
+    alertsQuery
   };
 }

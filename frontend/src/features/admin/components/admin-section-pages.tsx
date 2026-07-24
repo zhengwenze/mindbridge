@@ -1,76 +1,86 @@
 "use client";
 
-import { Alert, Card, Empty, Typography } from "antd";
+import { Alert, Button, Card, Empty, Typography } from "antd";
 import { useState } from "react";
 
 import { PageContainer } from "@/components/layout/page-container";
 import { toApiError } from "@/lib/api/api-error";
 
 import { useAdminConversation } from "../hooks/use-admin-conversation";
-import { useAdminDashboard } from "../hooks/use-admin-dashboard";
+import { useAdminCases, useAdminDashboard, useAdminOverview } from "../hooks/use-admin-dashboard";
+import type { RiskCaseFilters } from "../types/admin-types";
 import { AdminMetrics } from "./admin-metrics";
+import { AdminOverviewInsights } from "./admin-overview-insights";
 import { AdminRecordTable } from "./admin-record-table";
 import { ConversationArchivePanel } from "./conversation-archive-panel";
 import { KnowledgeBasePanel } from "./knowledge-base-panel";
+import { RiskCaseFiltersBar } from "./risk-case-filters";
 import { RiskCasesPanel } from "./risk-cases-panel";
 import { RiskReportsPanel } from "./risk-reports-panel";
 import { UserManagementPanel } from "./user-management-panel";
 
-function AdminDataError({ errors }: { errors: unknown[] }) {
+function AdminDataError({ errors, onRetry }: { errors: unknown[]; onRetry: () => void }) {
   const firstError = errors.find(Boolean);
   return firstError ? (
     <Alert
-      type="warning"
+      type="error"
       showIcon
       title={`${errors.filter(Boolean).length} 个数据接口读取失败`}
       description={toApiError(firstError).message}
+      action={<Button size="small" onClick={onRetry}>重新加载</Button>}
     />
   ) : null;
 }
 
 export function AdminOverviewPage() {
-  const dashboard = useAdminDashboard();
-  const loading = [
-    dashboard.reportsQuery.isLoading,
-    dashboard.casesQuery.isLoading,
-    dashboard.excelRecordsQuery.isLoading,
-    dashboard.alertsQuery.isLoading
-  ].some(Boolean);
+  const overviewQuery = useAdminOverview(30);
 
   return (
     <PageContainer title="管理概览" hideHeader>
       <div className="grid gap-4">
-        <AdminDataError
-          errors={[
-            dashboard.reportsQuery.error,
-            dashboard.casesQuery.error,
-            dashboard.excelRecordsQuery.error,
-            dashboard.alertsQuery.error
-          ]}
-        />
-        <AdminMetrics metrics={dashboard.metrics} loading={loading} />
-        <RiskCasesPanel
-          cases={dashboard.cases}
-          loading={dashboard.casesQuery.isLoading}
-          error={dashboard.casesQuery.error}
-          title="待跟进风险个案"
-          description="按最近更新时间排列，点击左侧菜单可查看全部个案。"
-        />
+        <AdminDataError errors={[overviewQuery.error]} onRetry={() => void overviewQuery.refetch()} />
+        {!overviewQuery.error ? (
+          <>
+            <AdminMetrics overview={overviewQuery.data} loading={overviewQuery.isLoading} />
+            <AdminOverviewInsights overview={overviewQuery.data} loading={overviewQuery.isLoading} />
+          </>
+        ) : null}
       </div>
     </PageContainer>
   );
 }
 
 export function AdminCasesPage() {
-  const dashboard = useAdminDashboard();
+  const [filters, setFilters] = useState<RiskCaseFilters>({
+    page: 1,
+    pageSize: 20
+  });
+  const casesQuery = useAdminCases(filters);
+  const result = casesQuery.data;
+  const hasFilters = Boolean(filters.riskLevel || filters.status);
+
   return (
     <PageContainer title="风险个案" hideHeader>
-      <RiskCasesPanel
-        cases={dashboard.cases}
-        loading={dashboard.casesQuery.isLoading}
-        error={dashboard.casesQuery.error}
-        title="风险个案列表"
-      />
+      <div className="grid gap-4">
+        <RiskCaseFiltersBar
+          filters={filters}
+          loading={casesQuery.isFetching}
+          onChange={setFilters}
+          onRefresh={() => void casesQuery.refetch()}
+        />
+        <RiskCasesPanel
+          cases={result?.items ?? []}
+          total={result?.total ?? 0}
+          page={result?.page ?? filters.page}
+          pageSize={result?.pageSize ?? filters.pageSize}
+          loading={casesQuery.isFetching}
+          error={casesQuery.error}
+          title="风险个案列表"
+          description="按风险等级和处理状态筛选，结果按最近更新时间排列。"
+          emptyDescription={hasFilters ? "暂无符合当前筛选条件的个案" : "暂无风险个案"}
+          onPageChange={(page) => setFilters((current) => ({ ...current, page }))}
+        />
+      </div>
     </PageContainer>
   );
 }

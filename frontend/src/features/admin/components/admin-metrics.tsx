@@ -2,36 +2,71 @@
 
 import {
   AlertOutlined,
-  AppstoreOutlined,
-  AuditOutlined,
-  FileExcelOutlined,
+  BellOutlined,
+  CalendarOutlined,
   FileTextOutlined
 } from "@ant-design/icons";
 import { Card, Statistic, Typography } from "antd";
 
+import type { AdminOverviewData } from "../types/admin-types";
+
 interface AdminMetricsProps {
-  metrics: {
-    reportCount: number;
-    highRiskCount: number;
-    caseCount: number;
-    excelRecordCount: number;
-    alertCount: number;
-  };
+  overview?: AdminOverviewData;
   loading: boolean;
 }
 
-const metricItems = [
-  { key: "reportCount", label: "报告数", hint: "已生成的心理风险与咨询报告", icon: FileTextOutlined, tone: "blue" },
-  { key: "highRiskCount", label: "高风险", hint: "需要优先关注的报告", icon: AlertOutlined, tone: "red" },
-  { key: "caseCount", label: "个案数", hint: "已进入跟进流程的风险个案", icon: AuditOutlined, tone: "amber" },
-  { key: "excelRecordCount", label: "Excel 台账", hint: "已写入台账的记录", icon: FileExcelOutlined, tone: "green" },
-  { key: "alertCount", label: "预警记录", hint: "通知渠道产生的发送记录", icon: AppstoreOutlined, tone: "purple" }
-] as const;
+export function AdminMetrics({ overview, loading }: AdminMetricsProps) {
+  const days = overview?.periodDays ?? 30;
+  const items = [
+    {
+      key: "totalReports",
+      label: "累计报告",
+      value: overview?.summary.totalReports ?? 0,
+      hint: "系统累计生成的心理支持报告",
+      icon: FileTextOutlined,
+      tone: "blue"
+    },
+    {
+      key: "periodReports",
+      label: `近 ${days} 日新增`,
+      value: overview?.summary.periodReports ?? 0,
+      hint: "所选统计周期内新增报告",
+      icon: CalendarOutlined,
+      tone: "teal"
+    },
+    {
+      key: "todayReports",
+      label: "今日新增",
+      value: overview?.summary.todayReports ?? 0,
+      hint: "今天新生成的报告",
+      icon: CalendarOutlined,
+      tone: "amber"
+    },
+    {
+      key: "periodHighRiskRate",
+      label: "高风险占比",
+      value: overview?.summary.periodHighRiskRate ?? 0,
+      suffix: "%",
+      hint: `近 ${days} 日共 ${overview?.summary.periodHighRiskReports ?? 0} 份高风险报告`,
+      icon: AlertOutlined,
+      tone: "red"
+    },
+    {
+      key: "alertSuccessRate",
+      label: "预警成功率",
+      value: overview?.processing.alertTotal ? overview.processing.alertSuccessRate : "—",
+      suffix: overview?.processing.alertTotal ? "%" : undefined,
+      hint: overview?.processing.alertTotal
+        ? `近 ${days} 日成功 ${overview.processing.alertSuccess} 次`
+        : `近 ${days} 日暂无预警记录`,
+      icon: BellOutlined,
+      tone: "green"
+    }
+  ] as const;
 
-export function AdminMetrics({ metrics, loading }: AdminMetricsProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-      {metricItems.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
         return (
           <Card key={item.key} variant="outlined" loading={loading} className={`metric-card metric-card-${item.tone}`}>
@@ -40,7 +75,7 @@ export function AdminMetrics({ metrics, loading }: AdminMetricsProps) {
                 <Typography.Text type="secondary" className="!text-sm">
                   {item.label}
                 </Typography.Text>
-                <Statistic value={metrics[item.key]} className="metric-stat" />
+                <Statistic value={item.value} suffix={"suffix" in item ? item.suffix : undefined} className="metric-stat" />
               </div>
               <span className="metric-icon" aria-hidden="true">
                 <Icon />

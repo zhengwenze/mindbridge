@@ -209,6 +209,54 @@ class RiskCaseResponse(BaseModel):
     updatedAt: datetime
 
 
+class RiskCaseListResponse(BaseModel):
+    items: list[RiskCaseResponse]
+    total: int
+    page: int
+    pageSize: int
+
+
+class AdminOverviewSummaryResponse(BaseModel):
+    totalReports: int
+    periodReports: int
+    todayReports: int
+    periodHighRiskReports: int
+    periodHighRiskRate: float
+
+
+class AdminOverviewRiskDistributionItem(BaseModel):
+    riskLevel: str
+    count: int
+    percentage: float
+
+
+class AdminOverviewTrendPoint(BaseModel):
+    date: str
+    total: int
+    high: int
+    medium: int
+    low: int
+
+
+class AdminOverviewProcessingResponse(BaseModel):
+    excelTotal: int
+    excelSuccess: int
+    excelFailed: int
+    alertTotal: int
+    alertSuccess: int
+    alertFailed: int
+    alertSuccessRate: float
+
+
+class AdminOverviewResponse(BaseModel):
+    periodDays: int
+    generatedAt: datetime
+    summary: AdminOverviewSummaryResponse
+    riskDistribution: list[AdminOverviewRiskDistributionItem]
+    dailyTrend: list[AdminOverviewTrendPoint]
+    processing: AdminOverviewProcessingResponse
+
+
 class CaseNoteResponse(BaseModel):
     id: int
     caseId: int

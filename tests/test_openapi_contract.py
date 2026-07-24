@@ -26,6 +26,22 @@ class OpenApiContractTest(unittest.TestCase):
         operation = self.schema["paths"]["/actuator/health"]["get"]
         self.assertFalse(operation.get("security"))
 
+    def test_admin_overview_and_case_filter_contracts_are_exposed(self):
+        overview = self.schema["paths"]["/api/admin/overview"]["get"]
+        self.assertTrue(overview["security"])
+        self.assertEqual(
+            {"days"},
+            {parameter["name"] for parameter in overview["parameters"]},
+        )
+
+        cases = self.schema["paths"]["/api/admin/cases"]["get"]
+        parameters = {parameter["name"]: parameter for parameter in cases["parameters"]}
+        self.assertEqual(
+            {"risk_level", "status", "page", "page_size"},
+            set(parameters),
+        )
+        self.assertTrue(cases["security"])
+
 
 if __name__ == "__main__":
     unittest.main()

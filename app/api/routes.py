@@ -10,6 +10,7 @@ from app.agents.factory import agent_framework_status
 from app.agents.runtime import AgentRuntimeService
 from app.core.config import Settings, get_settings, set_agent_framework
 from app.core.database import get_db
+from app.core.enums import RiskCaseStatus, RiskLevel
 from app.core.security import (
     current_user,
     hash_password,
@@ -21,11 +22,13 @@ from app.schemas.dtos import (
     AgentRuntimeConfigResponse,
     AgentRuntimeOptionResponse,
     AgentRuntimeUpdateRequest,
+    AdminOverviewResponse,
     AdminUserCreateRequest,
     AdminUserUpdateRequest,
     ChatRequest,
     KnowledgeBaseCreateRequest,
     KnowledgeBaseUpdateRequest,
+    RiskCaseListResponse,
     StudentDocumentPreviewResponse,
     StudentRegisterRequest,
     authority,
@@ -351,6 +354,20 @@ def admin_reports(
 
 
 @router.get(
+    "/api/admin/overview",
+    response_model=AdminOverviewResponse,
+    tags=["Administration"],
+    summary="查询管理端整体数据概览",
+)
+def admin_overview(
+    _: Annotated[UserAccount, Depends(require_admin)],
+    db: Annotated[Session, Depends(get_db)],
+    days: int = Query(default=30, ge=7, le=90),
+):
+    return ReportService(db).admin_overview(days)
+
+
+@router.get(
     "/api/admin/excel-records", tags=["Administration"], summary="查询 Excel 导出记录"
 )
 def admin_excel(
@@ -368,12 +385,26 @@ def admin_alerts(
     return ReportService(db).alert_records()
 
 
-@router.get("/api/admin/cases", tags=["Administration"], summary="查询风险案例")
+@router.get(
+    "/api/admin/cases",
+    response_model=RiskCaseListResponse,
+    tags=["Administration"],
+    summary="查询风险案例",
+)
 def admin_cases(
     _: Annotated[UserAccount, Depends(require_admin)],
     db: Annotated[Session, Depends(get_db)],
+    risk_level: RiskLevel | None = Query(default=None),
+    status: RiskCaseStatus | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
 ):
-    return ReportService(db).risk_cases()
+    return ReportService(db).risk_cases(
+        risk_level=risk_level.value if risk_level is not None else None,
+        status=status.value if status is not None else None,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get(

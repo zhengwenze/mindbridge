@@ -79,10 +79,10 @@ a {
 }
 
 .metric-card-blue::after { background: #2563eb; }
+.metric-card-teal::after { background: #12847f; }
 .metric-card-red::after { background: #dc2626; }
 .metric-card-amber::after { background: #d97706; }
 .metric-card-green::after { background: #16a34a; }
-.metric-card-purple::after { background: #7c3aed; }
 
 .metric-icon {
   display: inline-flex;

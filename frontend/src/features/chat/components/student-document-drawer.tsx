@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { fetchStudentDocument, type StudentDocumentPreview } from "../api/student-session-api";
 import type { ChatSource } from "../types/chat-types";
+import { MarkdownContent } from "./markdown-message";
 
 interface StudentDocumentDrawerProps {
   source: ChatSource | null;
@@ -46,12 +47,19 @@ export function StudentDocumentDrawer({ source, onClose }: StudentDocumentDrawer
           {document.highlight ? (
             <section>
               <Typography.Title level={5}>相关片段</Typography.Title>
-              <div className="rounded-md border border-amber-200 bg-amber-50 p-3 whitespace-pre-wrap leading-7">{document.highlight}</div>
+              <MarkdownContent
+                content={document.highlight}
+                className="break-words rounded-md border border-amber-200 bg-amber-50 p-3 text-slate-800"
+              />
             </section>
           ) : null}
           <section>
             <Typography.Title level={5}>原文</Typography.Title>
-            {document.content ? <div className="whitespace-pre-wrap break-words leading-7 text-slate-800">{document.content}</div> : <Empty description="文档暂无可展示内容" />}
+            {document.content ? (
+              <MarkdownContent content={document.content} className="break-words text-slate-800" />
+            ) : (
+              <Empty description="文档暂无可展示内容" />
+            )}
           </section>
         </div>
       ) : null}

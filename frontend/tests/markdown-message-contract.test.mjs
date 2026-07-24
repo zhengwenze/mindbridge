@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 
-async function source() {
-  return readFile(new URL("../src/features/chat/components/markdown-message.tsx", import.meta.url), "utf8");
+async function source(relativePath = "markdown-message.tsx") {
+  return readFile(new URL(`../src/features/chat/components/${relativePath}`, import.meta.url), "utf8");
 }
 
 test("assistant markdown renderer covers required GFM elements and avoids raw HTML", async () => {
@@ -14,4 +14,11 @@ test("assistant markdown renderer covers required GFM elements and avoids raw HT
   assert.match(content, /remarkPlugins=\{\[remarkGfm\]\}/);
   assert.doesNotMatch(content, /rehypeRaw|rehype-raw|dangerouslySetInnerHTML/);
   assert.match(content, /noopener noreferrer/);
+});
+
+test("student document drawer renders highlights and source documents as markdown", async () => {
+  const content = await source("student-document-drawer.tsx");
+  assert.match(content, /import \{ MarkdownContent \} from "\.\/markdown-message"/);
+  assert.match(content, /<MarkdownContent\s+content=\{document\.highlight\}/);
+  assert.match(content, /<MarkdownContent\s+content=\{document\.content\}/);
 });
